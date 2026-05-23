@@ -374,5 +374,8 @@
 | `app-version-compatibility.md` | UC1 老 app 兼容 playbook |
 | `technical-leadership.md` / `.zh.md` | UC1 技术领导力(移动团队顾虑) |
 | `team-guidance-use-case-2.md` / `.zh.md` | UC2 全部 5 个考察点 |
-| `demo/` | 可现场跑的混合方案原型(hash 分桶 + registry + control/treatment) |
+| `adr/ADR-001-hybrid-sdui.md` | UC1 决策记录(1 页,A/B/C 决策结晶,讲 #2+#3 用) |
+| `adr/RFC-skeleton-fraud-detection.md` | UC2 RFC 骨架 + reviewer 提问(演示"教而不替",讲 #2 用) |
+| `demo/` | 可现场跑的混合方案 POC(hash 分桶 + registry + control/treatment) |
+| `job-description.md` | 招聘 JD + JD↔准备映射 |
 | `handOver.md` | 需向真实 repo 核实的开放项 |
