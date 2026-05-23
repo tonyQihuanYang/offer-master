@@ -71,18 +71,30 @@
 
 ---
 
-## 附：自动录制（Playwright）
+## 附：自动录制（Playwright）✅ 脚本已就绪
 
-如果想要可重复、不手抖的版本，可以用 Playwright 自动跑这套流程并录成视频。
-**这个环境里没有浏览器自动化 MCP，所以需要你在本地跑**（或让我先写好脚本你来执行）。大致：
+可重复、不手抖的版本：`demo/scripts/record-demo.mjs` 会自动跑段落①②的流程并录成视频。
+**在本地跑**（这套环境没有浏览器自动化 MCP）：
 
 ```bash
 cd demo
-npm i -D @playwright/test
+npm i -D playwright
 npx playwright install chromium
-# 运行录制脚本（脚本待生成：demo/scripts/record-demo.mjs）
-node scripts/record-demo.mjs   # 输出 demo/recordings/*.webm
+
+# 确保 dev server 在跑（另开一个终端）：npm run dev
+node scripts/record-demo.mjs              # → demo/recordings/demo.webm
 ```
 
-Playwright 用 `context = browser.newContext({ recordVideo: { dir: 'recordings' } })` 录制，自动执行上面的点击序列。
-需要的话告诉我，我把 `record-demo.mjs` 写出来。
+可调环境变量：
+- `BASE_URL=http://localhost:5174`（Vite 若用了 5174 就改这个）
+- `HEADLESS=true`（不弹窗、后台录）
+- `SLOWMO=350`（每步间隔 ms，调大画面更从容）
+
+输出是 `.webm`；要 mp4：`ffmpeg -i recordings/demo.webm recordings/demo.mp4`。
+
+> 脚本覆盖：CA → treatment 改 earnings model 为 surge → **Save（绿 toast）** →
+> 切 client → `c123` dispatch（control）→ `c999` dispatch（treatment/surge）。
+> 拖拽重排、hints、forward-compat 这几步因为 DOM 交互较脆，留给手动录制（见上面段落）。
+>
+> ⚠️ 脚本会真的 Save 一次配置，跑完 `demo/server/data/configs.json` 的 CA treatment 会变成 surge。
+> 想还原：`git checkout -- demo/server/data/configs.json`。
