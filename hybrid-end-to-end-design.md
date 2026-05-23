@@ -340,6 +340,8 @@ Integration point: `EventPublishingService.serializeOffer()` — branch on app v
 ### Modified Flow (After Changes)
 
 > 改造后的事件流：在同一条事件链上插入 4 个新组件（Experiment Resolver → Earnings Calculator → Layout Composer → Payload Builder），输出按 app 版本分支。**server 决定 what + order，mobile 决定 how。**
+>
+> 端上运行时视角（app 冷启动如何拿 layout、offer 怎么渲染、模板更新怎么传播）见 [`runtime-dataflow.md`](./runtime-dataflow.md)。
 
 ```mermaid
 sequenceDiagram

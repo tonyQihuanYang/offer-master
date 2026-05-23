@@ -370,6 +370,7 @@
 |------|------|
 | `courier-offer-system-architecture.md` | UC1 现状 + 约束 + 延迟预算 |
 | `hybrid-end-to-end-design.md` | UC1 系统设计 + payload 契约 + 迁移 + 指标 |
+| `runtime-dataflow.md` | UC1 端上运行时数据流：冷启动 / offer 投递 / 模板更新(SSE) 的 Mermaid 图 |
 | `approach-evaluation.md` | UC1 A vs B vs C 技术决策 + 行业佐证 |
 | `app-version-compatibility.md` | UC1 老 app 兼容 playbook |
 | `technical-leadership.md` / `.zh.md` | UC1 技术领导力(移动团队顾虑) |
