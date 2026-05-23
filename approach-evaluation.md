@@ -334,6 +334,80 @@ ServerDrivenStoreScreen
 
 ## Q&A
 
+### What is the actual difference between Approach B and Hybrid (C)?
+
+This is the **most likely follow-up**, because the prompt only offers A and B —
+so an interviewer will probe whether you actually understand how C differs from
+B (they look nearly identical: both send raw data, both render natively).
+
+**The one structural difference: who decides the *layout* — which components
+appear, in what order, shown/hidden.**
+
+| | Approach B (raw + mobile) | Hybrid (C) |
+|---|---|---|
+| Sends raw data | Yes | Yes |
+| Native rendering | Yes | Yes |
+| **Decides which components + order + visibility** | **Mobile** (interprets feature flags and composes the screen itself) | **Server** (sends a `layout[]` descriptor in the payload) |
+| Where A/B logic lives | Split: backend flags + mobile interpretation | Server (Experiment Resolver + Layout Composer); mobile just renders |
+
+> **One-liner:** In B, "which components and in what order" is *application
+> logic on mobile*. In C, it is *data from the server*.
+
+#### Concrete payload contrast
+
+**B — mobile composes the layout from flags:**
+```json
+{
+  "data": { "base_pay": 450, "tip": 80, "surge": 120, "distance_km": 3.2 },
+  "experiment_id": "earnings_v2",
+  "flags": { "show_surge": true, "earnings_style": "breakdown" }
+}
+```
+Mobile contains the composition logic: *"if `earnings_style == breakdown`, place
+EarningsBreakdown first, then check `show_surge` to decide on SurgeIndicator…"* —
+that branching lives in the app.
+
+**C — server sends the composed layout:**
+```json
+{
+  "experiment": { "earnings_display": { "variant": "breakdown_v2", "group": "treatment" } },
+  "layout": { "components": ["earnings_breakdown", "surge_indicator", "distance_summary", "accept_cta"] },
+  "data": { "earnings_breakdown": { /* ... */ }, "surge_indicator": { /* ... */ } }
+}
+```
+Mobile is one loop: `for component in layout.components → registry[component].render(data)`.
+No "what to show" branching in the app at all.
+
+#### Consequences
+
+| Scenario | B | C |
+|---|---|---|
+| New layout experiment (reorder, show/hide, swap an existing component) | Only variants **pre-shipped behind a flag** are testable; a genuinely new arrangement = **app release** | Server config change, **no app release** (as long as the components already exist) |
+| New component *type* | App release | App release (**same** — this is why B and C get conflated) |
+| Mobile complexity | Higher — composition + flag interpretation + rendering | Bounded — rendering only |
+| iOS/Android consistency | Each platform writes its own composition logic → drift risk | Order comes from one server-side `layout[]` → consistent by construction |
+
+> **Precise framing (a Staff signal):** don't say "B always needs an app
+> release." Say: *B can only test variants it already shipped behind flags; any
+> new arrangement needs a release. C can rearrange any existing components purely
+> from server config.*
+
+#### The cleanest summary
+
+> *"C is essentially B + a server-controlled layout descriptor, with experiment
+> assignment moved from mobile up to the server. B gives mobile both the
+> **presentation** and the **composition** layer; C splits them — server owns
+> **composition** (what + order), mobile owns **presentation** (how). That split
+> is exactly what buys experimentation without app releases while keeping native
+> UX."*
+
+The runnable `demo/` is Approach C: the server sends `layout.components[]` and
+the client's `OfferRenderer` just iterates and renders. To be Approach B, the
+server would send raw data + flags and the "which components to show" logic would
+move into the client.
+
+---
+
 ### What is the actual difference between Approach A and Hybrid?
 
 The one real difference: **where does presentation logic live?**
