@@ -118,15 +118,19 @@ Edits drive a debounced `POST /api/offer/:tenant/preview` call so the previews
 update *before* you save. The Client page only sees changes after **Save
 config**, which is the production behaviour you want.
 
-### Client page (`/client`)
+### Client page (`/client`) — event-driven
+
+The client opens an **SSE stream** and waits for offers to be **pushed**.
 
 | Control | What it does |
 |---|---|
-| **Tenant selector** | Pick CH / UK / CA — fetches a different sample offer + tenant-specific config |
-| **Courier ID input** | Changes the input to the deterministic hash. Try `c123` vs `c999` to see different bucket assignments. |
-| **Variant toggle** | `auto` (use the hash), `control` (force), `treatment` (force). The forced modes pass `forceVariant` and the response is tagged `source: "override"` |
-| **Fetch offer** | Manual refetch (also auto-refetches on any control change) |
-| **Phone frame** | The actual rendered offer, looking like the real courier app |
+| **Connection dot** | Live SSE status: connecting / connected / reconnecting, with the courier the stream is bound to |
+| **Tenant selector** | Pick CH / UK / CA — chosen when you dispatch (different sample offer + tenant config) |
+| **Courier ID input** | The deterministic-hash input; **changing it re-opens the stream**. Try `c123` vs `c999` for different bucket assignments. |
+| **Variant toggle** | `auto` (use the hash), `control` / `treatment` (force via `forceVariant`, tagged `source: "override"`) |
+| **⚡ Dispatch offer** | Simulates a `JobSummaryUpdated` event → backend assembles → **pushes** down the stream (disabled until the stream is connected) |
+| **Event log** | Timestamped list of pushed offers (tenant · variant · source) |
+| **Phone frame** | Shows "Waiting for an offer…" until an event arrives, then renders the pushed offer |
 | **Payload inspector** | Highlights `experiment.assignments` at the top, then full JSON below |
 
 ### Component registry & the `v2` pattern
@@ -163,7 +167,7 @@ To add another v2 (e.g., `accept_cta_v2` for swipe-to-accept):
 3. Add its name to `ALL_COMPONENTS` in `ComponentList.jsx` so admins can
    select it.
 4. If the component needs a data block that wasn't already on the wire,
-   add a `has('your_component')` check in `server/routes/offer.js` `buildData()`.
+   add a `has('your_component')` check in `server/lib/assemble.js` `buildData()`.
 
 ---
 
@@ -177,11 +181,13 @@ To add another v2 (e.g., `accept_cta_v2` for swipe-to-accept):
 3. Slide `treatment_pct` to 50. The slider's caption now reads
    "50% see treatment · 50% see control".
 4. Click **Save config**.
-5. On Client, courier `c123`, variant `auto`. Inspector shows
-   `bucket: 95` → control. Switch courier to `c999` → `bucket: 2` → treatment.
-   Try the variant override to flip and confirm `source: "override"`.
-6. Back to Admin. Slide `treatment_pct` down to 0, save. On Client, even
-   `c999` now shows control (the rollout was killed). This is the
+5. On Client, courier `c123`, variant `auto`. Wait for the connection dot to
+   turn green, then hit **⚡ Dispatch offer** — the offer is *pushed* down the
+   SSE stream and the phone redraws. Inspector shows `bucket: 95` → control.
+   Switch courier to `c999` (stream re-opens) → dispatch → `bucket: 2` →
+   treatment. Try the variant override to flip and confirm `source: "override"`.
+6. Back to Admin. Slide `treatment_pct` down to 0, save. On Client, dispatch
+   again — even `c999` now shows control (the rollout was killed). This is the
    "instant rollback" property.
 
 ---
@@ -191,29 +197,72 @@ To add another v2 (e.g., `accept_cta_v2` for swipe-to-accept):
 ```
 ┌─────────────────────────────────┐         ┌─────────────────────────────────┐
 │  Admin Page (React)             │         │  Client Page (React)            │
-│  - Edit control variant         │  HTTP   │  - Pick courierId + variant     │
-│  - Edit treatment variant       │────────▶│  - Fetch offer                  │
-│  - Live phone previews          │         │  - Phone frame                  │
-│  - Save config                  │         │  - Payload inspector            │
+│  - Edit control variant         │         │  - Opens SSE stream (EventSource)│
+│  - Edit treatment variant       │         │  - ⚡ Dispatch offer (event)     │
+│  - Live phone previews          │         │  - Phone frame (offer pushed in)│
+│  - Save config                  │         │  - Event log + payload inspector│
 └─────────────────────────────────┘         └─────────────────────────────────┘
-              │                                          │
-              │ PUT /api/config/:tenant                  │ GET /api/offer/:tenant
-              │ POST /api/offer/:tenant/preview          │     ?courierId=&forceVariant=
-              ▼                                          ▼
+       │                                       │  ▲ SSE: event: offer (push)
+       │ PUT /api/config/:tenant               │  │
+       │ POST /api/offer/:tenant/preview       │  │ GET /api/stream?courierId=
+       │                          POST /api/dispatch  │
+       ▼                                       ▼  │
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │  Express server (simulates the real Java services)                           │
 │                                                                              │
 │  /api/courier-pay/:deliveryId    → mock Courier Pay Service                  │
 │  /api/courier-bonus/:courierId   → mock Courier Bonus Service                │
 │  /api/experiment/:courierId      → deterministic-hash Experiment Resolver    │
-│  /api/offer/:tenant              → assembles modular payload                 │
+│  /api/offer/:tenant              → assembles modular payload (pull path)     │
 │  /api/offer/:tenant/preview      → assembles for an unsaved variant          │
+│  /api/dispatch                   → event producer: assemble + publish to bus │
+│  /api/stream                     → SSE: pushes offer events to a courier     │
 │  /api/config/:tenant (GET, PUT)  → load/save layout configs                  │
 │  /api/tenants                    → list tenants                              │
 │                                                                              │
+│  lib/assemble.js (shared build)  ·  lib/eventBus.js (in-memory pub/sub)      │
 │  Storage: server/data/configs.json + sample-offers.json                      │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
+
+### Event-driven path (SSE) — the courier app gets offers *pushed*
+
+The client page does **not** poll. It opens a long-lived **Server-Sent Events**
+stream and renders offers as they are pushed — the demo's stand-in for the real
+AppSync WebSocket. "Dispatch offer" simulates a `JobSummaryUpdated` event
+arriving at the backend.
+
+```mermaid
+sequenceDiagram
+    participant P as Producer (POST /api/dispatch)
+    participant S as Express server
+    participant B as eventBus (in-memory)
+    participant C as Courier app (EventSource)
+
+    C->>S: GET /api/stream?courierId=c123 (open SSE)
+    S->>B: subscribe(c123)
+    S-->>C: event: connected
+    Note over P: simulates JobSummaryUpdated
+    P->>S: POST /api/dispatch {tenant, courierId, forceVariant?}
+    S->>S: buildOffer() — resolve variant + assemble payload
+    S->>B: publish(c123, "offer", payload)
+    B-->>C: event: offer  (pushed, not pulled)
+    C->>C: render via component registry
+```
+
+**Why SSE, not WebSocket?** Offer delivery only needs **server → client**. The
+courier's accept/decline goes back over a normal `POST` (a separate channel),
+so WebSocket's bidirectional complexity isn't needed. SSE is plain HTTP, has
+built-in auto-reconnect, and is far simpler to operate. (The real JET system
+uses AppSync/WebSocket — in the interview, present SSE as a lighter alternative
+*if starting from scratch and only one-directional push is required*, while
+acknowledging the existing AppSync investment.)
+
+Producer and consumer are **fully decoupled**: `POST /api/dispatch` publishes to
+the bus and reports how many open streams received it (`delivered`) — it neither
+knows nor cares who is listening. The pull endpoint (`GET /api/offer`) still
+exists and reuses the **exact same** `buildOffer()` assembly, so transport never
+changes the payload.
 
 ### How it maps to the real production system
 
@@ -223,9 +272,11 @@ To add another v2 (e.g., `accept_cta_v2` for swipe-to-accept):
 | Courier Bonus Service | `/api/courier-bonus` (mock data, also serves acceptance rate) |
 | Courier profile / acceptance-rate source | Folded into bonus mock for simplicity |
 | Experiment Resolver / feature flag service | `/api/experiment` (deterministic hash, override-able) |
-| `delco_orchestrator` (Temporal) | Implicit — `/api/offer` calls pay+bonus internally |
-| `courier_offer_service` | `/api/offer/:tenant` (composition + layout assembly) |
-| `courier_mobile_async_service` + AppSync | Client page polls `/api/offer/:tenant` |
+| `delco_orchestrator` (Temporal) | Implicit — `buildOffer()` calls pay+bonus internally |
+| `courier_offer_service` | `/api/offer` + `/api/dispatch` (composition + layout assembly) |
+| SQS event (`JobSummaryUpdated`) | `POST /api/dispatch` (the event producer) |
+| SQS → `courier_mobile_async_service` → AppSync (WebSocket push) | `eventBus` → `/api/stream` (SSE push) |
+| Courier app WebSocket subscription | Client opens an `EventSource` on `/api/stream` |
 | Layout / experiment config | `/api/config/:tenant` |
 
 ---
@@ -241,8 +292,10 @@ To add another v2 (e.g., `accept_cta_v2` for swipe-to-accept):
 | `GET` | `/api/courier-bonus/:courierId` | Mock bonus + acceptance rate |
 | `GET` | `/api/experiment/:courierId?experimentId=&treatmentPct=&forceVariant=` | Resolve a single experiment |
 | `GET` | `/api/experiment/:courierId?tenant=&forceVariant=` | Resolve using saved tenant config |
-| `GET` | `/api/offer/:tenant?courierId=&forceVariant=` | Assembled offer payload for the resolved variant |
+| `GET` | `/api/offer/:tenant?courierId=&forceVariant=` | Assembled offer payload for the resolved variant (pull path) |
 | `POST` | `/api/offer/:tenant/preview` | Assemble for an unsaved variant (admin previews) |
+| `GET` | `/api/stream?courierId=` | **SSE** stream — server pushes `offer` events to this courier |
+| `POST` | `/api/dispatch` body `{tenant,courierId,forceVariant?}` | **Event producer** — assemble + push an offer to open streams; returns `{delivered, subscribers}` |
 
 Sample offer payload returned by `/api/offer/:tenant`:
 

@@ -1,15 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import OfferRenderer from '../components/offer/OfferRenderer.jsx';
 import '../styles/offer.css';
 
+// Event-driven client. Instead of polling for an offer, the courier's "app"
+// opens a long-lived SSE stream (the demo's stand-in for the AppSync WebSocket)
+// and renders offers as they are *pushed*. The "Dispatch offer" button
+// simulates a JobSummaryUpdated event hitting the backend, which assembles the
+// payload and pushes it down the stream.
 export default function ClientPage() {
   const [tenants, setTenants] = useState([]);
   const [tenant, setTenant] = useState('CA');
   const [courierId, setCourierId] = useState('c123');
   const [variantOverride, setVariantOverride] = useState('auto'); // auto | control | treatment
   const [payload, setPayload] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState('connecting'); // connecting | connected | reconnecting
+  const [log, setLog] = useState([]);
   const [error, setError] = useState(null);
+  const esRef = useRef(null);
 
   useEffect(() => {
     fetch('/api/tenants')
@@ -18,32 +25,54 @@ export default function ClientPage() {
       .catch(() => setTenants(['CH', 'UK', 'CA']));
   }, []);
 
-  async function fetchOffer() {
-    setLoading(true);
+  // Open (and re-open on courierId change) the SSE stream for this courier.
+  useEffect(() => {
+    setStatus('connecting');
+    setPayload(null);
+    const es = new EventSource(`/api/stream?courierId=${encodeURIComponent(courierId)}`);
+    esRef.current = es;
+
+    es.addEventListener('connected', () => setStatus('connected'));
+    es.addEventListener('offer', (e) => {
+      const data = JSON.parse(e.data);
+      setPayload(data);
+      const a = data.experiment?.assignments ? Object.values(data.experiment.assignments)[0] : null;
+      setLog((l) =>
+        [{ at: Date.now(), tenant: data.tenant, variant: a?.variant, source: a?.source }, ...l].slice(0, 12),
+      );
+    });
+    es.onopen = () => setStatus('connected');
+    es.onerror = () => setStatus('reconnecting');
+
+    return () => es.close();
+  }, [courierId]);
+
+  async function dispatch() {
     setError(null);
     try {
-      const params = new URLSearchParams({ courierId });
-      if (variantOverride !== 'auto') params.set('forceVariant', variantOverride);
-      const r = await fetch(`/api/offer/${tenant}?${params}`);
+      const body = { tenant, courierId };
+      if (variantOverride !== 'auto') body.forceVariant = variantOverride;
+      const r = await fetch('/api/dispatch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const data = await r.json();
-      setPayload(data);
+      const d = await r.json();
+      if (!d.delivered) {
+        setError('Dispatched, but no open stream received it — is the connection live?');
+      }
     } catch (e) {
       setError(String(e));
-    } finally {
-      setLoading(false);
     }
   }
-
-  // Auto-fetch on parameter change
-  useEffect(() => {
-    fetchOffer();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tenant, courierId, variantOverride]);
 
   const assignment = payload?.experiment?.assignments
     ? Object.entries(payload.experiment.assignments)[0]
     : null;
+
+  const statusColor =
+    status === 'connected' ? 'var(--ok, #16a34a)' : status === 'connecting' ? '#d97706' : 'var(--danger)';
 
   return (
     <div className="page">
@@ -51,6 +80,13 @@ export default function ClientPage() {
         <div className="panel">
           <h2>Controls</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ width: 9, height: 9, borderRadius: '50%', background: statusColor, display: 'inline-block' }} />
+              <span className="muted" style={{ fontSize: 12 }}>
+                SSE stream: <strong style={{ color: statusColor }}>{status}</strong> · courier <code>{courierId}</code>
+              </span>
+            </div>
+
             <div>
               <label>Tenant</label>
               <div>
@@ -72,7 +108,7 @@ export default function ClientPage() {
                 />
               </div>
               <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>
-                Same courier always resolves to the same variant (sticky hash).
+                Changing this re-opens the stream. Same courier always resolves to the same variant (sticky hash).
               </div>
             </div>
             <div>
@@ -89,22 +125,48 @@ export default function ClientPage() {
                 ))}
               </div>
               <div className="muted" style={{ fontSize: 11 }}>
-                <code>auto</code> uses the deterministic hash; the others force a preview.
+                <code>auto</code> uses the deterministic hash; the others force a variant.
               </div>
             </div>
             <div>
-              <button className="primary" onClick={fetchOffer} disabled={loading}>
-                {loading ? 'Fetching…' : 'Fetch offer'}
+              <button className="primary" onClick={dispatch} disabled={status !== 'connected'}>
+                ⚡ Dispatch offer (simulate event)
               </button>
+              <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>
+                Simulates a <code>JobSummaryUpdated</code> event → backend assembles → pushes down the stream.
+              </div>
             </div>
             {error && <div style={{ color: 'var(--danger)' }}>{error}</div>}
+
+            <div style={{ marginTop: 6 }}>
+              <label>Event log</label>
+              <div className="event-log">
+                {log.length === 0 && <div className="muted" style={{ fontSize: 11 }}>No events yet — hit Dispatch.</div>}
+                {log.map((e, i) => (
+                  <div key={i} className="event-row">
+                    <span className="muted">{new Date(e.at).toLocaleTimeString()}</span>
+                    <span>{e.tenant}</span>
+                    <span className={`tag ${e.variant}`}>{e.variant}</span>
+                    <span className="muted">{e.source}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         <div>
           <div className="phone-frame">
             <div className="phone-screen">
-              <OfferRenderer payload={payload} />
+              {payload ? (
+                <OfferRenderer payload={payload} />
+              ) : (
+                <div className="waiting">
+                  <div className="waiting-pulse" />
+                  <div className="muted">Waiting for an offer…</div>
+                  <div className="muted" style={{ fontSize: 11 }}>Press “Dispatch offer”.</div>
+                </div>
+              )}
             </div>
           </div>
         </div>

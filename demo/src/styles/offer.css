@@ -383,3 +383,50 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
 }
+
+/* ---- Event-driven client UI ---- */
+
+.event-log {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.event-row {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.waiting {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.waiting-pulse {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--orange);
+  opacity: 0.7;
+  animation: waiting-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes waiting-pulse {
+  0% { transform: scale(0.85); opacity: 0.35; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+  100% { transform: scale(0.85); opacity: 0.35; }
+}

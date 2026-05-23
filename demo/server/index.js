@@ -4,6 +4,8 @@ import { courierBonusRouter } from './routes/courier-bonus.js';
 import { experimentRouter } from './routes/experiment.js';
 import { offerRouter } from './routes/offer.js';
 import { configRouter } from './routes/config.js';
+import { streamRouter } from './routes/stream.js';
+import { dispatchRouter } from './routes/dispatch.js';
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -14,6 +16,8 @@ app.use('/api/courier-pay', courierPayRouter);
 app.use('/api/courier-bonus', courierBonusRouter);
 app.use('/api/experiment', experimentRouter);
 app.use('/api/offer', offerRouter);
+app.use('/api/stream', streamRouter); // SSE: server → courier push channel
+app.use('/api/dispatch', dispatchRouter); // producer: simulate JobSummaryUpdated event
 app.use('/api', configRouter); // /api/config/:tenant and /api/tenants
 
 app.use((err, _req, res, _next) => {
