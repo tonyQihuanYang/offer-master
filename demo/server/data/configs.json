@@ -1,0 +1,111 @@
+{
+  "CH": {
+    "experiment_id": "earnings_display_ch",
+    "treatment_pct": 0,
+    "variants": {
+      "control": {
+        "layout": [
+          "route_map",
+          "earnings_total",
+          "distance_summary",
+          "stop_details",
+          "navigation_cta",
+          "accept_cta"
+        ],
+        "hints": {},
+        "earnings_model": "flat_rate",
+        "distance_unit": "km"
+      },
+      "treatment": {
+        "layout": [
+          "route_map",
+          "earnings_breakdown",
+          "distance_summary",
+          "stop_details",
+          "navigation_cta",
+          "accept_cta"
+        ],
+        "hints": {
+          "highlight": "earnings"
+        },
+        "earnings_model": "flat_rate",
+        "distance_unit": "km"
+      }
+    }
+  },
+  "UK": {
+    "experiment_id": "tip_prediction_uk",
+    "treatment_pct": 50,
+    "variants": {
+      "control": {
+        "layout": [
+          "route_map",
+          "earnings_breakdown",
+          "distance_summary",
+          "stop_details",
+          "navigation_cta",
+          "accept_cta"
+        ],
+        "hints": {},
+        "earnings_model": "distance_based",
+        "distance_unit": "miles"
+      },
+      "treatment": {
+        "layout": [
+          "route_map",
+          "earnings_breakdown",
+          "tip_prediction",
+          "distance_summary",
+          "stop_details",
+          "navigation_cta",
+          "accept_cta"
+        ],
+        "hints": {
+          "highlight": "tip"
+        },
+        "earnings_model": "distance_based",
+        "distance_unit": "miles"
+      }
+    }
+  },
+  "CA": {
+    "experiment_id": "surge_indicator_ca",
+    "treatment_pct": 25,
+    "variants": {
+      "control": {
+        "layout": [
+          "route_map",
+          "earnings_total",
+          "distance_summary",
+          "stop_details",
+          "navigation_cta",
+          "customer_note",
+          "acceptance_rate",
+          "accept_cta"
+        ],
+        "hints": {},
+        "earnings_model": "flat_rate",
+        "distance_unit": "km"
+      },
+      "treatment": {
+        "layout": [
+          "route_map",
+          "earnings_breakdown",
+          "surge_indicator",
+          "distance_summary",
+          "stop_details",
+          "navigation_cta",
+          "customer_note",
+          "acceptance_rate",
+          "accept_cta"
+        ],
+        "hints": {
+          "highlight": "surge",
+          "theme": "urgent"
+        },
+        "earnings_model": "surge",
+        "distance_unit": "km"
+      }
+    }
+  }
+}

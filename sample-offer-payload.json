@@ -1,0 +1,170 @@
+{
+  "jobs": {
+    "ongoingJob": [],
+    "jobOffers": [
+      {
+        "courierId": "0193c1da-6bd8-1a28-f428-b2fb6bbf9d76",
+        "jobType": "COLLECT",
+        "deliveryId": "2f9a2aa6-429e-4b54-bbdd-384673b00f63",
+        "orderNumber": 173847,
+        "orderId": "b165e54f-649f-40c6-88ed-6abe331ce3aa",
+        "status": "ACCEPTED",
+        "requestTime": 1777667601460,
+        "alcoholDelivery": false,
+        "time": 1777668201601,
+        "amount": 0,
+        "paymentType": "PAID",
+        "destination": {
+          "name": "Swi001 (Swi001)",
+          "address1": "Bonstettenstrasse 2, 3012 Bern, Switzerland",
+          "city": "Bern",
+          "province": "CH_BE",
+          "specialInstructions": "Instructions by DataTest",
+          "phone": "(204) 123 4567",
+          "postalCode": "3012",
+          "useLatLongAddress": true,
+          "latitude": 46.95794959484725,
+          "longitude": 7.436884144528451
+        },
+        "restaurantName": "Swi001 (Swi001)",
+        "fees": {
+          "tip": 250,
+          "deliveryFee": null,
+          "subsidy": null,
+          "driveScoreSubsidy": 0,
+          "reimbursements": 0,
+          "jobPay": 0,
+          "distanceExpensesAlowance": null
+        },
+        "distance": 2590,
+        "tenant": "CH",
+        "groceryDelivery": false,
+        "offerType": "STANDARD",
+        "courierPayParameters": {
+          "deliveryZones": [
+            {
+              "zoneId": "78080b31-d5d9-44bf-951d-c285ac9a7e30",
+              "deliveryZoneIdType": "DELIVERY_DELIVERY_ZONE"
+            },
+            {
+              "zoneId": "78080b31-d5d9-44bf-951d-c285ac9a7e30",
+              "deliveryZoneIdType": "COLLECT_DELIVERY_ZONE"
+            }
+          ],
+          "deliveryEstimates": {
+            "estimatedCollectTime": 10,
+            "estimatedCollectDistance": 2590,
+            "estimatedDeliverTime": 14,
+            "estimatedDeliverDistance": 3766
+          },
+          "vehicle": "CAR",
+          "pooledDeliveryIds": [],
+          "poolingStateFromDeliveryPartials": [],
+          "poolingState": "STANDARD",
+          "offerType": "STANDARD",
+          "orderId": "b165e54f-649f-40c6-88ed-6abe331ce3aa",
+          "jobViewedTime": 1777667601000
+        },
+        "isShopAndPay": false,
+        "proofOfDelivery": null,
+        "isReturnable": false,
+        "returnType": null,
+        "clientType": "DAAS"
+      },
+      {
+        "courierId": "0193c1da-6bd8-1a28-f428-b2fb6bbf9d76",
+        "jobType": "DELIVER",
+        "deliveryId": "2f9a2aa6-429e-4b54-bbdd-384673b00f63",
+        "orderNumber": 173847,
+        "orderId": "b165e54f-649f-40c6-88ed-6abe331ce3aa",
+        "status": "ACCEPTED",
+        "requestTime": 1777667601460,
+        "alcoholDelivery": false,
+        "time": 1777669341601,
+        "amount": 0,
+        "paymentType": "PAID",
+        "destination": {
+          "name": "DataTest",
+          "address1": "Schauplatzgasse 10, 3011 Bern, Switzerland",
+          "city": "Bern",
+          "province": "CH_BE",
+          "specialInstructions": "Hello!",
+          "phone": "(946) 053-4095",
+          "postalCode": "3011",
+          "useLatLongAddress": false,
+          "latitude": 46.9474628,
+          "longitude": 7.442580299999999
+        },
+        "restaurantName": "Swi001 (Swi001)",
+        "fees": {
+          "tip": 250,
+          "deliveryFee": null,
+          "subsidy": null,
+          "driveScoreSubsidy": 0,
+          "reimbursements": 0,
+          "jobPay": 0,
+          "distanceExpensesAlowance": null
+        },
+        "distance": 3766,
+        "tenant": "CH",
+        "groceryDelivery": false,
+        "offerType": "STANDARD",
+        "courierPayParameters": {
+          "deliveryZones": [
+            {
+              "zoneId": "78080b31-d5d9-44bf-951d-c285ac9a7e30",
+              "deliveryZoneIdType": "DELIVERY_DELIVERY_ZONE"
+            },
+            {
+              "zoneId": "78080b31-d5d9-44bf-951d-c285ac9a7e30",
+              "deliveryZoneIdType": "COLLECT_DELIVERY_ZONE"
+            }
+          ],
+          "deliveryEstimates": {
+            "estimatedCollectTime": 10,
+            "estimatedCollectDistance": 2590,
+            "estimatedDeliverTime": 14,
+            "estimatedDeliverDistance": 3766
+          },
+          "vehicle": "CAR",
+          "pooledDeliveryIds": [],
+          "poolingStateFromDeliveryPartials": [],
+          "poolingState": "STANDARD",
+          "offerType": "STANDARD",
+          "orderId": "b165e54f-649f-40c6-88ed-6abe331ce3aa",
+          "jobViewedTime": 1777667601000
+        },
+        "isShopAndPay": false,
+        "proofOfDelivery": null,
+        "isReturnable": false,
+        "returnType": null,
+        "clientType": "DAAS"
+      }
+    ],
+    "queuedJob": []
+  },
+  "remainingJobs": 0,
+  "shift": {
+    "shiftStart": 1777667597000,
+    "shiftEnd": 1777671000000,
+    "vehicle": "CAR",
+    "scheduledShiftId": "8dd1a88e-da7d-447f-889a-327157c1d209",
+    "deliveryZoneId": "78080b31-d5d9-44bf-951d-c285ac9a7e30",
+    "shiftType": "REGULAR"
+  },
+  "orderAcceptanceTimes": {
+    "currentSystemTimestamp": 1777667601871,
+    "viewedTimestamp": 1777667601814,
+    "expirationTimestamp": 1777667661814
+  },
+  "courierId": "0193c1da-6bd8-1a28-f428-b2fb6bbf9d76",
+  "jobListTimestamp": 1777667601460,
+  "isAsyncCommunicationEnabled": true,
+  "isNewOfferFlowEnabled": true,
+  "modifiedUser": {
+    "id": "System",
+    "name": "System",
+    "type": "SYSTEM",
+    "time": 1777667601829
+  }
+}

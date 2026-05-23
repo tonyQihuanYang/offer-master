@@ -1,0 +1,41 @@
+{
+  "CH": {
+    "offer_id": "ch-demo-1",
+    "delivery_id": "2f9a2aa6-ch-demo",
+    "currency": "CHF",
+    "currency_symbol": "CHF ",
+    "stops": [
+      { "type": "COLLECT", "name": "Swi001 (Swi001)", "address": "Bonstettenstrasse 2, 3012 Bern", "lat": 46.9579, "lng": 7.4369, "arrive_at": "2:12 PM" },
+      { "type": "DELIVER", "name": "DataTest", "address": "Schauplatzgasse 10, 3011 Bern", "lat": 46.9475, "lng": 7.4426, "arrive_at": "2:16 PM" }
+    ],
+    "distance_km": 6.4,
+    "distance_miles": 4.0,
+    "customer_note": "Hello!"
+  },
+  "UK": {
+    "offer_id": "uk-demo-1",
+    "delivery_id": "2f9a2aa6-uk-demo",
+    "currency": "GBP",
+    "currency_symbol": "£",
+    "stops": [
+      { "type": "COLLECT", "name": "London Pizza", "address": "12 Camden High St, London", "lat": 51.5390, "lng": -0.1426, "arrive_at": "6:42 PM" },
+      { "type": "DELIVER", "name": "DataTest UK", "address": "55 Eversholt St, London", "lat": 51.5302, "lng": -0.1314, "arrive_at": "6:55 PM" }
+    ],
+    "distance_km": 7.7,
+    "distance_miles": 4.8,
+    "customer_note": "Leave at door, please."
+  },
+  "CA": {
+    "offer_id": "ca-demo-1",
+    "delivery_id": "2f9a2aa6-ca-demo",
+    "currency": "CAD",
+    "currency_symbol": "$",
+    "stops": [
+      { "type": "COLLECT", "name": "Calgary The First", "address": "11200 37 Street SW, Edmonton", "lat": 51.0962, "lng": -114.1389, "arrive_at": "2:12 PM" },
+      { "type": "DELIVER", "name": "DataTest", "address": "2631 17 Ave SW, Calgary", "lat": 51.0395, "lng": -114.1010, "arrive_at": "2:16 PM" }
+    ],
+    "distance_km": 7.7,
+    "distance_miles": 4.8,
+    "customer_note": "Hello!"
+  }
+}
