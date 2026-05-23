@@ -384,6 +384,51 @@
   font-size: 11px;
 }
 
+/* ---- Toast (admin save confirmation) ---- */
+
+.toast {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: toast-in 200ms ease-out;
+}
+
+.toast-success {
+  background: #16a34a;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.toast-error {
+  background: var(--danger, #dc2626);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.toast-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 12px;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
 /* ---- Event-driven client UI ---- */
 
 .event-log {

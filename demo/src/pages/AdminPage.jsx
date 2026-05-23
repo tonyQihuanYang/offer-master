@@ -15,6 +15,7 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
   const [error, setError] = useState(null);
+  const [toast, setToast] = useState(null); // { type: 'success' | 'error', text }
 
   useEffect(() => {
     fetch('/api/tenants')
@@ -31,6 +32,13 @@ export default function AdminPage() {
       .then(setConfig)
       .catch((e) => setError(String(e)));
   }, [tenant]);
+
+  // Auto-dismiss the toast after a few seconds.
+  useEffect(() => {
+    if (!toast) return undefined;
+    const t = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   const variant = config?.variants?.[activeTab];
 
@@ -52,8 +60,10 @@ export default function AdminPage() {
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       setSavedAt(new Date());
+      setToast({ type: 'success', text: `Config saved for ${tenant}` });
     } catch (e) {
       setError(String(e));
+      setToast({ type: 'error', text: `Save failed: ${String(e)}` });
     } finally {
       setSaving(false);
     }
@@ -61,6 +71,12 @@ export default function AdminPage() {
 
   return (
     <div className="page">
+      {toast && (
+        <div className={`toast toast-${toast.type}`} role="status" aria-live="polite">
+          <span className="toast-icon">{toast.type === 'success' ? '✓' : '⚠'}</span>
+          <span>{toast.text}</span>
+        </div>
+      )}
       <div className="admin-grid">
         <div className="panel">
           <h2>Tenant</h2>
