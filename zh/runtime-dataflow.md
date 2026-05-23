@@ -166,6 +166,57 @@ sequenceDiagram
 
 ---
 
+## ③.5 深挖：「每个 offer 都带 layout」的成本与缓存权衡
+
+> 这是最可能的现场追问：*"每个 offer 都带 layout 不会增加成本吗？能不能用 layout-version 让前端复用？"* —— 下面是完整推演。
+
+### 先把"成本"拆成两种，别混着看
+
+| 成本 | 真实情况 |
+|------|---------|
+| **计算成本**（每个 offer 重新算 layout） | 几乎为零，且可彻底消除 |
+| **带宽/payload 成本**（每个 offer 重复带 layout） | 真实存在，但这个量级是零头 |
+
+**计算成本 ≈ 0 —— 因为 layout 不依赖单个 courier。**
+layout 只取决于 `(variant, zone, tier)`，不取决于某个 courier 的数据。"CA + treatment" 的 layout 对所有 CA-treatment courier 是同一份 → 服务端按 `(variant, zone, tier)` **memoize**，算一次、所有 offer 复用 → **per-offer 计算成本 ≈ 0**。Layout Composer 本就是内存查表（~2ms，已在延迟预算内），不调外部服务。
+
+**带宽成本 —— 量化就知道不疼：**
+- `layout[]` ≈ 8 个组件名 ≈ ~150 字节；`data` 块有好几 KB → layout 是零头。
+- 每 courier ~30–100 offer/天 × 150B ≈ ~15KB/天/courier。
+- 5 万 courier ≈ ~750MB/天 layout 总字节 → 对后端微不足道。
+
+> 所以默认就**内嵌**（Model A）：计算可 memoize 到≈0，带宽是零头。
+
+### layout-version + reuse = Model B，方向对，但有命门
+
+offer 只带 `layout_version`、前端按版本号查本地缓存复用——这是标准的**按版本引用 + 端上缓存**（类似 HTTP ETag / 内容寻址）。但它的命门是 **cache miss**：
+
+⚠️ 若 offer 引用了**前端没有的 `layout_version`**（server 刚滚新 layout 前端没拉到 / 全新安装 / 错过推送）→ 前端查不到 → **整屏渲染不出来 → BREAK**。
+
+🔴 **严重性升级**：
+- "未知**组件**静默跳过" = **局部**失败（少画一个，其余照常）。
+- "未知 **layout_version**" = **整屏**失败（整个 offer 不知道画什么）。
+- **Model B 把"局部可降级"的故障，升级成了"整屏故障"——这是它最大的代价。**
+
+### 真要上 Model B，怎么不 break（4 个机制，缺一不可）
+
+| # | 机制 | 作用 |
+|---|------|------|
+| ① | **layout 不可变 + 版本化**（version = 内容 hash） | 同名永远同内容，杜绝"版本号一样内容不一样" |
+| ② | **push-before-use（先推后用）** | server 在引用新 version 前，先 SSE 推 `config_updated` 让前端预取；只引用前端"已持有"的版本 |
+| ③ | **fetch-on-miss（兜底拉取）** | cache 没有就同步 `GET /templates/{version}` 再渲染 |
+| ④ | 🔴 **内置默认 layout（最关键，fail-soft）** | 前端二进制永远内置一份 default layout；拿到未知 version 且拉不到 → 用 default 渲染。offer 的 `data` 还在，照样显示 earnings/距离/Accept |
+
+**④ 是真正的安全网**：offer 有 ~40s 倒计时，cache miss 时多一个网络往返很糟（离线还直接失败）。所以**绝不能让 layout 拉取阻塞 offer**——拉不到立刻退回内置默认 layout。**最坏情况：courier 看到默认样式（无实验优化），但单子照样能接——绝不白屏、绝不丢单。**
+
+### 一句话总结（面试可直接说）
+
+> *"我会默认内嵌 layout。这个量级它几乎免费——计算可按 (variant,zone,tier) memoize 到接近零、带宽只是零头——而且它消除了一整类 cache-miss 故障。按版本引用+端上缓存是真实优化，但它把'局部组件缺失'升级成了'整屏故障'。除非实测带宽真的疼，否则我不会用稳健性换这点字节。真要做，我会配齐：不可变版本 + 先推后用 + miss 时拉取 + 一份永远兜底的内置默认 layout。"*
+
+这个「知道优化存在、也知道何时**不该**用」的判断就是 Staff 信号——和「Flink 是否过度设计」是同一种思维。
+
+---
+
 ## ④ 什么会变、怎么传、要不要发版（速查）
 
 | 变化 | 传播方式 | 发版？ |
