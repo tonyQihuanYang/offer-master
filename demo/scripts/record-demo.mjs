@@ -57,7 +57,7 @@ async function waitDispatchReady() {
 
 try {
   // ───────────── Segment 1: Admin — server-driven layout + save toast ─────────────
-  await page.goto(`${BASE}/admin`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE}/admin`, { waitUntil: 'domcontentloaded' });
   await pause(1200);
 
   // tenant = CA (the select that lists country options)
@@ -83,7 +83,7 @@ try {
   await pause(2000);
 
   // ───────────── Segment 2: Client — sticky A/B + SSE push ─────────────
-  await page.goto(`${BASE}/client`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE}/client`, { waitUntil: 'domcontentloaded' });
   await pause(1000);
 
   const courier = page.locator('input[type="text"]').first();
@@ -94,14 +94,16 @@ try {
   await pause(800);
   await waitDispatchReady();
   await dispatchBtn.click();
-  await page.getByText(/bucket/i).waitFor({ timeout: 5000 });
+  await page.locator('.phone-screen .offer').waitFor({ timeout: 5000 });
   await pause(2200);
 
   // courier c999 -> dispatch -> treatment (now rendered as surge)
   await courier.fill('c999');
-  await pause(1100);
+  await page.locator('.phone-screen .waiting').waitFor({ timeout: 5000 }); // payload resets on courier change
+  await pause(900);
   await waitDispatchReady();
   await dispatchBtn.click();
+  await page.locator('.phone-screen .offer').waitFor({ timeout: 5000 });
   await pause(2600);
 } finally {
   await context.close(); // finalizes the video file
