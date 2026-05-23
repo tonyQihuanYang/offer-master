@@ -1,7 +1,7 @@
 # Offer Hybrid Demo
 
 A working demo of the **hybrid server-driven UI** pattern from
-[`hybrid-end-to-end-design.md`](../hybrid-end-to-end-design.md). Stack:
+[`hybrid-end-to-end-design.md`](../en/hybrid-end-to-end-design.md). Stack:
 React + Vite (frontend) and Express (backend).
 
 It models a courier offer screen — the same kind of "$9.76 / 7.7 km / Accept"
@@ -370,7 +370,7 @@ breakdown / v2).
 ## Why this hybrid approach?
 
 There are three approaches to driving offer UI from a backend (full discussion
-in [`approach-evaluation.md`](../approach-evaluation.md)). This demo
+in [`approach-evaluation.md`](../en/approach-evaluation.md)). This demo
 implements **Approach C (Hybrid)**.
 
 ### What the same offer would look like in Approach A (server-side template DSL)
@@ -457,7 +457,7 @@ affect the architectural points the demo makes:
 - **No real AppSync push.** Client polls `GET /api/offer/:tenant`. Production
   pushes via WebSocket subscriptions.
 - **No app version detection / dual payload.** The
-  [`hybrid-end-to-end-design.md`](../hybrid-end-to-end-design.md) calls for a
+  [`hybrid-end-to-end-design.md`](../en/hybrid-end-to-end-design.md) calls for a
   legacy fallback during migration. The demo is single-format.
 - **One offer fixture per tenant.** Real system supports many concurrent
   offers; the demo always returns the same canned offer.
@@ -528,16 +528,16 @@ demo/
 
 ## Related documents
 
-- [`../approach-evaluation.md`](../approach-evaluation.md) — A vs B vs Hybrid
+- [`../en/approach-evaluation.md`](../en/approach-evaluation.md) — A vs B vs Hybrid
   decision framework with industry references (Airbnb, Shopify, Uber, Lyft).
-- [`../hybrid-end-to-end-design.md`](../hybrid-end-to-end-design.md) — the
+- [`../en/hybrid-end-to-end-design.md`](../en/hybrid-end-to-end-design.md) — the
   production design this demo simplifies, including migration strategy and
   latency budget.
-- [`../app-version-compatibility.md`](../app-version-compatibility.md) — how
+- [`../en/app-version-compatibility.md`](../en/app-version-compatibility.md) — how
   to evolve the payload contract when some couriers run an old version of
   the mobile app and some run a new one (forward/backward compat patterns,
   rollout playbook).
-- [`../courier-offer-system-architecture.md`](../courier-offer-system-architecture.md)
+- [`../en/courier-offer-system-architecture.md`](../en/courier-offer-system-architecture.md)
   — current production system that the hybrid design replaces.
-- [`../handOver.md`](../handOver.md) — items in the production design that
+- [`../en/handOver.md`](../en/handOver.md) — items in the production design that
   need verification against the real repos.

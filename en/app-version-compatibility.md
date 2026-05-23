@@ -287,5 +287,5 @@ straightforward to layer on if desired.
 - [`approach-evaluation.md`](./approach-evaluation.md) — how Approach A vs
   Hybrid handle versioning differently (Approach A is mostly server-only;
   Hybrid pushes the migration coordination across both sides).
-- [`demo/README.md`](./demo/README.md) — the working demo that implements
+- [`demo/README.md`](../demo/README.md) — the working demo that implements
   the forward-compat skip behavior referenced above.

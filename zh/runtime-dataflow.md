@@ -177,7 +177,7 @@ sequenceDiagram
 | **新组件类型** | 必须先进 app 内 registry | ✅ 是 |
 | 改已有组件的数据**语义** | 当新组件（v2）或双发 | ✅ 是（或双发过渡） |
 
-详细的发版/兼容 playbook 见 [`app-version-compatibility.md`](./app-version-compatibility.md)。
+详细的发版/兼容 playbook 见 [`app-version-compatibility.md`](../en/app-version-compatibility.md)。
 
 ---
 

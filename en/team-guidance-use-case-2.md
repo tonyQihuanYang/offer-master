@@ -1,6 +1,6 @@
 # Team Guidance: Real-time Fraud Detection (Use Case 2)
 
-> 中文版本：[`team-guidance-use-case-2.zh.md`](./team-guidance-use-case-2.zh.md)
+> 中文版本：[`team-guidance-use-case-2.zh.md`](../zh/team-guidance-use-case-2.zh.md)
 >
 > **Interview prompt being addressed:**
 > A 4-engineer team (2-3 yrs experience each) building real-time fraud

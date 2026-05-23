@@ -212,7 +212,7 @@ Staff 工程师可以坚定地为某个方案争论，同时在更高一级决�
 
 ## 相关文档
 
-- [`approach-evaluation.md`](./approach-evaluation.md) —— 工作会议中会引用的技术对比。
-- [`hybrid-end-to-end-design.md`](./hybrid-end-to-end-design.md) —— 推荐的架构方案，含 bounded mobile complexity（隐含的组件注册表章程）和迁移阶段。
-- [`app-version-compatibility.md`](./app-version-compatibility.md) —— 缓解措施之一：移动端可以走在或落后于服务端，把"被迫发版节奏"从移动端的担忧清单中移除。
-- [`handOver.md`](./handOver.md) —— 待校验事项，含组件注册表治理（这一项必须由移动端共同拥有）。
+- [`approach-evaluation.md`](../en/approach-evaluation.md) —— 工作会议中会引用的技术对比。
+- [`hybrid-end-to-end-design.md`](../en/hybrid-end-to-end-design.md) —— 推荐的架构方案，含 bounded mobile complexity（隐含的组件注册表章程）和迁移阶段。
+- [`app-version-compatibility.md`](../en/app-version-compatibility.md) —— 缓解措施之一：移动端可以走在或落后于服务端，把"被迫发版节奏"从移动端的担忧清单中移除。
+- [`handOver.md`](../en/handOver.md) —— 待校验事项，含组件注册表治理（这一项必须由移动端共同拥有）。

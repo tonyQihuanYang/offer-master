@@ -428,4 +428,4 @@ air cover。"
 
 ## 相关文档
 
-- [`technical-leadership.md`](./technical-leadership.md) / [`technical-leadership.zh.md`](./technical-leadership.zh.md) —— Use Case 1 跨团队决策推动文档。同一种作者姿态在不同场景下的应用。
+- [`technical-leadership.md`](../en/technical-leadership.md) / [`technical-leadership.zh.md`](./technical-leadership.zh.md) —— Use Case 1 跨团队决策推动文档。同一种作者姿态在不同场景下的应用。

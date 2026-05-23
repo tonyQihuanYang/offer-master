@@ -1,6 +1,6 @@
 # Technical Leadership: Facilitating the Mobile Complexity Decision
 
-> 中文版本：[`technical-leadership.zh.md`](./technical-leadership.zh.md)
+> 中文版本：[`technical-leadership.zh.md`](../zh/technical-leadership.zh.md)
 >
 > **Interview prompt being addressed:**
 > "The mobile team is concerned about Approach B increasing their complexity.
