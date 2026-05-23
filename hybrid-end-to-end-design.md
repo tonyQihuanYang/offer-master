@@ -339,6 +339,33 @@ Integration point: `EventPublishingService.serializeOffer()` — branch on app v
 
 ### Modified Flow (After Changes)
 
+> 改造后的事件流：在同一条事件链上插入 4 个新组件（Experiment Resolver → Earnings Calculator → Layout Composer → Payload Builder），输出按 app 版本分支。**server 决定 what + order，mobile 决定 how。**
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant EV as JobSummaryUpdated (SQS)
+    participant COS as courier_offer_service
+    participant ER as Experiment Resolver
+    participant EC as Earnings Calculator
+    participant LC as Layout Composer
+    participant PB as Payload Builder
+    participant T as Transport (SQS then AppSync/SSE)
+    participant M as Mobile · Component Registry
+
+    EV->>COS: event (pay + bonus already fetched via Temporal)
+    COS->>ER: resolve(courierId, city, tier, zone)
+    ER-->>COS: variant + group (sticky hash, fail-closed)
+    COS->>EC: calculate(pay, bonus, model)
+    EC-->>COS: earnings (flat / distance / surge / tips)
+    COS->>LC: compose(experiments, context)
+    LC-->>COS: layout[] + hints{}
+    COS->>PB: build(layout, data, appVersion)
+    PB-->>COS: modular payload (or legacy for old apps)
+    COS->>T: publish
+    T-->>M: offer — server sends what+order, mobile renders how
+```
+
 ```
 AbstractOfferService.sendOfferWithPayBonus():
     │

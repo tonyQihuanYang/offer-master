@@ -15,6 +15,36 @@ The courier offer system delivers job opportunities to 50,000+ active couriers a
 
 ## End-to-End Async Flow
 
+### Event Flow (rendered)
+
+> 事件驱动的端到端时序。每条箭头是一次**异步事件**或调用——没有任何一步是同步阻塞 mobile 的。
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant CM as Courier Management
+    participant Q1 as SQS · JobSummaryUpdated
+    participant COS as courier_offer_service
+    participant DELCO as delco_orchestrator · Temporal
+    participant EXT as Data Science / Pay / Bonus
+    participant Q2 as SQS · SendCourierMobileEvent
+    participant MAS as courier_mobile_async_service
+    participant AS as AWS AppSync · WebSocket
+    participant M as Courier Mobile App
+
+    CM->>Q1: publish JobSummaryUpdated
+    Q1->>COS: consume event
+    COS->>DELCO: REST start workflow
+    DELCO->>EXT: pricing then pay then bonus (5 steps)
+    EXT-->>DELCO: pay + bonus
+    DELCO-->>COS: Temporal activity callback
+    Note over COS: build Offer.java payload (hardcoded)
+    COS->>Q2: SendCourierMobileEvent (JSON in data)
+    Q2->>MAS: consume
+    MAS->>AS: GraphQL mutation
+    AS-->>M: WebSocket push — offer card
+```
+
 ### Detailed System Diagram
 
 ```
