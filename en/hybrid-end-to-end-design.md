@@ -392,6 +392,47 @@ AbstractOfferService.sendOfferWithPayBonus():
 
 ---
 
+## Offer Delivery Resilience (push channel failure)
+
+> 高概率追问："如果 SSE / async 推送（AppSync WebSocket）挂了怎么办？" offer 是**时效性**的（~40s 倒计时），所以投递可靠性是业务关键。
+
+### Core principle: push is a latency optimization, not the source of truth
+
+The WebSocket/SSE push only makes the offer arrive *faster*. The **source of truth is the server-side offer/assignment state**, which is queryable. When push fails, the client falls back to **pull-and-reconcile**. Every mitigation below derives from this principle.
+
+### Failure modes & mitigations
+
+| Failure mode | Mitigation |
+|---|---|
+| **Client disconnect** (network blip, app backgrounded, socket drop — most common) | Auto-reconnect (SSE built-in; demo sets `retry: 3000`). **On reconnect, pull `GET /offers/active` to reconcile** any missed offers. |
+| **Lost delivery** (pushed but not received/ACKed) | Offers carry `offer_id`; client **dedups** (push and pull may both deliver the same offer → render once). Delivery is **idempotent**. |
+| **Zombie connection** (TCP alive, messages not flowing) | **Heartbeat ping** (demo sends `: ping` every 15s); missed pings → reconnect. |
+| **Server pipeline failure** (SQS backlog, mobile-async down, AppSync outage) | SQS **durably buffers**; consumers redeliver on recovery — but **TTL-aware**: drop offers past their validity window instead of delivering a stale offer. |
+| **No live connection for the courier** | Server is **connection-aware** (demo: dispatch returns `delivered` / `eventBus.count()`). No connection → wake the app via **push notification (APNs/FCM)**, which then pulls the current offer. |
+
+### The business-level safety net (why a lost push never loses the order)
+
+Two server-side guarantees matter more than any transport trick:
+
+1. **Expiry → re-offer.** If the courier doesn't ACK acceptance within the ~40s window (never received it, or received it late), the **assignment system (Skynet/HAL) re-offers the delivery to the next courier.** A failed push degrades to *"this courier missed it, the next one gets it"* — **the order is not lost, assignment is just slightly slower.** This is the root reason the system can tolerate an unreliable push channel.
+
+2. **Atomic claim → no double-assignment.** Retries + re-offer can deliver the *same* delivery to multiple couriers. Acceptance is therefore a server-side **compare-and-set claim on the delivery state: first ACK wins, late ACKs are rejected** ("offer no longer available"). Even with duplicate delivery, only one courier can claim it.
+
+> Together these cover both **availability** (no lost order) and **correctness** (no double-assignment) — the two sides of a distributed delivery channel.
+
+### What the demo already implements
+
+- SSE auto-reconnect + `retry: 3000` + 15s heartbeat ping (`server/routes/stream.js`)
+- The pull path `GET /api/offer/:tenant` is retained as the **reconcile entry point**
+- Connection-aware dispatch: `/api/dispatch` returns `delivered` + `eventBus.count()`
+- Client shows live connection status (connecting / connected / reconnecting); a disconnected stream never presents a stale offer as actionable
+
+### One-line framing
+
+> *"I treat push as a latency optimization, not the source of truth. The client reconciles by pulling on reconnect, dedups by `offer_id`, and detects liveness via heartbeat; the server buffers in SQS but redelivers TTL-aware. What actually prevents lost orders is the business layer: an unaccepted offer expires and **re-offers to the next courier**, and acceptance is an **atomic server-side claim — first ACK wins**. Worst case is slightly slower assignment, never a lost or double-assigned delivery."*
+
+---
+
 ## Migration Strategy
 
 ### Phase 1: Foundation (Weeks 1-3)
