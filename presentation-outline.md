@@ -36,6 +36,22 @@
 > **UC1 我证明我能做架构和技术决策；UC2 我证明我能放大团队、而不是替团队干活。**
 > 两个 case 其实在考同一件事的两面：**Staff = 既能拿出正确的技术方案，又能让别人接受并维护它。**
 
+## ⭐ JD 关键词（讲的时候务必"撞上"这些词）
+
+招聘 JD（见 `job-description.md`）逐字写出了面试方在意什么。这两个 case 就是按这些词设计的——所以全程要主动命中：
+
+| JD 关键词 | 在哪里撞上 |
+|-----------|-----------|
+| **"influence, not authority"**（影响力而非权威） | 🔴 全场主线：开场点题 + UC1 领导力收尾 + UC2 收尾，都**显式说出这个词** |
+| **"fail fast" / hands-on POCs / rapid prototypes** | 🔴 亮出可运行 `demo/` 当 POC；UC1「proof not vote」、UC2「3 天发 1 个 pattern」都贴上 fail-fast 标签 |
+| **event-driven architecture & distributed systems** | UC1 系统设计页**显式命名**为 event-driven，并把 fail-closed/双写/幂等/粘性 hash 当分布式系统设计卖点 |
+| **big data & near real-time data processing** | UC2 **先用真流式概念诊断（watermark/backpressure/并行度/checkpoint）证明懂行，再下 right-sizing 结论** |
+| lead / coach / develop（团队 ~55 人） | UC2 知识传递 30/60/90 + force-multiplier 收尾 |
+| cloud（AWS） | UC1 点名 AWS：SQS / AppSync / Temporal |
+| third party integration planning | UC1 提一句外部服务（Data Science 定价 / Courier Pay / Bonus）的集成 + 超时/重试 |
+
+> 角色在**加拿大** → UC1 例子优先用 CA（Calgary）市场，顺势而为。
+
 ---
 
 # 开场（2 min）
@@ -50,6 +66,7 @@
 **讲解备注：**
 - 一句话定调："我会用大约 32 分钟讲 UC1、22 分钟讲 UC2，留几分钟 Q&A。"
 - 点出主线（上面那句）："这两个 case 在我看来考的是 Staff 的两面：一面是技术判断，一面是组织放大。"
+- 🔴 **第一句就埋 JD 关键词**："我对 Staff 的理解是——通过**影响力而非权威（influence, not authority）**驱动技术决策，并且**动手做 POC、快速试错（fail fast）**。今天两个 case 我都会照这个标准来答。" → 让面试官在第一分钟就听到他们写在 JD 里的话。
 - 让面试官知道你**会管理时间**——这本身就是 Staff 信号。
 
 ---
@@ -92,9 +109,11 @@
 
 **讲解备注：**
 - 这是 UC1 拿分的核心。**先讲"server 决定 what + order，mobile 决定 how"**这条分界线。
-- 逐个组件讲，但每个都带上**延迟预算**和**失败模式**——Staff 不只画框，还讲"挂了怎么办"和"放不放得进 20ms"。
+- 🔴 **开口先命名 JD 关键词**："现有系统是 **event-driven 的分布式架构**（SQS + Temporal + AppSync over AWS）——我的设计是在这条事件链上做增量，不是推倒重来。" 把它显式贴上 JD 要的 *event-driven architecture & distributed systems* 标签。
+- 逐个组件讲，但每个都带上**延迟预算**和**失败模式**——Staff 不只画框，还讲"挂了怎么办"和"放不放得进 20ms"。把这些 failure mode（fail-closed 回落、双写、幂等、粘性 hash 不依赖缓存）**当作"分布式系统设计"的卖点**讲，而不只是实现细节。
 - 粘性分配重点讲（面试常追问）："同一个快递员永远进同一组,因为是对 courierId 做确定性 hash，不依赖缓存，缓存淘汰也不会翻组。"
-- 🔴 **可在这里现场跑 Demo**（如果允许）：本地 `demo/` 里就实现了 Experiment Resolver（FNV-1a hash 分桶）+ component registry + control/treatment。"我做了个可运行的小原型来验证这个分界线和粘性。"
+- 🟢 **third-party integration（JD 要点）**：顺一句外部服务集成——Data Science 定价 / Courier Pay / Bonus 的调用边界、超时与重试（Temporal 1.5s 信号 + REST 2s/3 retries），以及"bonus 失败可降级"这种容错策略。
+- 🔴🔴 **现在就亮 Demo 当 POC（不要等到最后、不要说"如果允许"）**：JD 两次强调 *hands-on POCs / rapid prototypes / fail fast* ——主动说："我做了一个**可运行的 POC** 来验证这套方案。" 本地 `demo/` 实现了 Experiment Resolver（FNV-1a hash 分桶）+ component registry + control/treatment + 管理后台实时预览。这是你命中 JD "fail fast / 动手做原型" 的**最直接证据**，要当作加分项主动展示，而不是旁白。
 
 ## Slide 4 — The Payload Contract（夹在 Slide 3 里，~1.5 min）
 
@@ -175,11 +194,13 @@
 
 **讲解备注：**
 - ⚠️ **这不是技术题，是行为题**。它在分辨你是 Staff（推动跨团队决策）还是 Senior（推销"正确答案"）。
+- 🔴 **显式撞 JD 关键词**：开口就说"这正是 JD 里说的 **influence, not authority**——我不能用职级压移动团队，只能靠把权衡讲清楚、让他们自己看到答案。" 这一句直接命中招聘核心要求。
+- 🟢 **把"proof not vote"贴上 fail-fast 标签**：第 6 步的"小范围可逆原型"就是 JD 要的 *fail fast / rapid prototype*——明说："与其开会投票，不如花 4 周在一个 zone 上做个可逆的小实验，用数据说话，错了就回滚。这就是 fail-fast。"
 - 关键反模式要主动点名："最容易翻车的做法是预先写好决定、拿去会上'走个流程'——移动团队会立刻看穿，信任崩塌。"
 - **原型由移动团队主导**这点要强调——这去掉了"你在把方案强加给我们"的框架。
 - 落地金句（背下来，结尾说）：
   > *"我的工作不是赢得架构辩论,而是让真正要交付和维护它的团队成为这个决定的共同作者。我推荐 C,但我宁可让移动团队完全认同地做 B,也不要他们表面服从、心里抵触地做 C。"*
-- 这句话是 Senior 和 Staff 答案的分水岭。
+- 这句话是 Senior 和 Staff 答案的分水岭——它正是 *influence over authority* 的具体体现。
 
 ---
 
@@ -254,9 +275,11 @@
 - **测试**："现在怎么端到端测一条欺诈规则?演示给我看"/"有没有 known-fraud / known-clean 的标注语料?"
 
 **讲解备注：**
+- 🔴🔴 **叙事顺序很关键（针对 JD 的 "near real-time data processing" 要求）**：**先用真流式概念诊断、展示你懂行，再下"可能过度设计"的结论。** 顺序是 ① watermark / event-time、② backpressure、③ 并行度 / 热 key、④ checkpoint / 同步 I/O ——把这些点完，面试官已经认定"这人懂流式"；**然后**才抛出 20 events/sec 的 right-sizing 结论。
+- ⚠️ **不要让"Flink 是过度设计"成为开场白**——对着一份明确要 streaming 经验的 JD，那会被读成"他在绕开流式"。要让它是**深度之后的判断**，不是回避。一句话定调："我能诊断到 Flink 层面，也正因为懂它，才看得出这个量级未必需要它——这是 right-sizing，不是 avoidance。"
 - 强调技巧:**分波提问,不要一次甩 30 个**。Wave 1 听他们讲、Wave 2 针对性追问、Wave 3 单独 1:1。
 - "这些问题是诊断工具——用对了,是教团队**怎么想**,而不只是告诉他们**想什么**。"
-- 那个 20 events/sec 的数量级估算是 UC2 最亮的技术点,务必讲清楚。
+- 那个 20 events/sec 的数量级估算是 UC2 最亮的技术点,务必讲清楚——但放在**展示完流式深度之后**。
 
 ## Slide 12 — The 3-Day Action Plan（5 min，⭐ 第 3 考察点）
 
@@ -319,10 +342,11 @@
 - **UC1（领导力）：** *"我的工作不是赢得架构辩论,而是让真正交付和维护它的团队成为决定的共同作者。我推荐 C,但宁可让移动团队完全认同地做 B,也不要他们表面服从、心里抵触地做 C。"*
 - **UC2（团队指导）：** *"我的角色是让这个团队更擅长这件事——而不是替他们做。3 天 deadline 是要导航的约束,不是要表演的演出。如果我做对了,这个团队下次做流式项目不再需要 Staff 空降救援。"*
 - 一句话合题：**Staff = leverage over time, not heroics in the moment.**
+- 🔴 **最后一句回扣 JD（首尾呼应）**："这两个 case 我都是用同一套标准答的——**通过影响力而非权威驱动决策（influence, not authority），动手做 POC、快速试错（fail fast）**。这正是我理解的 Staff，也正是这个角色需要的。"
 
 **讲解备注：**
-- 这两句是整场的"记忆点",一定背熟、放在最后讲。
-- 然后开放 Q&A:"这两个 case 我都准备了更深的细节——架构、迁移、组件治理、流式诊断,欢迎往任何方向追问。"
+- 这两句金句 + 最后那句 JD 回扣，是整场的"记忆点",一定背熟、放在最后讲。开场埋的 *influence, not authority* / *fail fast* 在这里收口，形成首尾呼应。
+- 然后开放 Q&A:"这两个 case 我都准备了更深的细节——架构、迁移、组件治理、流式诊断,**还有一份可运行的 POC**,欢迎往任何方向追问。"
 
 ---
 
