@@ -142,6 +142,10 @@ The job description (`job-description.md`) literally spells out what the panel c
 - This slide is the **reveal** — "the prompt framed it as A or B, but the answer is C." Proactively proposing C is a plus.
 - Use industry references sparingly: Airbnb / Uber / Lyft / Grab are all hybrid (they support the argument, they don't replace it).
 - Transition to the next slide: "**Now that we've picked C, here's how it's built.**"
+- 🎒 **Deep reserve ammo (bring out only when asked — don't volunteer all of it; the main line is enough):**
+  - "How is A really different from C?" → ① string on the wire vs raw value (A's client can only style the box — no count-up animation, locale re-format, value-conditional styling, or long-press base+tip breakdown) ② compute: A formats + i18n on the latency path, centralized; C pushes it to 50k phones (free / parallel / native). See the A-vs-Hybrid Q&A in `approach-evaluation.md`; in the demo, expand `/approaches` → "What's on the wire" to *show* it.
+  - "How is B different from C?" → who owns layout: B on mobile (flag-driven app logic), C on the server (sends layout data). C = B + a server layout descriptor + experiment moved server-side. See the B-vs-Hybrid Q&A.
+  - "What about old apps that don't upgrade?" → `app-version-compatibility.md` (add component/field = safe; change semantics = new component v2; remove field kept until min version; unknown components skipped).
 
 ---
 

@@ -142,6 +142,10 @@
 - 这页是 **reveal**——"题目框在 A/B，但答案是 C"。主动提出 C 是加分项。
 - 行业佐证克制用：Airbnb / Uber / Lyft / Grab 都是 hybrid（支持论点，不替代论点）。
 - 过渡到下一页："**既然选了 C，我来展示它具体怎么搭。**"
+- 🎒 **深度备用弹药（被问再放，别主动全铺开——主线讲完即可）：**
+  - 问"A 和 C 到底差在哪" → ① 线上是【字符串】还是【数值】（A 的端只能套样式，做不了数字滚动动画 / locale 重格式化 / 按值条件 / 长按看 base+tip 明细）② 算力：A 在延迟路径上中心化做格式化+i18n，C 推到 5 万台手机（免费/并行/原生）。详见 `approach-evaluation.md` 的 A-vs-Hybrid Q&A；demo 里展开 `/approaches` 的 "What's on the wire" 直接 show。
+  - 问"B 和 C 到底差在哪" → 谁拥有 layout：B 在 mobile（flag 驱动应用逻辑）、C 在 server（发 layout 数据）。C = B + server layout 描述符 + 实验上移。详见 B-vs-Hybrid Q&A。
+  - 问"老 app 不升级怎么办" → `app-version-compatibility.md`（加组件/加字段=安全；改语义=新组件 v2；删字段留到 min 版本退场；未知组件静默跳过）。
 
 ---
 
