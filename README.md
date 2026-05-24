@@ -59,6 +59,12 @@
 做成可跑可改的代码，用 UC2 快递欺诈检测当例子。`node flink-kafka-lab/run.mjs`。
 README 兼作 UC2 复习小抄。
 
+## 🐳 真 Flink + Kafka (Docker) — [`flink-kafka-docker/`](./flink-kafka-docker/)
+
+真·Apache Flink 集群 + Kafka，跑一个 SQL 欺诈检测作业，用来**亲眼看 Flink Web UI**
+（作业图、并行度、checkpoint、背压、吞吐）。`cd flink-kafka-docker && docker compose up -d --build`，
+然后开 `http://localhost:8081`。是 `flink-kafka-lab/` 那个教学模型的"真版"。
+
 ## 🎞️ Slides — [`slides/`](./slides/)
 
 `slides/interview.md` — Marp 幻灯片源（开场 + UC1 + UC2）。
