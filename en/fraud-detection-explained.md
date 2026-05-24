@@ -143,6 +143,21 @@ Courier taps "delivered" 2.2 km from the destination
   - *Cross-check:* UC1's **2M offers/hour ≈ 556/sec** sustained, so the platform already operates at hundreds/sec.
   - So the real fraud-relevant rate plausibly spans **~20 to a few thousand/sec** — a range that *straddles* "Flink is overkill" and "Flink is justified". **Don't assert overkill; measure the real rate (especially GPS volume) first**, then right-size: low end → Kafka consumer + Redis; high end → Kafka Streams / Flink. Either way the 45s latency is most likely misconfiguration (sync I/O / under-parallelism / hot keys / checkpoint storms), independent of tool choice.
 
+## When do you actually need Flink? (it's not just throughput)
+
+Throughput alone doesn't decide it. The real question is whether you hit one of these **qualitative triggers** — if you do, a stream engine earns its keep even at modest volume; if you don't, even a few thousand events/sec can run on a Kafka consumer + KV store.
+
+| Trigger | "Keep it simple" (consumer + DB/KV) | "Flink / Kafka Streams pays off" |
+|---|---|---|
+| **1. Real-time aggregation / windowed state** | you only look up one record's current state | you need "over the last X minutes" — rolling counts, demand heatmaps per geo-hash, surge signals computed in memory and fired in ms |
+| **2. Event-time & out-of-order / late data** | logic on server-arrival time is fine | events from poor-signal areas arrive late/batched; you must attribute them to *when they happened* (correct settlement windows) — needs event-time + watermarks |
+| **3. Real-time pattern matching (CEP)** | a T+1 batch finds offenders tomorrow | you must intercept *during* the act — e.g. the same courier at two points 5 km apart within 1 min — before payout |
+| **4. Aggregation that would crush the DB** | MySQL + an index / read replica copes | GPS writes already strain the DB; running `GROUP BY`/`SUM` on top locks it — compute per-country/city/minute in-stream, write only the *results* |
+
+Plus: **exactly-once + large fault-tolerant state** (settlement-grade accuracy, must resume precisely after a crash).
+
+> **The decision is two-part:** (a) measure the real event rate (especially GPS), and (b) check which of these triggers you actually hit. Hit a trigger → Flink (or the lighter Kafka Streams) is justified *even at modest throughput*. Hit none → keep it simple *even at a few thousand/sec*. **Asserting "we've hit the Flink threshold" from courier count alone — without the measured rate or the triggers — is exactly the trap to avoid (in either direction).** (Note: 15 countries across time zones *spreads* the peak, lowering instantaneous concurrency — more countries ≠ higher peak rate.)
+
 ## One-line summary
 
 > **Fraud detection = compute a risk signal from behavior events in a stream (rules + ML), respond in tiers by confidence (log / human review / automated action), then close the loop with review outcomes to keep improving. Flink is a long-running distributed cluster and only the "compute" step; the hard parts are responding without hurting good couriers, and the feedback loop that makes it more accurate over time.**
