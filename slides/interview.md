@@ -170,6 +170,27 @@ p95 不是简单加法——主动堵住"长尾延迟"的追问：热路径零 I
 
 ---
 
+## Latency Budget — estimate, then measure
+
+| Component | Hot path (real) | Budget (ceiling) |
+|---|---|---|
+| Experiment Resolver | sub-ms — hash + cached lookup | ~3 ms |
+| Earnings Calculator | sub-ms — arithmetic (data prefetched) | ~3 ms |
+| Layout Composer | sub-ms — in-memory config | ~2 ms |
+| Payload Builder | ~0.1–1 ms — build + JSON | ~2 ms |
+| **Total added** | **~1–3 ms** | **~10 ms** |
+
+- **Budgets carved from the ~20ms headroom — not measurements.** Hot path is in-memory; the budget absorbs cache-miss / GC / serialization.
+- For scale: **Temporal pay+bonus ~150ms dominates** — these four are a rounding error.
+- **Before rollout: load-test on a real cluster → replace with measured p95.** If Δ > 15ms → push experiment/layout off the request path.
+
+<!--
+被问"3ms/10ms 怎么来的"就翻这页：这是预算、不是测量；热路径亚毫秒,预算是给 cache-miss/GC/序列化的保险。上线前在真集群压测、超了就把 resolution 挪出请求路径。别假装测过。
+（主线 ~30 秒带过；被追问再展开。）
+-->
+
+---
+
 ## The Payload Contract
 
 ```json

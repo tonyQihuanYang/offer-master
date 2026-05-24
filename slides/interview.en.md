@@ -170,6 +170,27 @@ Show the demo / recording here: a runnable POC validating the boundary + sticky 
 
 ---
 
+## Latency Budget — estimate, then measure
+
+| Component | Hot path (real) | Budget (ceiling) |
+|---|---|---|
+| Experiment Resolver | sub-ms — hash + cached lookup | ~3 ms |
+| Earnings Calculator | sub-ms — arithmetic (data prefetched) | ~3 ms |
+| Layout Composer | sub-ms — in-memory config | ~2 ms |
+| Payload Builder | ~0.1–1 ms — build + JSON | ~2 ms |
+| **Total added** | **~1–3 ms** | **~10 ms** |
+
+- **Budgets carved from the ~20ms headroom — not measurements.** Hot path is in-memory; the budget absorbs cache-miss / GC / serialization.
+- For scale: **Temporal pay+bonus ~150ms dominates** — these four are a rounding error.
+- **Before rollout: load-test on a real cluster → replace with measured p95.** If Δ > 15ms → push experiment/layout off the request path.
+
+<!--
+If asked "how did you get 3ms/10ms?", this is the slide: they're budgets, not measurements — hot path is sub-ms in-memory, the budget absorbs cache-miss/GC. I'd measure on a real cluster before rollout; if it creeps past budget, move resolution off the request path. Don't pretend you measured it.
+(Skim in ~30s in the main flow; expand only if probed.)
+-->
+
+---
+
 ## The Payload Contract
 
 ```json

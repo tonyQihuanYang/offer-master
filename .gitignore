@@ -12,6 +12,7 @@ recordings/
 # Slide build outputs (regenerate from slides/*.md with Marp)
 slides/*.html
 slides/*.pdf
+slides/*.pptx
 
 # Logs
 *.log
