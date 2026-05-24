@@ -137,7 +137,7 @@ Courier taps "delivered" 2.2 km from the destination
 - **The lab implements step ② (detect)** — `alert(...)` is the "risk signal", and it stops there.
 - **A real system continues into ③ decide → ④ respond → ⑤ feedback** (scoring, review queue, payout holds, retraining).
 - **The UC2 team** is stuck on the streaming implementation of ②; but a full fraud system is much more than streaming. **Staff guidance**: get the **simplest single rule working end-to-end** (detect → alert) to prove the pipeline, then layer on ML, responses, and feedback — don't try to ship 12 patterns + ML + auto-ban all at once.
-- **Right-sizing**: courier volume is ~20 events/sec, far below Flink's 100k+/sec design point; the 45s latency is most likely misconfiguration (sync I/O / under-parallelism / hot keys / checkpoint storms), not Flink being slow. A plain Kafka consumer + Redis for state may well be enough.
+- **Right-sizing**: courier volume is ~20 events/sec *(estimated from UC1's 50k couriers × ~30/day — **UC2 itself states no volume**, so measuring the real rate is the first diagnostic step, not an assumption)*, far below Flink's 100k+/sec design point; the 45s latency is most likely misconfiguration (sync I/O / under-parallelism / hot keys / checkpoint storms), not Flink being slow. A plain Kafka consumer + Redis for state may well be enough.
 
 ## One-line summary
 

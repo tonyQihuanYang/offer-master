@@ -89,7 +89,7 @@ that turn symptoms into causes.
 | "What's your watermark / event-time strategy? Are late events buffering up?" | Catches event-time misconfigurations that look like processing delay. |
 | "Are any operators doing I/O — DB lookups, HTTP calls? If so, sync or async?" | Catches blocking I/O, which is a Flink anti-pattern. |
 | "What does your checkpoint duration look like? Are you backpressured?" | Catches checkpoint storms and backpressure cascades. |
-| "Is Flink even the right tool for our actual event rate? Have you measured it?" | The big one. At 50K couriers × ~30 deliveries/day = ~1.5M events/day = ~20 events/sec average, ~100/sec peak. Flink is designed for 100k+ events/sec. The team may be paying a complexity tax for capacity they don't need. |
+| "Is Flink even the right tool for our actual event rate? Have you measured it?" | The big one. At 50K couriers × ~30 deliveries/day = ~1.5M events/day = ~20 events/sec average, ~100/sec peak. Flink is designed for 100k+ events/sec. The team may be paying a complexity tax for capacity they don't need. **(Caveat: UC2 states no volume — this rate is *estimated* from UC1's "50,000+ couriers" × ~30/day. Measuring the real rate is itself the first diagnostic step; don't present the estimate as a given.)** |
 
 ### Scope diagnostics (the 3 → 12 patterns problem)
 

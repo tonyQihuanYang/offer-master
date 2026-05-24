@@ -274,7 +274,7 @@ Don't parachute in and rewrite it — buy time, narrow scope, coach, let them sh
 ## 1 · Diagnose — ask, don't lead
 
 - **Architecture:** "Walk the data flow on a whiteboard." "Where are the 45s spent — measured or inferred?" "Sync I/O in operators? parallelism? watermarks?"
-- **🔑 The big one:** "Is Flink even right for our event rate?" → 50k couriers × ~30/day ≈ **~20 events/sec avg (~100 peak)** vs Flink's **100k+/sec** design point — a complexity tax for capacity they don't need.
+- **🔑 The big one:** "Is Flink even right for our event rate?" → 50k couriers × ~30/day ≈ **~20 events/sec** *(estimated — UC2 gives no number; measuring it is step one)* vs Flink's **100k+/sec** design point.
 - **Scope:** "Which 3 of the 12 do stakeholders want *this quarter*?"
 - **Data quality:** "What % of events miss location — null / stale / missing entirely?"
 - **Testing:** "Show me how you test one rule end-to-end."

@@ -56,7 +56,7 @@
 | "watermark / event-time 怎么设的？late event 在堆积吗？" | 抓出 event-time 配置错误，看起来像处理慢。 |
 | "operator 里有 I/O 吗——DB 查询、HTTP 调用？同步还是异步？" | 抓出 blocking I/O，这是 Flink 的反模式。 |
 | "checkpoint 时长多少？有没有 backpressure？" | 抓出 checkpoint storm 和反压级联。 |
-| "Flink 是不是真的适合我们当前事件率？测过吗？" | **大问题**。50K 骑手 × 每天约 30 单 = 每天约 150 万事件 = 平均约 20 events/sec、峰值约 100/sec。Flink 的设计目标是 100k+ events/sec。团队可能在为根本用不到的容量付复杂度税。 |
+| "Flink 是不是真的适合我们当前事件率？测过吗？" | **大问题**。50K 骑手 × 每天约 30 单 = 每天约 150 万事件 = 平均约 20 events/sec、峰值约 100/sec。Flink 的设计目标是 100k+ events/sec。团队可能在为根本用不到的容量付复杂度税。**（注意：UC2 没给体量——这个数是借 UC1 的"5 万+骑手"× 每天约 30 单**推算**的。测出真实事件率本身就是第一个诊断动作；别把估算当成题目给的条件。）** |
 
 ### Scope 诊断（3 → 12 模式问题）
 
