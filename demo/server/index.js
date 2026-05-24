@@ -6,6 +6,7 @@ import { offerRouter } from './routes/offer.js';
 import { configRouter } from './routes/config.js';
 import { streamRouter } from './routes/stream.js';
 import { dispatchRouter } from './routes/dispatch.js';
+import { approachesRouter } from './routes/approaches.js';
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -18,6 +19,7 @@ app.use('/api/experiment', experimentRouter);
 app.use('/api/offer', offerRouter);
 app.use('/api/stream', streamRouter); // SSE: server → courier push channel
 app.use('/api/dispatch', dispatchRouter); // producer: simulate JobSummaryUpdated event
+app.use('/api/approaches', approachesRouter); // A vs B vs C comparison
 app.use('/api', configRouter); // /api/config/:tenant and /api/tenants
 
 app.use((err, _req, res, _next) => {

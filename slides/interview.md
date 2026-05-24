@@ -103,23 +103,41 @@ Diagnose · Guide without solving · 3-day plan · Knowledge transfer · Work wi
 
 ---
 
-## Technical Decision — A vs B vs C  (→ recommend C)
+## Technical Decision — A vs B (the two options on the table)
 
-| | A (DSL) | B (raw+mobile) | **C (Hybrid) ✅** |
-|---|---|---|---|
-| Experiment speed | fast | slow (app release) | **fast** (layout) |
-| 200ms risk | high | low | low |
-| Native UX | poor | great | great |
-| iOS/Android consistency | guaranteed | hard | shared component spec |
+| | A (Template DSL) | B (Raw data + mobile) |
+|---|---|---|
+| Experiment speed | fast (server-only) | **slow** (app release per change) |
+| 200 ms risk @ 2M/h | **high** (server renders) | low |
+| Native UX | **poor** | great |
+| iOS/Android consistency | guaranteed | **hard** |
+| Mobile complexity | lowest | **highest** |
 
-**B vs C — the one real difference:** *"which components & in what order"* is **app logic on mobile in B**, but **data from the server in C**.
-→ **C = B + a server-controlled layout descriptor + experiment assignment moved server-side.**
+**Neither alone wins:** A buys experiment speed but gives up native UX *and* risks the 200 ms SLA; B keeps native UX but every layout experiment needs an app release.
 
 <!--
-先评估、再设计：题目把团队框在 A 和 B 之间，但答案是两者的混合 C——这是我的推荐(thesis)，下一页才展开怎么搭。
-A 硬伤：服务端渲染吃延迟、锁死原生 UX。B 硬伤：每个 layout 实验都要发版。
-诚实讲 C 代价：组件治理、改已有组件 schema 仍要发版/双发。
-过渡到下一页："既然选了 C，我来展示它具体怎么搭。"
+先只摆题目给的两个 A/B，凸显各自硬伤——A 牺牲 UX+延迟，B 牺牲实验速度+一致性。
+别急着给答案，这页是为下一页"引出 C"铺垫。
+-->
+
+---
+
+## Approach C (Hybrid) — take the best of both ✅
+
+> The prompt framed it as A **or** B. The real answer **combines** them.
+
+- **From A:** server controls *what + order* → experiment **without an app release**
+- **From B:** mobile renders **natively** → great UX, uses the platform
+- **One line:** *server decides what + order; mobile decides how* (component registry)
+
+**B vs C — the one real difference:** "which components & in what order" is **app logic on mobile in B**, but **data from the server in C**.
+→ **C = B + a server-controlled layout descriptor + experiment assignment moved server-side.**
+
+**Honest cost:** upfront contract + component governance; changing an existing component's schema still needs a release / dual-emit.
+
+<!--
+这页是 reveal——"题目框在 A/B，但答案是 C"。明确推荐 C：从 A 拿"实验不发版"，从 B 拿"原生 UX"。
+诚实讲代价。过渡到下一页："既然选了 C，我来展示它具体怎么搭。"
 -->
 
 ---
