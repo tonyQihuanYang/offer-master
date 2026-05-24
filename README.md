@@ -28,6 +28,7 @@
 | [`technical-leadership.md`](./en/technical-leadership.md) | UC1 技术领导力（推动移动团队决策）|
 | [`team-guidance-use-case-2.md`](./en/team-guidance-use-case-2.md) | UC2 团队指导（全部 5 个考察点）|
 | [`fraud-detection-explained.md`](./en/fraud-detection-explained.md) | UC2 学习笔记：Flink 运行时 + 欺诈检测端到端运作 |
+| [`presentation-outline.md`](./en/presentation-outline.md) | **主线（英文版）** — 1 小时演讲大纲（逐张 slide + 时间 + JD 关键词）|
 | [`job-description.md`](./en/job-description.md) | 招聘 JD + JD↔准备映射 |
 | [`handOver.md`](./en/handOver.md) | 需向真实 repo 核实的开放项 |
 

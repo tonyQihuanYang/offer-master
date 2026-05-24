@@ -1,5 +1,7 @@
 # Staff Engineer Interview — Presentation Outline (1 hour)
 
+> English version: [`../en/presentation-outline.md`](../en/presentation-outline.md)
+>
 > 这是把所有准备材料整合成的「**一小时演讲大纲**」。
 > 每张 slide 给出：**标题**（英文，可直接做 PPT）+ **要点**（演讲用）+ **讲解备注（中文）** + **时间**。
 > 目标：1 小时讲完两个 Use Case，覆盖 PDF 里全部 9 个考察点（UC1 的 4 个 + UC2 的 5 个）。
