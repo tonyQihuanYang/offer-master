@@ -61,14 +61,16 @@ Staff Engineer — Courier Offer & Rewards
 
 ## Agenda
 
-**Use Case 1 — Courier Offering System** (~32 min)
+**Use Case 1 — Courier Offering System** (~30 min)
 1. Technical Decision — Approach A vs B → **C** (recommend + why)
 2. System Design — end-to-end architecture of C
 3. Technical Leadership — facilitating the mobile team
 4. Migration Strategy — metrics & rollback
 
-**Use Case 2 — Fraud Detection Team Guidance** (~22 min)
+**Use Case 2 — Fraud Detection Team Guidance** (~20 min)
 Diagnose · Guide without solving · 3-day plan · Knowledge transfer · Work with TM
+
+*Questions welcome throughout — let's make it a conversation.*
 
 <!--
 一句话主线：UC1 证明我能做架构和技术判断；UC2 证明我能放大团队、而不是替团队干活。
@@ -157,8 +159,11 @@ Diagnose · Guide without solving · 3-day plan · Knowledge transfer · Work wi
 
 Mobile renders via a **component registry (~10–15)**; unknown components **skipped** (forward-compat).
 
+**+10ms — and it won't tail-spin:** in-process + cached (no hot-path network I/O); flag/config outage → **fail-closed**. If measured latency nears budget → move resolution off the request path (precompute).
+
 <!--
 （接上页：既然选了 C，这页讲它怎么落地）
+p95 不是简单加法——主动堵住"长尾延迟"的追问：热路径零 I/O + fail-closed，依赖抖动也打不爆 SLA。
 逐组件讲【延迟预算 + 失败模式】：fail-closed、双写、幂等、粘性 hash 不依赖缓存——把这些当"分布式系统设计"卖点讲。
 这里亮 demo / 录屏：可运行 POC 验证分界线 + 粘性分桶 + SSE 推送。
 -->
@@ -325,7 +330,7 @@ Don't parachute in and rewrite it — buy time, narrow scope, coach, let them sh
 **Load-bearing move:** ship **one** pattern that tells the story —
 *"marked complete >500m from destination"* (data's already there, just a distance calc, <5s with or without Flink).
 
-- **Day 1:** TM 1:1 (RACI) · team architecture walk-through · **scope-lock with PM in writing** (1 pattern, 11 deferred) · pair (they drive)
+- **Day 1:** TM 1:1 (RACI) · architecture walk-through — **audit Flink telemetry** (bad watermarks? sync I/O in an operator?) · **scope-lock with PM in writing** (1 pattern, 11 deferred) · pair (they drive)
 - **Day 2:** pair to a working skeleton · first test fixture · draft an honest review narrative
 - **Day 3:** dry run (they present) · **pre-brief the Director with the TM** · schedule a post-demo retro
 

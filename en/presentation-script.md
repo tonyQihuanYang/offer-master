@@ -8,7 +8,7 @@
 
 ## Slide 1 — Title
 
-> "Hi, thanks for having me. I'll walk through both use cases. I'll spend about 32 minutes on the courier offering system, about 22 on the fraud-detection team guidance, and leave a few minutes for questions.
+> "Hi, thanks for having me. We've got the hour for both cases. I'll take roughly **30 minutes** on the courier offering system and about **20** on the fraud-detection one — but please jump in with questions any time; I'd rather this be a conversation than a monologue.
 > One framing up front: to me, Staff engineering is two things — driving technical decisions through **influence, not authority**, and being **hands-on: building POCs and failing fast**. I'll answer both cases to that standard, and I actually built a small running prototype for the first one."
 
 ## Slide 2 — Agenda
@@ -49,7 +49,9 @@
 > An **Earnings Calculator** that unifies flat, distance, surge, and tips into one model — compute only, the data's already fetched.
 > A **Layout Composer** that emits the component list and hints from config.
 > And a **Payload Builder** that replaces the hardcoded template and branches by app version — old apps get the legacy format.
-> Two things I want to emphasize as distributed-systems design: every component has a **latency budget** and a **failure mode** — fail-closed, dual-write, idempotency, a sticky hash that doesn't depend on a cache. The whole thing adds about 10 milliseconds, which fits inside that 20 we have. Mobile renders from a registry, and any component it doesn't recognize is silently skipped — so the server can ship ahead of the app."
+> Two things I want to emphasize as distributed-systems design: every component has a **latency budget** and a **failure mode** — fail-closed, dual-write, idempotency, a sticky hash that doesn't depend on a cache. The whole thing adds about 10 milliseconds, which fits inside that 20 we have.
+> And let me be precise about why that 10 won't tail-spin under peak load — because p95 isn't just addition. Every one of these is **in-process and cached — zero network I/O on the hot path** — so there's no dependency to time out on. If the config or flag service is slow or down, we **fail closed instantly** to the default layout. And if we ever *measure* the real added latency creeping toward the budget, the fallback is to move experiment and layout resolution **off the request path entirely** — precompute it per courier. So a dependency hiccup can't blow the SLA.
+> Mobile renders from a registry, and any component it doesn't recognize is silently skipped — so the server can ship ahead of the app."
 
 ## Slide 8 — The Payload Contract
 
@@ -112,7 +114,8 @@
 ## Slide 18 — The 3-day plan
 
 > "For the next three days, the load-bearing decision is to **cut scope, hard.** Ship one pattern that tells the whole story — 'courier marked complete more than 500 meters from the destination.' The data's already there, it's a distance calculation, and it runs well under five seconds with or without Flink.
-> Day one: align with the TM, do a team architecture walk-through, and a scope-lock session where the PM agrees in writing — one pattern in, eleven deferred. Day two: pair to a working skeleton and write the first real test fixture. Day three: a dry run where the **team** presents, and the TM and I pre-brief the director together.
+> But I want to be clear I'm not just cutting business scope to dodge the real problem — so on day one I'd also pair with the tech lead to **audit the Flink telemetry**: is that 45 seconds coming from improper watermark generation, or a synchronous database call inside an operator? We narrow the business scope *and* find the infrastructure root cause.
+> Day one, then: align with the TM, that architecture-and-telemetry walk-through, and a scope-lock session where the PM agrees in writing — one pattern in, eleven deferred. Day two: pair to a working skeleton and write the first real test fixture. Day three: a dry run where the **team** presents, and the TM and I pre-brief the director together.
 > At the review, I'm in the audience — the team presents and gets the credit. The one thing to avoid is a half-working live demo that fails."
 
 ## Slide 19 — Guide without solving
@@ -152,4 +155,5 @@
 - **先慢后顺**:第一遍慢读,把每句读顺;第二遍计时(目标 UC1 ~32min、UC2 ~22min)。
 - **金句背熟**:Slide 11、22、23 那三段引号里的话,要脱稿说。
 - **signpost 词**(转场词)别省:"Here's the situation / The one-line version is / Now that we've picked C / The line I'd land it on" —— 这些让听众跟得上。
-- **[▶ DEMO]** 处先练"切过去说什么"再练操作;万一不切,这页的话照样能讲(有截图兜底)。
+- **[▶ DEMO]** 处:**绝不现场改代码/编译**——用**录屏(demo.mp4)或事先已经跑好的 demo**,只点不改,防环境/网络翻车;万一连不上,这页的话配截图照样能讲。
+- **金句放慢**:Slide 11 / 22 / 23 那三段引号要**脱稿、放慢、语气坚定**——这是立"Staff 人设"的高光。

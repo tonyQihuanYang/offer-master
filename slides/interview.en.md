@@ -61,14 +61,16 @@ Opening (say this in ~30s):
 
 ## Agenda
 
-**Use Case 1 — Courier Offering System** (~32 min)
+**Use Case 1 — Courier Offering System** (~30 min)
 1. Technical Decision — Approach A vs B → **C** (recommend + why)
 2. System Design — end-to-end architecture of C
 3. Technical Leadership — facilitating the mobile team
 4. Migration Strategy — metrics & rollback
 
-**Use Case 2 — Fraud Detection Team Guidance** (~22 min)
+**Use Case 2 — Fraud Detection Team Guidance** (~20 min)
 Diagnose · Guide without solving · 3-day plan · Knowledge transfer · Work with TM
+
+*Questions welcome throughout — let's make it a conversation.*
 
 <!--
 Spine: UC1 proves I can do architecture + technical decisions; UC2 proves I can multiply a team, not do the work for them.
@@ -157,8 +159,11 @@ Be honest about the cost. Transition: "now that we've picked C, here's how it's 
 
 Mobile renders via a **component registry (~10–15)**; unknown components **skipped** (forward-compat).
 
+**+10ms — and it won't tail-spin:** in-process + cached (no hot-path network I/O); flag/config outage → **fail-closed**. If measured latency nears budget → move resolution off the request path (precompute).
+
 <!--
 (Continuing: we picked C, here's how it lands.)
+p95 isn't simple addition — preempt the tail-latency probe: zero hot-path I/O + fail-closed means a dependency hiccup can't blow the SLA.
 Walk each component with a latency budget + a failure mode: fail-closed, dual-write, idempotency, cache-independent sticky hash — sell these as "distributed-systems design".
 Show the demo / recording here: a runnable POC validating the boundary + sticky bucketing + SSE push.
 -->
@@ -325,7 +330,7 @@ Don't let "Flink is overkill" be the opener — it reads as dodging streaming.
 **Load-bearing move:** ship **one** pattern that tells the story —
 *"marked complete >500m from destination"* (data's already there, just a distance calc, <5s with or without Flink).
 
-- **Day 1:** TM 1:1 (RACI) · team architecture walk-through · **scope-lock with PM in writing** (1 pattern, 11 deferred) · pair (they drive)
+- **Day 1:** TM 1:1 (RACI) · architecture walk-through — **audit Flink telemetry** (bad watermarks? sync I/O in an operator?) · **scope-lock with PM in writing** (1 pattern, 11 deferred) · pair (they drive)
 - **Day 2:** pair to a working skeleton · first test fixture · draft an honest review narrative
 - **Day 3:** dry run (they present) · **pre-brief the Director with the TM** · schedule a post-demo retro
 

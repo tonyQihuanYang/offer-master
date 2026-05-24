@@ -29,7 +29,7 @@
 | **UC2** | Working with TM / Principals / Leadership | 3 min | 57 |
 | Close | Two closing lines + Q&A | 3 min | 60 |
 
-> ⏱️ **Time discipline**: UC1 ≈ 32 min, UC2 ≈ 22 min, open+close ≈ 6 min.
+> ⏱️ **Time discipline**: the prompt gives a **full hour** (don't compress to 45–50 — that's a different format). Plan ~30 min UC1 + ~20 min UC2, but **don't script a 54-min monologue — invite questions throughout and treat it as a conversation**; the per-segment minutes below are ceilings, not a fixed read.
 > If you run over: in UC1 cut the latency detail first; in UC2 cut the long-term-KT detail first — but *touch* every assessment area, never skip a whole one.
 
 ---
