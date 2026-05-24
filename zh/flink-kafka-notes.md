@@ -5,6 +5,27 @@
 
 ---
 
+## Q0. 基础词汇：Source / Operator / Sink（先记这组）
+
+所有流处理/数据管道的通用三件套（Flink、Spark、Kafka Streams 都一样），一个水管比喻：
+
+```
+Source(水龙头)──▶ Operator(管道,处理)──▶ Sink(出水口/排水口)
+数据从哪来              中间加工                 结果往哪去
+```
+
+| 词 | 意思 | demo 里 | UI 里 |
+|----|------|---------|-------|
+| **Source 源** | 数据**进来**的地方 | Kafka topic `courier-events`（`'connector'='kafka'`） | 作业图第一个框 `Source: courier_events` |
+| **Operator 算子** | 中间处理（过滤/聚合/join） | WHERE 过滤、TUMBLE 窗口聚合 | 中间的框 + HASH 边 |
+| **Sink 汇** | 结果**出去**的地方 | `print` 表（`'connector'='print'`）→ 打到 Stdout | 最后一个框 `Sink: alert_rate` |
+
+> 生产里 sink 通常是：写数据库 / 写另一个 Kafka topic / 调风控接口 / 写文件。demo 用 `print` 只是图方便看输出。
+
+**「慢 sink → 背压」**：sink 是出口，出口写得太慢（比如写一个慢 DB）→ 结果排不出去 → **倒灌回上游 → 整条流水线变慢**。就像下水道堵了，整个水槽积水。所以排查延迟时，慢 sink 和同步 I/O 一样是常见嫌疑。
+
+---
+
 ## Q1. Flink 是怎么运行的？
 
 **不是一个脚本，是一个常驻的分布式集群。** 你的 job 提交后 7×24 永远在跑（流处理，不像批处理跑完就结束）。
