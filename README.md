@@ -51,6 +51,17 @@
 可运行的混合方案 POC：组件 registry + 粘性 A/B 分桶 + SSE 事件驱动推送 + 管理后台实时预览。
 跑法见 [`demo/README.md`](./demo/README.md)。
 
+## 🌊 Flink + Kafka 教学 Lab — [`flink-kafka-lab/`](./flink-kafka-lab/)
+
+零依赖 Node 程序，把 Kafka/Flink 核心概念（分区、keyBy、keyed state、窗口、watermark、迟到事件）
+做成可跑可改的代码，用 UC2 快递欺诈检测当例子。`node flink-kafka-lab/run.mjs`。
+README 兼作 UC2 复习小抄。
+
+## 🎞️ Slides — [`slides/`](./slides/)
+
+`slides/interview.md` — Marp 幻灯片源（开场 + UC1 + UC2）。
+渲染：`npx @marp-team/marp-cli slides/interview.md -o slides/interview.html`（HTML/PDF 不入库）。
+
 ---
 
 建议入口：先读 [`zh/presentation-outline.md`](./zh/presentation-outline.md)（决定整体结构），再按它引用的细节文档逐个核对。
