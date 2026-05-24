@@ -62,8 +62,8 @@ Opening (say this in ~30s):
 ## Agenda
 
 **Use Case 1 — Courier Offering System** (~30 min)
-1. Technical Decision — Approach A vs B → **C** (recommend + why)
-2. System Design — end-to-end architecture of C
+1. Technical Decision — evaluate Approach A vs B, then recommend
+2. System Design — end-to-end architecture
 3. Technical Leadership — facilitating the mobile team
 4. Migration Strategy — metrics & rollback
 
