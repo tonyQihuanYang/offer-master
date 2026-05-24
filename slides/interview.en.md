@@ -320,21 +320,6 @@ Don't let "Flink is overkill" be the opener — it reads as dodging streaming.
 
 ---
 
-## ▶ Seen it run — real Flink + Kafka
-
-![w:660](img/flink-job-graph.png)
-
-- Real cluster (JobManager + TaskManager) + Kafka + a SQL fraud job — **I actually ran it**
-- The UI shows what to diagnose: **backpressure** (the 45s culprit) · checkpoints · watermark · parallelism
-- **▶ LIVE:** `localhost:8081`
-
-<!--
-Show this during UC2 diagnosis: proof that "I can diagnose at the Flink layer" isn't just talk — I stood up a real cluster and read the UI.
-Tie-in: for the 45s, first check the UI — is backpressure red, is consumer lag growing.
--->
-
----
-
 ## 2 · The 3-day plan — ruthlessly descope
 
 **Load-bearing move:** ship **one** pattern that tells the story —

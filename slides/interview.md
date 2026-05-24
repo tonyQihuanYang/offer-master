@@ -320,21 +320,6 @@ Don't parachute in and rewrite it — buy time, narrow scope, coach, let them sh
 
 ---
 
-## ▶ Seen it run — real Flink + Kafka
-
-![w:660](img/flink-job-graph.png)
-
-- Real cluster (JobManager + TaskManager) + Kafka + a SQL fraud job — **I actually ran it**
-- The UI shows what to diagnose: **backpressure** (the 45s culprit) · checkpoints · watermark · parallelism
-- **▶ LIVE:** `localhost:8081`
-
-<!--
-讲 UC2 诊断时亮这张：证明"我能诊断到 Flink 层"不是空谈——我搭了真集群、看过 UI。
-顺势讲：45s 先在 UI 看 backpressure 红不红、consumer lag 涨不涨。
--->
-
----
-
 ## 2 · The 3-day plan — ruthlessly descope
 
 **Load-bearing move:** ship **one** pattern that tells the story —

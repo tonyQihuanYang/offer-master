@@ -1,6 +1,7 @@
 # Staff Engineer Interview — Presentation Outline (1 hour)
 
 > 中文版本：[`../zh/presentation-outline.md`](../zh/presentation-outline.md)
+> 🗣️ Verbatim talk track (for speaking practice): [`presentation-script.md`](./presentation-script.md)
 >
 > A **one-hour talk outline** that integrates all the prep material.
 > Each slide gives: **title** (ready for PPT) + **bullets** (what's on the slide) + **speaker notes** + **time**.
