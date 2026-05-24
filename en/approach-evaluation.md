@@ -491,6 +491,36 @@ If you want mobile to **own the UX** (formatting, interactions, accessibility, a
 
 For a courier app where UX quality matters (fast accept, clear earnings, native feel) — Hybrid wins because mobile makes the offer feel native rather than "server-rendered text in boxes."
 
+#### Why do A and C look so similar? (the string-vs-value spectrum)
+
+A common reaction when you render A and C side by side (see the demo's `/approaches` page): *they look almost identical.* True for a static card — and worth understanding why.
+
+**Approach A is a spectrum:**
+- *Purest A:* server sends finished HTML / an image → mobile knows nothing (a WebView).
+- *Widget-DSL A:* server sends `{ widget: "amount", text: "$11.76" }` → mobile has a generic interpreter mapping widget types to native widgets. **This form is close to C** — hence the visual similarity.
+
+**The crux: A puts the *formatted string* on the wire (`"$11.76"`); C puts the *raw value* (`976`).** With only a string, the mobile side can style the container (font, color, CSS transition) but **cannot do anything that needs the value**:
+
+| Capability | A (has the string `"$11.76"`) | C (has the value `976`) |
+|---|---|---|
+| Style the box (font/color/fade-in) | ✅ | ✅ |
+| Count-up / value-driven animation | ❌ no number to animate | ✅ |
+| Re-format by locale (`CA$9.76`, RTL digits, separators) | ❌ already formatted server-side | ✅ native `Intl`/`NumberFormatter` |
+| Conditional on value (red if low) | ❌ doesn't know the value | ✅ |
+| Long-press → base $6.50 + tip $3.26 | ❌ breakdown isn't on the wire | ✅ has the fields |
+
+So A and C are the same on a **static frame** and diverge the moment you need **behavior or the underlying data**. The more data + hints you add to A, the more it converges toward C.
+
+#### Why is A "heavier" on the server at 2M/h?
+
+"Heavy" is relative — rendering a small card isn't huge CPU. The real points are *where* the work happens:
+
+- **On the latency path.** Per offer, A runs the template engine + formats every field + does i18n (15 countries: currency/date/RTL) **before sending** → it eats into the ~20ms p95 headroom. C just passes raw values through (≈0 on-path); formatting happens later, on the device.
+- **Centralized vs edge.** A's formatting cost lives on your server fleet — you scale it for the ~1500/sec peak. C pushes it to **50,000 phones**, each formatting its own single offer: free, perfectly parallel, with native OS locale support.
+- **i18n is the multiplier.** Server-side per-offer localization for 15 markets is real CPU plus code to maintain; on mobile it's native and free.
+
+> Honest caveat: this is a **secondary** argument — native UX is the bigger reason to choose C. At ~556/sec a compiled-template renderer might well be fine. The point is you'd be paying **centrally, on the latency path**, for what C gets **free on the edge**.
+
 ---
 
 ### Why do Airbnb and Shopify use GraphQL for server-driven UI?
