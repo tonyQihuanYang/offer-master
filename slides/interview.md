@@ -62,8 +62,8 @@ Staff Engineer — Courier Offer & Rewards
 ## Agenda
 
 **Use Case 1 — Courier Offering System** (~32 min)
-1. System Design — end-to-end architecture
-2. Technical Decision — Approach A vs B → **C**
+1. Technical Decision — Approach A vs B → **C** (recommend + why)
+2. System Design — end-to-end architecture of C
 3. Technical Leadership — facilitating the mobile team
 4. Migration Strategy — metrics & rollback
 
@@ -103,7 +103,28 @@ Diagnose · Guide without solving · 3-day plan · Knowledge transfer · Work wi
 
 ---
 
-## 1 · System Design — Hybrid (Approach C)
+## Technical Decision — A vs B vs C  (→ recommend C)
+
+| | A (DSL) | B (raw+mobile) | **C (Hybrid) ✅** |
+|---|---|---|---|
+| Experiment speed | fast | slow (app release) | **fast** (layout) |
+| 200ms risk | high | low | low |
+| Native UX | poor | great | great |
+| iOS/Android consistency | guaranteed | hard | shared component spec |
+
+**B vs C — the one real difference:** *"which components & in what order"* is **app logic on mobile in B**, but **data from the server in C**.
+→ **C = B + a server-controlled layout descriptor + experiment assignment moved server-side.**
+
+<!--
+先评估、再设计：题目把团队框在 A 和 B 之间，但答案是两者的混合 C——这是我的推荐(thesis)，下一页才展开怎么搭。
+A 硬伤：服务端渲染吃延迟、锁死原生 UX。B 硬伤：每个 layout 实验都要发版。
+诚实讲 C 代价：组件治理、改已有组件 schema 仍要发版/双发。
+过渡到下一页："既然选了 C，我来展示它具体怎么搭。"
+-->
+
+---
+
+## System Design — Hybrid (Approach C)
 
 **Server decides _what + order_; mobile decides _how_.**
 
@@ -119,13 +140,14 @@ Diagnose · Guide without solving · 3-day plan · Knowledge transfer · Work wi
 Mobile renders via a **component registry (~10–15)**; unknown components **skipped** (forward-compat).
 
 <!--
+（接上页：既然选了 C，这页讲它怎么落地）
 逐组件讲【延迟预算 + 失败模式】：fail-closed、双写、幂等、粘性 hash 不依赖缓存——把这些当"分布式系统设计"卖点讲。
 这里亮 demo / 录屏：可运行 POC 验证分界线 + 粘性分桶 + SSE 推送。
 -->
 
 ---
 
-## 1 · The Payload Contract
+## The Payload Contract
 
 ```json
 {
@@ -146,27 +168,7 @@ Mobile renders via a **component registry (~10–15)**; unknown components **ski
 
 ---
 
-## 2 · Technical Decision — A vs B vs C
-
-| | A (DSL) | B (raw+mobile) | **C (Hybrid) ✅** |
-|---|---|---|---|
-| Experiment speed | fast | slow (app release) | **fast** (layout) |
-| 200ms risk | high | low | low |
-| Native UX | poor | great | great |
-| iOS/Android consistency | guaranteed | hard | shared component spec |
-
-**B vs C — the one real difference:** *"which components & in what order"* is **app logic on mobile in B**, but **data from the server in C**.
-→ **C = B + a server-controlled layout descriptor + experiment assignment moved server-side.**
-
-<!--
-主动提出 C："题目把团队框在 A 和 B 之间，但答案是两者的混合。"
-A 硬伤：服务端渲染吃延迟、锁死原生 UX。B 硬伤：每个 layout 实验都要发版。
-诚实讲 C 代价：组件治理、改已有组件 schema 仍要发版/双发。
--->
-
----
-
-## 3 · Technical Leadership
+## Technical Leadership
 
 > *Mobile is worried Approach B/C increases their complexity. How do you facilitate?*
 
@@ -186,7 +188,7 @@ This is **influence, not authority** — verbatim from the JD.
 
 ---
 
-## 3 · The closing posture
+## The closing posture
 
 > **"My job isn't to win the architecture argument — it's to make the team that ships and maintains this a co-author of the decision.**
 > **I'd advocate C, but I'd rather ship B with mobile fully bought in than ship C with mobile compliant but quietly resentful."**
@@ -199,7 +201,7 @@ This is **influence, not authority** — verbatim from the JD.
 
 ---
 
-## 4 · Migration & Metrics
+## Migration & Metrics
 
 **4 phases, every step reversible:**
 Foundation (no-op) → Dual payload (`data` + `data_v2`) → Flag rollout (1→5→25→50→100% per city) → Experiment live

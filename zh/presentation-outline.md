@@ -12,8 +12,8 @@
 |------|------|------|------|
 | 开场 | Title + Agenda | 2 min | 2 |
 | **UC1** | 问题 + 现状 | 5 min | 7 |
-| **UC1** | 系统设计（目标架构） | 9 min | 16 |
-| **UC1** | 技术决策 A vs B vs C | 6 min | 22 |
+| **UC1** | 技术决策 A vs B vs C（评估+推荐+为什么） | 6 min | 13 |
+| **UC1** | 系统设计（C 的目标架构） | 9 min | 22 |
 | **UC1** | 延迟 & 规模分析 | 3 min | 25 |
 | **UC1** | 技术领导力（移动团队） | 5 min | 30 |
 | **UC1** | 迁移策略 + 指标 | 4 min | 34 |
@@ -61,7 +61,7 @@
 **要点（slide 上写）：**
 - Courier Offering System Modernization (Use Case 1)
 - Team Guidance: Real-time Fraud Detection (Use Case 2)
-- Agenda: System Design → Decision → Leadership → Migration ‖ Diagnose → Guide → Recover → Grow
+- Agenda: Decision → System Design → Leadership → Migration ‖ Diagnose → Guide → Recover → Grow
 
 **讲解备注：**
 - 一句话定调："我会用大约 32 分钟讲 UC1、22 分钟讲 UC2，留几分钟 Q&A。"
@@ -99,44 +99,7 @@
 
 ---
 
-## Slide 3 — System Design: Target Architecture (Hybrid)（9 min，⭐ 核心）
-
-**要点（画目标架构图，4 个新组件）：**
-1. **Experiment Resolver** — 按 courierId/city/tier/zone 分配 variant；Caffeine 缓存 60s TTL；**确定性粘性** `hash(courierId+experimentId) % 100 vs treatment_pct`；flag 服务挂了 → **fail-closed 回落 control**；预算 ~3ms
-2. **Layout Composer** — 输出 `components[]` + `hints{}`；JSON config，30s 轮询刷新，启动失败回落 bundled default；预算 ~2ms
-3. **Unified Earnings Calculator** — 统一 flat / distance / surge / tips_prediction 四种模型（数据已由 Temporal 取到，只算不取）；预算 <10ms
-4. **Offer Payload Builder** — 取代 `Offer.java`；按 app 版本分支输出（老 app 走 legacy，新 app 走 modular）
-
-**讲解备注：**
-- 这是 UC1 拿分的核心。**先讲"server 决定 what + order，mobile 决定 how"**这条分界线。
-- 🔴 **开口先命名 JD 关键词**："现有系统是 **event-driven 的分布式架构**（SQS + Temporal + AppSync over AWS）——我的设计是在这条事件链上做增量，不是推倒重来。" 把它显式贴上 JD 要的 *event-driven architecture & distributed systems* 标签。
-- 逐个组件讲，但每个都带上**延迟预算**和**失败模式**——Staff 不只画框，还讲"挂了怎么办"和"放不放得进 20ms"。把这些 failure mode（fail-closed 回落、双写、幂等、粘性 hash 不依赖缓存）**当作"分布式系统设计"的卖点**讲，而不只是实现细节。
-- 粘性分配重点讲（面试常追问）："同一个快递员永远进同一组,因为是对 courierId 做确定性 hash，不依赖缓存，缓存淘汰也不会翻组。"
-- 🟢 **third-party integration（JD 要点）**：顺一句外部服务集成——Data Science 定价 / Courier Pay / Bonus 的调用边界、超时与重试（Temporal 1.5s 信号 + REST 2s/3 retries），以及"bonus 失败可降级"这种容错策略。
-- 🔴🔴 **现在就亮 Demo 当 POC（不要等到最后、不要说"如果允许"）**：JD 两次强调 *hands-on POCs / rapid prototypes / fail fast* ——主动说："我做了一个**可运行的 POC** 来验证这套方案。" 本地 `demo/` 实现了 Experiment Resolver（FNV-1a hash 分桶）+ component registry + control/treatment + 管理后台实时预览。这是你命中 JD "fail fast / 动手做原型" 的**最直接证据**，要当作加分项主动展示，而不是旁白。
-
-## Slide 4 — The Payload Contract（夹在 Slide 3 里，~1.5 min）
-
-**要点（贴一段精简 JSON）：**
-```json
-{
-  "experiment": { "earnings_display": { "variant": "breakdown_v2", "group": "treatment" } },
-  "layout": { "components": ["offer_header","earnings_breakdown","distance_summary","surge_indicator","accept_cta"],
-              "hints": { "highlight_field": "surge", "theme": "urgent" } },
-  "data":   { "earnings_breakdown": { "model":"surge","base_pay":450,"surge_amount":120,"tip_estimate":80,"total":730,"currency":"CAD" } }
-}
-```
-- Server 发：**layout（顺序）+ raw data + hints**；Mobile 用 **component registry**（~10–15 个组件）渲染
-- 同一份 delivery，CH/UK/CA 三个市场发**不同 layout + 不同 earning model**（per-zone 配置）
-- 未知组件 → mobile **静默跳过**（forward-compat，老 app 安全）
-
-**讲解备注：**
-- 这页是"把抽象架构落到一个具体 payload"。面试官看到 JSON 会更信你想清楚了。
-- 强调 registry 是**有界的**(10-15 个)——这是后面领导力部分"bounded complexity"的钩子。
-
----
-
-## Slide 5 — Technical Decision: A vs B vs C（6 min，⭐ 第 2 考察点）
+## Slide 3 — Technical Decision: A vs B vs C（6 min，⭐ 先评估、先推荐）
 
 **要点（贴三方对比表，精简版）：**
 
@@ -154,10 +117,48 @@
 - 行业佐证：Airbnb Ghost Platform、Uber、Lyft、Grab 都是 hybrid（不是纯 A/B）
 
 **讲解备注：**
-- 题目只给 A 和 B，**你主动提出 C 是加分项**——明确说："题目把团队框在 A 和 B 之间，但我认为真正的答案是两者的混合，我叫它 Approach C。"
+- 🔴 **先评估、再设计**：题目只给 A 和 B，**主动提出 C 是加分项**——"题目把团队框在 A 和 B 之间，但真正的答案是两者的混合，我叫它 Approach C。" 这是你的**推荐(thesis)**，下一页才展开 C 怎么搭。
 - 讲"$9.76 includes tip"那个例子说明 A vs C 的区别：A 改个文案要发后端、加动画不可能；C mobile 自己格式化、能加动画/RTL/暗黑模式。
 - 诚实讲 C 的代价（Staff 信号）："C 不是免费的——它需要前期契约设计、组件治理（review board + 版本规则），而且**改已有组件的数据结构仍然要发版或双发**，只有*新增*组件才有免费 forward-compat。"
 - 行业引用要克制："Uber/Lyft 这么做支持我的论点，但不替代论点——后面领导力部分我会讲为什么不能拿'大厂都这么做'去压移动团队。"
+- 过渡到下一页："**既然选了 C，我来展示它具体怎么搭。**"
+
+---
+
+## Slide 4 — System Design: Target Architecture (Hybrid)（9 min，⭐ 核心）
+
+**要点（画目标架构图，4 个新组件）：**
+1. **Experiment Resolver** — 按 courierId/city/tier/zone 分配 variant；Caffeine 缓存 60s TTL；**确定性粘性** `hash(courierId+experimentId) % 100 vs treatment_pct`；flag 服务挂了 → **fail-closed 回落 control**；预算 ~3ms
+2. **Layout Composer** — 输出 `components[]` + `hints{}`；JSON config，30s 轮询刷新，启动失败回落 bundled default；预算 ~2ms
+3. **Unified Earnings Calculator** — 统一 flat / distance / surge / tips_prediction 四种模型（数据已由 Temporal 取到，只算不取）；预算 <10ms
+4. **Offer Payload Builder** — 取代 `Offer.java`；按 app 版本分支输出（老 app 走 legacy，新 app 走 modular）
+
+**讲解备注：**
+- （接上页：既然选了 C，这页讲它怎么落地）这是 UC1 拿分的核心。**先讲"server 决定 what + order，mobile 决定 how"**这条分界线。
+- 🔴 **开口先命名 JD 关键词**："现有系统是 **event-driven 的分布式架构**（SQS + Temporal + AppSync over AWS）——我的设计是在这条事件链上做增量，不是推倒重来。" 把它显式贴上 JD 要的 *event-driven architecture & distributed systems* 标签。
+- 逐个组件讲，但每个都带上**延迟预算**和**失败模式**——Staff 不只画框，还讲"挂了怎么办"和"放不放得进 20ms"。把这些 failure mode（fail-closed 回落、双写、幂等、粘性 hash 不依赖缓存）**当作"分布式系统设计"的卖点**讲，而不只是实现细节。
+- 粘性分配重点讲（面试常追问）："同一个快递员永远进同一组,因为是对 courierId 做确定性 hash，不依赖缓存，缓存淘汰也不会翻组。"
+- 🟢 **third-party integration（JD 要点）**：顺一句外部服务集成——Data Science 定价 / Courier Pay / Bonus 的调用边界、超时与重试（Temporal 1.5s 信号 + REST 2s/3 retries），以及"bonus 失败可降级"这种容错策略。
+- 🔴🔴 **现在就亮 Demo 当 POC（不要等到最后、不要说"如果允许"）**：JD 两次强调 *hands-on POCs / rapid prototypes / fail fast* ——主动说："我做了一个**可运行的 POC** 来验证这套方案。" 本地 `demo/` 实现了 Experiment Resolver（FNV-1a hash 分桶）+ component registry + control/treatment + 管理后台实时预览。这是你命中 JD "fail fast / 动手做原型" 的**最直接证据**，要当作加分项主动展示，而不是旁白。
+
+## Slide 5 — The Payload Contract（夹在 Slide 4 里，~1.5 min）
+
+**要点（贴一段精简 JSON）：**
+```json
+{
+  "experiment": { "earnings_display": { "variant": "breakdown_v2", "group": "treatment" } },
+  "layout": { "components": ["offer_header","earnings_breakdown","distance_summary","surge_indicator","accept_cta"],
+              "hints": { "highlight_field": "surge", "theme": "urgent" } },
+  "data":   { "earnings_breakdown": { "model":"surge","base_pay":450,"surge_amount":120,"tip_estimate":80,"total":730,"currency":"CAD" } }
+}
+```
+- Server 发：**layout（顺序）+ raw data + hints**；Mobile 用 **component registry**（~10–15 个组件）渲染
+- 同一份 delivery，CH/UK/CA 三个市场发**不同 layout + 不同 earning model**（per-zone 配置）
+- 未知组件 → mobile **静默跳过**（forward-compat，老 app 安全）
+
+**讲解备注：**
+- 这页是"把抽象架构落到一个具体 payload"。面试官看到 JSON 会更信你想清楚了。
+- 强调 registry 是**有界的**(10-15 个)——这是后面领导力部分"bounded complexity"的钩子。
 
 ---
 
