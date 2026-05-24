@@ -9,6 +9,10 @@ build/
 recordings/
 *.webm
 
+# Slide build outputs (regenerate from slides/*.md with Marp)
+slides/*.html
+slides/*.pdf
+
 # Logs
 *.log
 npm-debug.log*
