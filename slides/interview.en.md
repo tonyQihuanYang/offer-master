@@ -186,6 +186,20 @@ Stress the registry is bounded (~10–15) — the hook for "bounded complexity" 
 
 ---
 
+## ▶ Live POC — Hybrid SDUI (I built this)
+
+![w:600](img/demo-client.png)
+
+- Server-driven layout · **sticky A/B** (inspector: bucket 95 → control) · **SSE push** · runnable (React + Express)
+- **▶ LIVE:** `/admin` change layout → save → live · `/client` offer pushed · `/approaches` A vs B vs C side-by-side
+
+<!--
+🔴 This IS the JD's hands-on POC / fail fast — don't just say "I built a demo", switch to the running demo and click through it.
+Live order: /admin change layout → Save → green toast; /client click Dispatch → offer pushed to the phone; /approaches see the three A/B/C payloads.
+-->
+
+---
+
 ## Technical Leadership
 
 > *Mobile is worried Approach B/C increases their complexity. How do you facilitate?*
@@ -302,6 +316,21 @@ The prompt says "you're not the TM, you work with the TM." Traps: negotiating wi
 <!--
 Ask in waves, don't fire all 30 at once. Key: diagnose with real streaming concepts to show depth FIRST, then land the right-sizing conclusion.
 Don't let "Flink is overkill" be the opener — it reads as dodging streaming.
+-->
+
+---
+
+## ▶ Seen it run — real Flink + Kafka
+
+![w:660](img/flink-job-graph.png)
+
+- Real cluster (JobManager + TaskManager) + Kafka + a SQL fraud job — **I actually ran it**
+- The UI shows what to diagnose: **backpressure** (the 45s culprit) · checkpoints · watermark · parallelism
+- **▶ LIVE:** `localhost:8081`
+
+<!--
+Show this during UC2 diagnosis: proof that "I can diagnose at the Flink layer" isn't just talk — I stood up a real cluster and read the UI.
+Tie-in: for the 45s, first check the UI — is backpressure red, is consumer lag growing.
 -->
 
 ---

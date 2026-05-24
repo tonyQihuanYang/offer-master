@@ -186,6 +186,20 @@ Mobile renders via a **component registry (~10–15)**; unknown components **ski
 
 ---
 
+## ▶ Live POC — Hybrid SDUI (I built this)
+
+![w:600](img/demo-client.png)
+
+- Server-driven layout · **sticky A/B** (inspector: bucket 95 → control) · **SSE push** · runnable (React + Express)
+- **▶ LIVE:** `/admin` change layout → save → live · `/client` offer pushed · `/approaches` A vs B vs C side-by-side
+
+<!--
+🔴 这就是 JD 要的 hands-on POC / fail fast——别只嘴上说"我做了 demo"，直接切到运行中的 demo 点给他们看。
+现场顺序：/admin 改 layout→Save→绿 toast；/client 点 Dispatch→offer 被推进手机；/approaches 看 A/B/C 三种 payload 的差别。
+-->
+
+---
+
 ## Technical Leadership
 
 > *Mobile is worried Approach B/C increases their complexity. How do you facilitate?*
@@ -302,6 +316,21 @@ Don't parachute in and rewrite it — buy time, narrow scope, coach, let them sh
 <!--
 分波提问，别一次甩 30 个。关键：先用真流式概念诊断、证明懂行，再下 right-sizing 结论。
 别让"Flink 过度设计"成为开场白——否则像是在绕开流式。
+-->
+
+---
+
+## ▶ Seen it run — real Flink + Kafka
+
+![w:660](img/flink-job-graph.png)
+
+- Real cluster (JobManager + TaskManager) + Kafka + a SQL fraud job — **I actually ran it**
+- The UI shows what to diagnose: **backpressure** (the 45s culprit) · checkpoints · watermark · parallelism
+- **▶ LIVE:** `localhost:8081`
+
+<!--
+讲 UC2 诊断时亮这张：证明"我能诊断到 Flink 层"不是空谈——我搭了真集群、看过 UI。
+顺势讲：45s 先在 UI 看 backpressure 红不红、consumer lag 涨不涨。
 -->
 
 ---
