@@ -274,7 +274,7 @@ Don't parachute in and rewrite it — buy time, narrow scope, coach, let them sh
 ## 1 · Diagnose — ask, don't lead
 
 - **Architecture:** "Walk the data flow on a whiteboard." "Where are the 45s spent — measured or inferred?" "Sync I/O in operators? parallelism? watermarks?"
-- **🔑 The big one:** "Is Flink even right for our event rate?" → 50k couriers × ~30/day ≈ **~20 events/sec** *(estimated — UC2 gives no number; measuring it is step one)* vs Flink's **100k+/sec** design point.
+- **🔑 The big one:** "Is Flink even right for our event rate?" — **UC2 gives no number**. Delivery events ≈ **~20/sec**; *with GPS pings* likely **~1k–3k/sec** (UC1's 2M/hr ≈ 556/sec confirms hundreds/sec). Range straddles overkill vs justified → **measure first, then right-size.**
 - **Scope:** "Which 3 of the 12 do stakeholders want *this quarter*?"
 - **Data quality:** "What % of events miss location — null / stale / missing entirely?"
 - **Testing:** "Show me how you test one rule end-to-end."
@@ -345,7 +345,7 @@ teaching is the highest form of learning——90 天让他们讲出来就是真�
 - **Principals:** early second opinions + pattern-matching; a resource, not political backup
 - **Leadership:** get ahead of the escalation — **brief jointly with the TM**:
 
-> *"The team picked Flink for a workload ~50–100× below its design point. We've descoped to one pattern; we'll formally evaluate the architecture over 30 days. We'd like your air cover with the PM."*
+> *"The team picked Flink for a workload well below its design point at the rate we measured. We've descoped to one pattern; we'll formally evaluate the architecture over 30 days. We'd like your air cover with the PM."*
 
 <!--
 "start over"工程师如果对了：公开表扬他、把 Flink 工作框为"没白做"（暴露了数据质量/范围/真实事件率）、自己认领教训。

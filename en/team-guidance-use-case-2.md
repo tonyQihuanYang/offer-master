@@ -89,7 +89,7 @@ that turn symptoms into causes.
 | "What's your watermark / event-time strategy? Are late events buffering up?" | Catches event-time misconfigurations that look like processing delay. |
 | "Are any operators doing I/O — DB lookups, HTTP calls? If so, sync or async?" | Catches blocking I/O, which is a Flink anti-pattern. |
 | "What does your checkpoint duration look like? Are you backpressured?" | Catches checkpoint storms and backpressure cascades. |
-| "Is Flink even the right tool for our actual event rate? Have you measured it?" | The big one. At 50K couriers × ~30 deliveries/day = ~1.5M events/day = ~20 events/sec average, ~100/sec peak. Flink is designed for 100k+ events/sec. The team may be paying a complexity tax for capacity they don't need. **(Caveat: UC2 states no volume — this rate is *estimated* from UC1's "50,000+ couriers" × ~30/day. Measuring the real rate is itself the first diagnostic step; don't present the estimate as a given.)** |
+| "Is Flink even the right tool for our actual event rate? Have you measured it?" | The big one. At 50K couriers × ~30 deliveries/day = ~1.5M events/day = ~20 events/sec average, ~100/sec peak. Flink is designed for 100k+ events/sec. The team may be paying a complexity tax for capacity they don't need. **(Caveat: UC2 states no volume. ~20/sec counts *delivery events only*; the GPS pings fraud relies on could push it to ~1,000–3,000/sec, and UC1's 2M offers/hr ≈ 556/sec shows the platform already runs at hundreds/sec. So the real rate could span ~20 to a few thousand/sec — *measure it (esp. GPS) before concluding Flink is overkill*.)** |
 
 ### Scope diagnostics (the 3 → 12 patterns problem)
 
@@ -371,7 +371,7 @@ sprint from a frustrated PM, you and the TM brief them jointly:
 
 ```
 "Here's what we found: the team picked Flink for a workload that's
-50–100× smaller than Flink's design point, and is now paying complexity
+well below Flink's design point at the rate we measured, and is now paying complexity
 tax that's costing them shipping velocity. We've descoped the sprint to
 ship one pattern; we're using next 30 days to formally evaluate whether
 the architecture should change. The team will have a recommendation by
@@ -529,7 +529,7 @@ Plus the meta-themes the prompt is testing:
 | **22–25 min** | Working with TM/Principals | The RACI. Joint leadership briefing. The "start over" engineer might be right. |
 
 If asked "what's the architecture problem with Flink?" — answer briefly
-(the event rate is 50-100× below Flink's design point, complexity tax),
+(at the measured rate the volume is well below Flink's design point — a complexity tax; but flag that GPS-ping volume must be measured, it can be 1–2 orders higher),
 then redirect to "but my job here isn't to declare it wrong; it's to help
 the team measure and conclude that themselves."
 

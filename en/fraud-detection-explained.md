@@ -137,7 +137,11 @@ Courier taps "delivered" 2.2 km from the destination
 - **The lab implements step ② (detect)** — `alert(...)` is the "risk signal", and it stops there.
 - **A real system continues into ③ decide → ④ respond → ⑤ feedback** (scoring, review queue, payout holds, retraining).
 - **The UC2 team** is stuck on the streaming implementation of ②; but a full fraud system is much more than streaming. **Staff guidance**: get the **simplest single rule working end-to-end** (detect → alert) to prove the pipeline, then layer on ML, responses, and feedback — don't try to ship 12 patterns + ML + auto-ban all at once.
-- **Right-sizing**: courier volume is ~20 events/sec *(estimated from UC1's 50k couriers × ~30/day — **UC2 itself states no volume**, so measuring the real rate is the first diagnostic step, not an assumption)*, far below Flink's 100k+/sec design point; the 45s latency is most likely misconfiguration (sync I/O / under-parallelism / hot keys / checkpoint storms), not Flink being slow. A plain Kafka consumer + Redis for state may well be enough.
+- **Right-sizing — but measure first (UC2 gives no volume).** The number depends entirely on *what you count*:
+  - *Delivery events only:* 50k couriers × ~30/day ≈ **~20/sec avg, ~100/sec peak**.
+  - *Plus GPS pings* (what fraud detection actually runs on): ~10k concurrent couriers pinging every ~5s ≈ **~1,000–3,000/sec at peak** — 1–2 orders of magnitude higher.
+  - *Cross-check:* UC1's **2M offers/hour ≈ 556/sec** sustained, so the platform already operates at hundreds/sec.
+  - So the real fraud-relevant rate plausibly spans **~20 to a few thousand/sec** — a range that *straddles* "Flink is overkill" and "Flink is justified". **Don't assert overkill; measure the real rate (especially GPS volume) first**, then right-size: low end → Kafka consumer + Redis; high end → Kafka Streams / Flink. Either way the 45s latency is most likely misconfiguration (sync I/O / under-parallelism / hot keys / checkpoint storms), independent of tool choice.
 
 ## One-line summary
 
