@@ -38,6 +38,7 @@
 | [`presentation-outline.md`](./zh/presentation-outline.md) | **主线** — 1 小时演讲大纲（逐张 slide + 时间分配 + JD 关键词）|
 | [`runtime-dataflow.md`](./zh/runtime-dataflow.md) | 端上运行时数据流：冷启动 / offer 投递 / 模板更新（Mermaid 图）|
 | [`fraud-detection-explained.md`](./zh/fraud-detection-explained.md) | UC2 学习笔记：Flink 运行时 + 欺诈检测端到端运作（中文）|
+| [`flink-kafka-notes.md`](./zh/flink-kafka-notes.md) | Flink/Kafka 复习笔记（Q&A：UI/watermark/窗口/看数据/代码）|
 | [`technical-leadership.zh.md`](./zh/technical-leadership.zh.md) | `technical-leadership.md` 中文版 |
 | [`team-guidance-use-case-2.zh.md`](./zh/team-guidance-use-case-2.zh.md) | `team-guidance-use-case-2.md` 中文版 |
 
