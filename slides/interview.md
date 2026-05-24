@@ -226,6 +226,160 @@ Foundation (no-op) → Dual payload (`data` + `data_v2`) → Flag rollout (1→5
 
 <!-- _class: lead -->
 
+---
+
+# Use Case 2
+
+## Real-time Fraud Detection — Team Guidance
+
+<!-- _class: lead -->
+
+---
+
+## The Situation
+
+- 4 engineers (2–3 yrs), Kafka + Flink fraud detection
+- **45s latency** vs <5s target · scope crept **3 → 12 patterns**
+- Sprint review in **3 days, nothing to demo** · low morale · PM escalating
+
+**Principle: the crisis is the deadline, not the architecture.**
+Don't parachute in and rewrite it — buy time, narrow scope, coach, let them ship something they understand.
+
+> Role: guide **without doing the work for them**, working **with** the Tech Manager — not replacing them.
+
 <!--
-（样例到此。UC2 的幻灯片可同样风格继续。）
+最常见的 Staff 翻车点：冲进去重写架构"拯救"sprint——解决了 demo，搞坏了团队。
+第二原则：那个想"推倒重来用更简单方案"的工程师可能是对的，认真对待。
+-->
+
+---
+
+## Staff vs Tech Manager — draw the line first
+
+| Area | TM owns | Staff owns |
+|---|---|---|
+| Sprint scope · deadlines · PM negotiation | ✓ | technical framing |
+| Individual performance · morale | ✓ | surface tech causes |
+| Architecture · testing · RFCs · mentorship | | ✓ |
+| Sprint-review narrative · escalation | shared | shared |
+
+**First 30 min = a 1:1 with the TM** to draw exactly this line.
+
+<!--
+题目明说"你不是 TM，是和 TM 协作"。陷阱：替他和 PM 谈、单方面砍范围、用他的权威而不协调。
+-->
+
+---
+
+## 1 · Diagnose — ask, don't lead
+
+- **Architecture:** "Walk the data flow on a whiteboard." "Where are the 45s spent — measured or inferred?" "Sync I/O in operators? parallelism? watermarks?"
+- **🔑 The big one:** "Is Flink even right for our event rate?" → 50k couriers × ~30/day ≈ **~20 events/sec avg (~100 peak)** vs Flink's **100k+/sec** design point — a complexity tax for capacity they don't need.
+- **Scope:** "Which 3 of the 12 do stakeholders want *this quarter*?"
+- **Data quality:** "What % of events miss location — null / stale / missing entirely?"
+- **Testing:** "Show me how you test one rule end-to-end."
+
+<!--
+分波提问，别一次甩 30 个。关键：先用真流式概念诊断、证明懂行，再下 right-sizing 结论。
+别让"Flink 过度设计"成为开场白——否则像是在绕开流式。
+-->
+
+---
+
+## 2 · The 3-day plan — ruthlessly descope
+
+**Load-bearing move:** ship **one** pattern that tells the story —
+*"marked complete >500m from destination"* (data's already there, just a distance calc, <5s with or without Flink).
+
+- **Day 1:** TM 1:1 (RACI) · team architecture walk-through · **scope-lock with PM in writing** (1 pattern, 11 deferred) · pair (they drive)
+- **Day 2:** pair to a working skeleton · first test fixture · draft an honest review narrative
+- **Day 3:** dry run (they present) · **pre-brief the Director with the TM** · schedule a post-demo retro
+
+Avoid a half-working live demo that fails. **The team presents and gets the credit.**
+
+<!--
+承重句：团队的问题不是做不出 12 个，是想发 12 个而其实 1 个就能讲完故事。
+砍范围要 PM 书面确认 + 提前 brief 领导，绝不让团队在 review 现场被敌意升级单独面对。
+-->
+
+---
+
+## 3 · Guide without solving
+
+- Pair, don't solve · whiteboard principles, not fixes · code-review **in questions**
+- They write the RFC, you comment · bring a Principal for a second opinion (they present)
+- But don't withhold facts — if asked "ms or s for checkpoints?", just answer
+
+**Worked example — the 45s latency:**
+- ❌ Senior: *"It's backpressure — add async I/O, double parallelism."*
+- ✅ Staff: *"What's the latency breakdown? → what does the metric say? → how do we confirm? → run it — what would the result tell us?"*
+
+Same destination — the Staff version teaches the **debugging method**.
+
+<!--
+度的把握：既不替他们写，也不死活不给答案。藏事实不是辅导。
+-->
+
+---
+
+## 4 · Long-term — knowledge transfer (30/60/90)
+
+| Window | Activity |
+|---|---|
+| **30 days** | streaming study group (2h/wk) · external SME sessions · architecture office hours |
+| **60 days** | each builds a Flink toy project · team writes the v2 RFC · read another team's real job |
+| **90 days** | each *teaches* one concept (watermarks, backpressure…) · name a streaming SME · pair with an experienced team |
+
+**Don't let them learn in isolation** — broker a partnership with a team that runs production streaming.
+
+<!--
+这是预防下一次 3 天危机的部分。没有它，两个月后我又会站在这个房间里。
+teaching is the highest form of learning——90 天让他们讲出来就是真的会了。
+-->
+
+---
+
+## 5 · Work with TM / Principals / Leadership
+
+- **TM (peer):** daily 15-min during crunch; architecture runs through me, scope is theirs, individual feedback is theirs — **never go around the TM**
+- **Principals:** early second opinions + pattern-matching; a resource, not political backup
+- **Leadership:** get ahead of the escalation — **brief jointly with the TM**:
+
+> *"The team picked Flink for a workload ~50–100× below its design point. We've descoped to one pattern; we'll formally evaluate the architecture over 30 days. We'd like your air cover with the PM."*
+
+<!--
+"start over"工程师如果对了：公开表扬他、把 Flink 工作框为"没白做"（暴露了数据质量/范围/真实事件率）、自己认领教训。
+好的领导汇报：诚实讲哪里错（框为工程判断不甩锅）+ 时间线 + 具体诉求（air cover）+ TM 和 Staff 一起。
+-->
+
+---
+
+## Use Case 2 — the posture
+
+> **"My role is to make the team better at this — not to do the work for them. The 3-day deadline is a constraint to navigate, not a performance to deliver.**
+> **If I do my job right, this team handles the next streaming project without a Staff parachute."**
+
+<!-- _class: lead -->
+
+<!--
+Staff = leverage over time, not heroics in the moment.
+-->
+
+---
+
+## Closing — two postures, one standard
+
+- **UC1 (leadership):** make the team that ships it a **co-author** — *"I'd rather ship B fully bought-in than C quietly resentful."*
+- **UC2 (guidance):** **leverage over time, not heroics** — *"no Staff parachute next time."*
+
+Both answered the same way:
+**influence, not authority · fail fast · hands-on POCs** — exactly what the role calls for.
+
+**Thank you — happy to go deeper on any part (a running POC included).**
+
+<!-- _class: lead -->
+
+<!--
+开场埋的 influence / fail-fast 在这里收口，首尾呼应。然后开放 Q&A：
+"两个 case 我都准备了更深的细节——架构、迁移、组件治理、流式诊断，还有一份可运行的 POC，欢迎往任何方向追问。"
 -->
