@@ -2,6 +2,7 @@
 
 > 这是**逐字英文讲稿**——一句句照着念,练英语口语用。
 > 配套:幻灯片 `slides/interview.en.md`、大纲 [`presentation-outline.md`](./presentation-outline.md)。
+> 📑 **逐页对照版(每页:屏幕显示什么 + 你说什么)**:[`presentation-combined.md`](./presentation-combined.md) ← 练的时候用这个最直观
 > `[▶ DEMO]` = 切到运行中的 demo;`[pause]` = 停一拍。说话用缩写、放慢、自然就好。
 
 ---
