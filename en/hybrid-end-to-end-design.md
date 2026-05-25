@@ -506,6 +506,28 @@ Current p95 is ~180ms (subject to verification — see `handOver.md`). The SLA i
 
 The numbers above are targets, not measurements. Before Phase 3 rollout, run a load test that measures the *actual* added latency on a real cluster. If the measured Δ exceeds 15ms, either reclaim time from the 30ms existing-assembly path, push experiment/layout resolution off the request path (precompute per courier), or revisit the SLA with the business.
 
+### Where the 180ms goes — and how to create headroom
+
+We're inside the 200ms SLA, so this is about **headroom + tail latency + future features**, not a fire. But if asked "how would you make it faster?":
+
+**Attack the right thing.** The **Temporal workflow (pay + bonus) is ~150ms ≈ 83%** of the budget; the existing assembly + SQS is ~30ms; the four new hybrid components are ~10ms — a **rounding error**. Optimizing the new components moves nothing; the leverage is the 150ms.
+
+**Biggest wins (the 150ms):**
+- **Parallelize** pay / bonus / promotions — they're largely independent but likely run sequentially today. Fan them out → save the smaller of the two.
+- **Cache / precompute slow-changing inputs** — pricing rates, courier tier, surge multipliers change slowly. Precompute per zone/courier into Redis/Caffeine so the workflow reads cache instead of synchronously calling Data Science — and skips the **1.5s pricing-signal wait** (a major p99 driver).
+- **Speculative precompute** — compute pay+bonus while assignment is still considering the courier, so at offer time it's a cache read.
+
+**Smaller wins:**
+- Leaner payload + compiled serialization (the legacy `Offer.java` is 329 lines / 22+ fields).
+- Move experiment/layout resolution **off the request path** (they're sticky/slow-changing → precompute per courier, read from cache).
+- Connection pooling / reuse to cut connection setup.
+
+**Tail (p99) reduction:** warm caches, **fail-fast timeouts with fallback values** (don't block on a slow dependency), eliminate synchronous I/O on the path.
+
+**Architectural win (SDUI enables it):** decouple "show the offer" from "compute the exact pay." Render the offer card immediately with a **cached/estimated earnings**, then **refine the precise number via the live stream** (SSE/AppSync) a beat later. Perceived latency drops sharply — and only the hybrid model lets mobile re-render when the exact data arrives.
+
+> Staff framing: *measure where the 150ms actually goes (pricing wait vs pay vs bonus) before optimizing; don't touch the 10ms; we're within SLA so this buys headroom and shrinks the tail.*
+
 ---
 
 ## Verification Plan
