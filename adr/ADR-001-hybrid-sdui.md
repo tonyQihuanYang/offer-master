@@ -66,10 +66,26 @@ flowchart LR
 payload 形态:
 ```json
 {
-  "experiment": { "earnings_display": { "variant": "breakdown_v2", "group": "treatment" } },
-  "layout": { "components": ["offer_header","earnings_breakdown","distance_summary","accept_cta"],
-              "hints": { "highlight_field": "surge" } },
-  "data":   { "earnings_breakdown": { "model": "surge", "base_pay": 450, "total": 730, "currency": "CAD" } }
+  "experiment": {
+    "earnings_display": { "variant": "breakdown_v2", "group": "treatment" }
+  },
+  "layout": {
+    "components": [
+      "offer_header",
+      "earnings_breakdown",
+      "distance_summary",
+      "accept_cta"
+    ],
+    "hints": { "highlight_field": "surge" }
+  },
+  "data": {
+    "earnings_breakdown": {
+      "model": "surge",
+      "base_pay": 450,
+      "total": 730,
+      "currency": "CAD"
+    }
+  }
 }
 ```
 
