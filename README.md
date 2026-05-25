@@ -48,8 +48,8 @@
 
 | 文件 | 内容 |
 |------|------|
-| [`ADR-001-hybrid-sdui.md`](./adr/ADR-001-hybrid-sdui.md) | UC1 决策记录（采用方案 C）|
-| [`RFC-skeleton-fraud-detection.md`](./adr/RFC-skeleton-fraud-detection.md) | UC2 RFC 骨架 + reviewer 提问（演示"教而不替"）|
+| [`ADR-001-hybrid-sdui.md`](./adr/ADR-001-hybrid-sdui.md) · [EN](./adr/ADR-001-hybrid-sdui.en.md) | UC1 决策记录（采用方案 C）|
+| [`RFC-skeleton-fraud-detection.md`](./adr/RFC-skeleton-fraud-detection.md) · [EN](./adr/RFC-skeleton-fraud-detection.en.md) | UC2 RFC 骨架 + reviewer 提问（演示"教而不替"）|
 
 ## 🧪 Demo — [`demo/`](./demo/)
 

@@ -21,8 +21,8 @@ cd demo && npm run dev      # 让它先跑着(端口看终端,通常 5173/5174)
 | 2 | demo **`/client`** | 讲到 **Slide 9 ▶ Live POC**:点 ⚡ Dispatch → offer 被推进手机 |
 | 3 | demo **`/admin`** | 同上:改 layout → Save → 绿 toast(展示"不发版改 UI")|
 | 4 | demo **`/approaches`** | 同上:展开 "What's on the wire" 看 A/B/C 三种 payload |
-| 5 | **ADR-001**(GitHub 或本地预览) | UC1 讲完决策/领导力时**闪一下**:"我写成了 ADR" |
-| 6 | **RFC 骨架**(GitHub) | UC2 讲 **Slide 19 指导策略** 时展示:"给团队骨架 + 提问,他们填我批注" |
+| 5 | **ADR-001 (English)** — `adr/ADR-001-hybrid-sdui.en.md`(GitHub)| UC1 讲完决策/领导力时**闪一下**:"我写成了 ADR" |
+| 6 | **RFC skeleton (English)** — `adr/RFC-skeleton-fraud-detection.en.md`(GitHub)| UC2 讲 **Slide 19 指导策略** 时展示:"给团队骨架 + 提问,他们填我批注" |
 | 7 |(备用)`approach-evaluation.md` | 被追问 A-vs-C / B-vs-C 内部时切过去 |
 
 **切换原则**:幻灯片是主屏;只在 ▶ 处切 demo、被问/到点才闪 ADR/RFC,**看完立刻切回幻灯片**。

@@ -1,5 +1,7 @@
 # ADR-001: Adopt Hybrid Server-Driven UI (Approach C) for the Courier Offer System
 
+> 🇬🇧 English (show this to an English interviewer)：[`ADR-001-hybrid-sdui.en.md`](./ADR-001-hybrid-sdui.en.md)
+>
 > **什么是 ADR**：Architecture Decision Record（架构决策记录）——一页纸,把"做了什么决定、为什么、放弃了什么"固化下来,
 > 让没参会的人(未来新人、PM、leadership)都能读懂决策的来龙去脉。它是 Staff 用**影响力而非权威**驱动决策的实物证据。
 >

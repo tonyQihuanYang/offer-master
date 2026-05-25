@@ -1,5 +1,7 @@
 # RFC Skeleton — Real-time Fraud Detection (Use Case 2 coaching artifact)
 
+> 🇬🇧 English (show this to an English interviewer)：[`RFC-skeleton-fraud-detection.en.md`](./RFC-skeleton-fraud-detection.en.md)
+>
 > **⚠️ 这份文档故意不是成品 RFC。**
 >
 > UC2 的题眼是「**提供技术指导,但不替团队做（guide without solving）**」。如果我作为 Staff 掏出一份给欺诈系统**写好的** RFC,
