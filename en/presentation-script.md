@@ -6,6 +6,30 @@
 
 ---
 
+## 🖥️ 开场前准备 — 开好这些标签页 + 什么时候切到哪
+
+**面试前就启动 demo(别现场启动)**:
+```bash
+cd demo && npm run dev      # 让它先跑着(端口看终端,通常 5173/5174)
+```
+
+**浏览器开成这几个标签页(按用到的顺序):**
+
+| # | 标签页 | 什么时候切过去 |
+|---|--------|---------------|
+| 1 | **幻灯片** `slides/interview.en.html`(F 全屏) | 全程主屏 |
+| 2 | demo **`/client`** | 讲到 **Slide 9 ▶ Live POC**:点 ⚡ Dispatch → offer 被推进手机 |
+| 3 | demo **`/admin`** | 同上:改 layout → Save → 绿 toast(展示"不发版改 UI")|
+| 4 | demo **`/approaches`** | 同上:展开 "What's on the wire" 看 A/B/C 三种 payload |
+| 5 | **ADR-001**(GitHub 或本地预览) | UC1 讲完决策/领导力时**闪一下**:"我写成了 ADR" |
+| 6 | **RFC 骨架**(GitHub) | UC2 讲 **Slide 19 指导策略** 时展示:"给团队骨架 + 提问,他们填我批注" |
+| 7 |(备用)`approach-evaluation.md` | 被追问 A-vs-C / B-vs-C 内部时切过去 |
+
+**切换原则**:幻灯片是主屏;只在 ▶ 处切 demo、被问/到点才闪 ADR/RFC,**看完立刻切回幻灯片**。
+**兜底**:demo 起不来 → Slide 9 有截图,照着讲;ADR/RFC 切不过去 → 提一句"我写了 ADR / 给了 RFC 骨架"也拿分。
+
+---
+
 ## Slide 1 — Title
 
 > "Hi, thanks for having me. We've got the hour for both cases. I'll take roughly **30 minutes** on the courier offering system and about **20** on the fraud-detection one — but please jump in with questions any time; I'd rather this be a conversation than a monologue.
