@@ -21,6 +21,29 @@
 
 ---
 
+## The loop you're building (overview)
+
+> 完整的欺诈检测**不只是"检测",是一条闭环**。这张图给团队一个全局视角——你们填的各节落在闭环的哪一步。
+
+```mermaid
+flowchart LR
+  EV["① Behavior events<br/>GPS · delivery · earnings"] --> K[(Kafka)]
+  K --> D["② Detect in-stream<br/>rules + ML · window/state"]
+  D --> S{"③ Risk score"}
+  S -->|low| L["log / monitor"]
+  S -->|medium| R["④ human-review queue"]
+  S -->|high| A["④ auto-action<br/>hold pay · suspend · re-verify"]
+  R --> V["⑤ analyst verdict<br/>fraud / false-positive"]
+  A --> V
+  V -->|labeled data| T["tune thresholds /<br/>retrain"]
+  T -.->|feeds back| D
+```
+
+> **检测(②)只是其中一环**——③ 评分、④ 分级响应、⑤ 反馈环 才是完整系统。
+> 三天计划的做法:先把**最简单一条规则端到端跑通**(① → ② → log),再逐步补 ML / 分级响应 / 反馈。详见 [`../en/fraud-detection-explained.md`](../en/fraud-detection-explained.md)。
+
+---
+
 ## §1. Problem & Goals
 
 > **团队填:** 我们要检测什么?成功长什么样?
