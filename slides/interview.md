@@ -430,11 +430,38 @@ Staff = leverage over time, not heroics in the moment.
 Both answered the same way:
 **influence, not authority · fail fast · hands-on POCs** — exactly what the role calls for.
 
-**Thank you — happy to go deeper on any part (a running POC included).**
+<!-- _class: lead -->
+
+<!--
+开场埋的 influence / fail-fast 在这里收口，首尾呼应。
+这页是「立意收尾」；下一页是 Q&A 看板，留在屏幕上。
+-->
+
+---
+
+## Questions
+
+**Happy to go deeper — I have notes and runnable artifacts ready:**
+
+- **Experiment design** — deterministic sticky bucketing · multi-arm splits · collisions & mutual-exclusion groups
+- **Latency at 2M/h** — the budget · the p99 tail · fail-closed under a slow dependency
+- **Bringing the mobile team along** — registry governance · the co-authored contract
+- **Migration & cost** — phased rollout · ~1 quarter to first experiment · POC-gated
+- **UC2 streaming** — Flink right-sizing (measure first) · diagnosing the 45s lag
+
+📂 *Live POC · ADR-001 · RFC skeleton — open on request*
+
+**Thank you.**
 
 <!-- _class: lead -->
 
 <!--
-开场埋的 influence / fail-fast 在这里收口，首尾呼应。然后开放 Q&A：
-"两个 case 我都准备了更深的细节——架构、迁移、组件治理、流式诊断，还有一份可运行的 POC，欢迎往任何方向追问。"
+这页留在屏幕上做 Q&A 看板——把问题往我们准备充分的方向引。
+开场白："这几块我都准备了更深的细节，还有一份可运行的 POC，欢迎往任何方向追问。"
+每个钩子对应 Q&A.md 里的条目：
+- Experiment design → Q5 / Q5b（分桶、多臂、碰撞）
+- Latency → Q4
+- Mobile team → Q6
+- Migration & cost → Q7 / Q7b
+- UC2 → Q11 / Q14
 -->

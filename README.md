@@ -7,6 +7,8 @@
 > ⚠️ **准备阶段**：文档仍在迭代。内容确认后再做幻灯片 / PDF。
 >
 > 🎯 **面试当天看这个**：[`INTERVIEW-CHECKLIST.md`](./INTERVIEW-CHECKLIST.md)（一页纸：标签页 / 节奏 / 金句 / 深水弹药 / 兜底）
+>
+> ❓ **追问演练**：[`Q&A.md`](./Q&A.md)（17 个高频追问 + 可直接说的英文答案 + 文档出处）
 
 ## 目录结构
 
@@ -42,6 +44,7 @@
 |------|------|
 | [`presentation-outline.md`](./zh/presentation-outline.md) | **主线** — 1 小时演讲大纲（逐张 slide + 时间分配 + JD 关键词）|
 | [`runtime-dataflow.md`](./zh/runtime-dataflow.md) | 端上运行时数据流：冷启动 / offer 投递 / 模板更新（Mermaid 图）|
+| [`sticky-bucketing-explained.md`](./zh/sticky-bucketing-explained.md) | `hash(courierId+expId)%100<pct` 分桶讲透（为什么无状态也 sticky）|
 | [`fraud-detection-explained.md`](./zh/fraud-detection-explained.md) | UC2 学习笔记：Flink 运行时 + 欺诈检测端到端运作（中文）|
 | [`flink-kafka-notes.md`](./zh/flink-kafka-notes.md) | Flink/Kafka 复习笔记（Q&A：UI/watermark/窗口/看数据/代码）|
 | [`technical-leadership.zh.md`](./zh/technical-leadership.zh.md) | `technical-leadership.md` 中文版 |

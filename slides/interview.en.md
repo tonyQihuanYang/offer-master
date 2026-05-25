@@ -430,11 +430,32 @@ Staff = leverage over time, not heroics in the moment.
 Both answered the same way:
 **influence, not authority · fail fast · hands-on POCs** — exactly what the role calls for.
 
-**Thank you — happy to go deeper on any part (a running POC included).**
+<!-- _class: lead -->
+
+<!--
+The influence / fail-fast planted in the opening close the loop here (a bookend).
+This is the message close; the next slide is the Q&A board that stays up.
+-->
+
+---
+
+## Questions
+
+**Happy to go deeper — I have notes and runnable artifacts ready:**
+
+- **Experiment design** — deterministic sticky bucketing · multi-arm splits · collisions & mutual-exclusion groups
+- **Latency at 2M/h** — the budget · the p99 tail · fail-closed under a slow dependency
+- **Bringing the mobile team along** — registry governance · the co-authored contract
+- **Migration & cost** — phased rollout · ~1 quarter to first experiment · POC-gated
+- **UC2 streaming** — Flink right-sizing (measure first) · diagnosing the 45s lag
+
+📂 *Live POC · ADR-001 · RFC skeleton — open on request*
+
+**Thank you.**
 
 <!-- _class: lead -->
 
 <!--
-The influence / fail-fast planted in the opening close the loop here (a bookend). Then open Q&A:
-"I've got deeper detail on both — architecture, migration, component governance, streaming diagnostics, plus a runnable POC — happy to go in any direction."
+Leave this board up during Q&A — it steers questions toward prepared ground.
+Open with: "I've got deeper detail on all of these, plus a runnable POC — happy to go in any direction."
 -->
