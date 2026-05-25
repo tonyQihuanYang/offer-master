@@ -5,6 +5,8 @@
 > 题目原件见 `Staff Engineer - Interview Use Cases.pdf`。
 >
 > ⚠️ **准备阶段**：文档仍在迭代。内容确认后再做幻灯片 / PDF。
+>
+> 🎯 **面试当天看这个**：[`INTERVIEW-CHECKLIST.md`](./INTERVIEW-CHECKLIST.md)（一页纸：标签页 / 节奏 / 金句 / 深水弹药 / 兜底）
 
 ## 目录结构
 

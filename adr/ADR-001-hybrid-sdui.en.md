@@ -30,11 +30,23 @@ The team is split between two approaches:
 - **Approach A** — server-side template engine + DSL; mobile is a dumb renderer
 - **Approach B** — backend sends raw data; mobile owns all presentation logic
 
+## Decision Drivers
+
+What we weigh the three approaches against:
+- **Experiment velocity** — change presentation (layout / order / variant) without an app-store release
+- **Native UX** — animation, RTL, dark mode, native interactions, accessibility
+- **200ms p95 SLA @ 2M/h** — latency + server compute on the hot path
+- **iOS/Android consistency** — the same offer experience on both platforms
+- **Fit with the current system** — evolve the existing event-driven flow vs a rewrite
+- **Bounded mobile complexity** — keep the cost to the mobile team finite (their stated concern)
+
 ## Decision
 
 Adopt **Approach C (Hybrid)**: the server controls the **layout (which components + order) + raw data + presentation hints**; mobile renders **natively** through a **bounded component registry (~10–15 components)**.
 
 > One-line boundary: **the server decides *what* and *order*; mobile decides *how*.**
+
+**Chosen because** C is the only option that scores well on *every* driver at once: it captures A's "experiment without an app release" **and** B's native UX, holds the 200ms SLA (light backend), enforces consistency via a shared component contract, and is a natural evolution of a system that already pushes structured JSON. A wins only on mobile-simplicity (but loses UX and risks latency); B wins only on native UX (but loses experiment velocity and consistency). C's one real cost — mobile complexity — is kept **bounded** by the registry (see mitigations below).
 
 ```mermaid
 flowchart LR

@@ -33,11 +33,23 @@
 - **Approach A** — 服务端模板引擎 + DSL,mobile 做哑渲染
 - **Approach B** — 后端发原始数据,mobile 全权负责展示逻辑
 
+## Decision Drivers（决策驱动 / 拿什么衡量）
+
+衡量 A/B/C 的几条标准:
+- **实验速度** —— 改展示(layout/顺序/variant)能否**不发版**
+- **原生 UX** —— 动画、RTL、暗黑模式、原生交互、无障碍
+- **200ms p95 @ 2M/h** —— 延迟 + 热路径上的服务端算力
+- **iOS/Android 一致性** —— 两端同样的 offer 体验
+- **契合现状** —— 在现有 event-driven 流上演进,还是推倒重来
+- **有界的移动端复杂度** —— 把移动团队的成本控制在有限范围(他们的核心顾虑)
+
 ## Decision（决策）
 
 采用 **Approach C(Hybrid)**:服务端控制 **layout(哪些组件 + 顺序)+ raw data + presentation hints**;移动端通过**有界的 component registry(~10–15 个组件)**做**原生渲染**。
 
 > 分界线一句话:**Server 决定 *what* 和 *order*,Mobile 决定 *how*。**
+
+**选 C 的理由(Chosen because):** C 是**唯一在每条 driver 上都不差**的方案——它同时拿到 A 的"实验不发版"**和** B 的"原生 UX",守得住 200ms(后端轻),靠共享组件契约保一致性,且是"已经在推 JSON"现状的自然演进。**A 只赢在移动端简单**(却丢 UX、威胁延迟);**B 只赢在原生 UX**(却丢实验速度、丢一致性)。C 唯一的真实代价——移动端复杂度——靠 registry **有界化**(见下方缓解)。
 
 ```mermaid
 flowchart LR
