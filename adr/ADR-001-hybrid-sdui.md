@@ -37,6 +37,18 @@
 
 > 分界线一句话:**Server 决定 *what* 和 *order*,Mobile 决定 *how*。**
 
+```mermaid
+flowchart LR
+  EV["JobSummaryUpdated event (SQS)"] --> ER
+  subgraph SRV["courier_offer_service — server decides what + order"]
+    direction LR
+    ER["Experiment Resolver<br/>sticky hash · fail-closed"] --> EC["Earnings Calculator<br/>flat/distance/surge/tips"]
+    EC --> LC["Layout Composer<br/>layout[] + hints"]
+    LC --> PB["Payload Builder<br/>version-branched"]
+  end
+  PB -->|"SQS → AppSync / SSE"| M["Mobile — decides how<br/>component registry (~10-15)<br/>unknown components skipped"]
+```
+
 payload 形态:
 ```json
 {
