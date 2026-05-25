@@ -1,0 +1,15 @@
+flowchart LR
+  EV["JobSummaryUpdated event<br/>(SQS)"] --> ER
+  subgraph SRV["courier_offer_service — server decides what + order"]
+    direction LR
+    ER["Experiment Resolver<br/>sticky hash · fail-closed"] --> EC["Earnings Calculator<br/>flat / distance / surge / tips"]
+    EC --> LC["Layout Composer<br/>layout[] + hints"]
+    LC --> PB["Payload Builder<br/>version-branched"]
+  end
+  PB -->|"SQS → AppSync / SSE"| M["Mobile — decides how<br/>component registry (~10–15)<br/>unknown components → skipped"]
+  classDef srv fill:#eaf0ff,stroke:#2f6fed,color:#1c2330;
+  classDef mob fill:#e9f7ee,stroke:#16a34a,color:#1c2330;
+  classDef ext fill:#f4f6fb,stroke:#6b7686,color:#1c2330;
+  class ER,EC,LC,PB srv
+  class M mob
+  class EV ext

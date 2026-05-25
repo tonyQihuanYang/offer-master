@@ -148,16 +148,11 @@ Diagnose · Guide without solving · 3-day plan · Knowledge transfer · Work wi
 
 **Server decides _what + order_; mobile decides _how_.**
 
-4 new components inside `courier_offer_service` (after Temporal returns pay+bonus):
+4 new in-process components, after Temporal returns pay + bonus:
 
-| Component | Job | Key design |
-|---|---|---|
-| Experiment Resolver | assign variant | **sticky hash**, fail-closed |
-| Earnings Calculator | flat/distance/surge/tips | compute only (data prefetched) |
-| Layout Composer | `layout[]` + `hints` | config-driven, in-memory |
-| Payload Builder | assemble payload | version-branched (legacy fallback) |
+![w:1080](img/system-design-flow.png)
 
-Mobile renders via a **component registry (~10–15)**; unknown components **skipped** (forward-compat).
+- Each component carries a **latency budget + a failure mode** — fail-closed · dual-write · idempotency · cache-independent sticky hash. *That's the distributed-systems design, not just impl.*
 
 **+10ms — and it won't tail-spin:** in-process + cached (no hot-path network I/O); flag/config outage → **fail-closed**. If measured latency nears budget → move resolution off the request path (precompute).
 
