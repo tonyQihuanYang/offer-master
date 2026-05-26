@@ -1,6 +1,6 @@
 # Staff Engineer Interview — Presentation Outline (1 hour)
 
-> 中文版本：[`../zh/presentation-outline.md`](../zh/presentation-outline.md)
+> 中文版本：[`../study-notes/presentation-outline.md`](../study-notes/presentation-outline.md)
 > 🗣️ Verbatim talk track (for speaking practice): [`presentation-script.md`](./presentation-script.md)
 >
 > A **one-hour talk outline** that integrates all the prep material.
@@ -396,11 +396,11 @@ The job description (`job-description.md`) literally spells out what the panel c
 |----------|--------|
 | `en/courier-offer-system-architecture.md` | UC1 current state + constraints + latency budget |
 | `en/hybrid-end-to-end-design.md` | UC1 system design + payload contract + migration + metrics + delivery resilience |
-| `zh/runtime-dataflow.md` | UC1 client-side runtime data flow: cold start / offer delivery / template update (SSE), Mermaid diagrams |
+| `study-notes/runtime-dataflow.md` | UC1 client-side runtime data flow: cold start / offer delivery / template update (SSE), Mermaid diagrams |
 | `en/approach-evaluation.md` | UC1 A vs B vs C decision + industry references + B-vs-C and A-vs-C Q&A |
 | `en/app-version-compatibility.md` | UC1 old-app compatibility playbook |
-| `en/technical-leadership.md` / `zh/technical-leadership.zh.md` | UC1 technical leadership (mobile team concern) |
-| `en/team-guidance-use-case-2.md` / `zh/team-guidance-use-case-2.zh.md` | UC2 all 5 assessment areas |
+| `en/technical-leadership.md` / `study-notes/technical-leadership.zh.md` | UC1 technical leadership (mobile team concern) |
+| `en/team-guidance-use-case-2.md` / `study-notes/team-guidance-use-case-2.zh.md` | UC2 all 5 assessment areas |
 | `adr/ADR-001-hybrid-sdui.md` | UC1 decision record (1-page A/B/C crystallization; for areas #2+#3) |
 | `adr/RFC-skeleton-fraud-detection.md` | UC2 RFC skeleton + reviewer questions (demonstrates "guide, don't solve"; for area #2) |
 | `demo/` | runnable hybrid POC (hash bucketing + registry + control/treatment + SSE + A-vs-B-vs-C page) |

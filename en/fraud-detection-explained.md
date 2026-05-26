@@ -1,6 +1,6 @@
 # How Real-time Fraud Detection Works (UC2 study notes)
 
-> 中文版本：[`../zh/fraud-detection-explained.md`](../zh/fraud-detection-explained.md)
+> 中文版本：[`../study-notes/fraud-detection-explained.md`](../study-notes/fraud-detection-explained.md)
 >
 > Companion runnable demo: [`../flink-kafka-lab/`](../flink-kafka-lab/) (`node flink-kafka-lab/run.mjs`).
 > This note covers both *how the engine runs* (Flink) and *how detection operates* (fraud detection) — UC2 study material.

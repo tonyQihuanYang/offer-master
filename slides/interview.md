@@ -47,7 +47,6 @@ style: |
 # Courier Offer System Modernization
 ## & Real-time Fraud Detection Team Guidance
 
-Staff Engineer — Courier Offer & Rewards
 **Tony (Qihuan Yang)**
 
 <!--
@@ -93,7 +92,7 @@ Diagnose · Guide without solving · 3-day plan · Knowledge transfer · Work wi
 - SLA **200 ms p95** — today ~180 ms → only **~20 ms real headroom**
 - Needs: A/B presentation · personalized earnings · gradual rollout · multiple earning models
 
-**Today:** one hardcoded `Offer.java`, earnings logic across 3 services, every change = full multi-region deploy, **zero experimentation**
+**Today:** one hardcoded `Offer.java`, earnings logic across 3 services, every change = full multi-region deploy, **no A/B testing**
 
 > Already an **event-driven, distributed** system (SQS + Temporal + AppSync on AWS), already pushing structured JSON to mobile → my answer is **evolution, not rewrite**.
 
@@ -165,23 +164,58 @@ p95 不是简单加法——主动堵住"长尾延迟"的追问：热路径零 I
 
 ---
 
-## Latency Budget — estimate, then measure
+## How Approach C Works — Server side
 
-| Component | Hot path (real) | Budget (ceiling) |
+**4 in-process components**, after Temporal returns pay + bonus:
+
+| Component | Job | How it works |
 |---|---|---|
-| Experiment Resolver | sub-ms — hash + cached lookup | ~3 ms |
-| Earnings Calculator | sub-ms — arithmetic (data prefetched) | ~3 ms |
-| Layout Composer | sub-ms — in-memory config | ~2 ms |
-| Payload Builder | ~0.1–1 ms — build + JSON | ~2 ms |
-| **Total added** | **~1–3 ms** | **~10 ms** |
+| **Experiment Resolver** | pick variant for this courier | sticky hash `(courierId + expId) % 100 < pct` · no DB · **fail-closed → control** |
+| **Earnings Calculator** | unify flat / distance / surge / tips | pure compute — data already fetched |
+| **Layout Composer** | emit `components[]` + `hints` | read variant + market from config |
+| **Payload Builder** | assemble final JSON | branch on `min_app_version` for legacy apps |
 
-- **Budgets carved from the ~20ms headroom — not measurements.** Hot path is in-memory; the budget absorbs cache-miss / GC / serialization.
-- For scale: **Temporal pay+bonus ~150ms dominates** — these four are a rounding error.
-- **Before rollout: load-test on a real cluster → replace with measured p95.** If Δ > 15ms → push experiment/layout off the request path.
+→ All four are **in-process, cached, zero hot-path I/O** — the reason `+10ms won't tail-spin`.
 
 <!--
-被问"3ms/10ms 怎么来的"就翻这页：这是预算、不是测量；热路径亚毫秒,预算是给 cache-miss/GC/序列化的保险。上线前在真集群压测、超了就把 resolution 挪出请求路径。别假装测过。
-（主线 ~30 秒带过；被追问再展开。）
+4 个服务端组件，每个一句话：
+  1) Experiment Resolver: sticky hash 分桶，无 DB，fail-closed → control
+  2) Earnings Calculator: 统一 flat/distance/surge/tips，纯计算
+  3) Layout Composer: 按 variant + market 从 config 读 components + hints
+  4) Payload Builder: 组装 JSON，按 min_app_version 分叉给老 app legacy 格式
+全部 in-process + cached + zero hot-path I/O —— 这就是"+10ms 不会 tail-spin"的根本原因。
+[下一页讲 mobile registry]
+-->
+
+---
+
+## How Approach C Works — Mobile side (the registry)
+
+**Component registry** (~10–15 entries):
+
+- A locked **map: `component_name → native renderer`** (one shared schema → codegen iOS + Android)
+- For each name in `layout.components[]`: **registry lookup → render natively with `data[name]`**
+- **Unknown name → skip silently** — server can ship ahead of the app
+
+```kotlin
+// shared schema → codegen'd, identical on iOS + Android
+registry = mapOf(
+  "earnings_breakdown" to EarningsBreakdownView,
+  "surge_indicator"    to SurgeIndicatorView,
+  "accept_cta"         to AcceptCTAButton,
+  // ... ~10–15 total, governed by review board
+)
+```
+
+> Server sends **data** (`layout`); mobile ships **code** (`registry`). Two teams, one contract.
+
+<!--
+讲完服务端再讲 mobile 这半 —— registry。
+本质就是一张表：name → 原生 view。10–15 个，review board 把关，不让它失控。
+iOS / Android 都从同一份 shared schema codegen 出来——杜绝两端漂移。
+渲染循环：遍历 layout.components[]，registry 查表 → 用 data[name] 原生渲染。
+未知组件 silently skip = forward-compat = 服务端可以领先 app 发布。
+金句：**"Server sends DATA; mobile ships CODE."** 这就是让 C 成立的边界。
 -->
 
 ---
@@ -190,10 +224,16 @@ p95 不是简单加法——主动堵住"长尾延迟"的追问：热路径零 I
 
 ```json
 {
-  "experiment": { "earnings_display": { "variant": "breakdown_v2", "group": "treatment" } },
-  "layout": { "components": ["earnings_breakdown", "surge_indicator", "accept_cta"],
-              "hints": { "highlight_field": "surge" } },
-  "data": { "earnings_breakdown": { "model": "surge", "total": 730, "currency": "CAD" } }
+  "experiment": {
+    "earnings_display": { "variant": "breakdown_v2", "group": "treatment" }
+  },
+  "layout": {
+    "components": ["earnings_breakdown", "surge_indicator", "accept_cta"],
+    "hints": { "highlight_field": "surge" }
+  },
+  "data": {
+    "earnings_breakdown": { "model": "surge", "total": 730, "currency": "CAD" }
+  }
 }
 ```
 
@@ -330,7 +370,7 @@ Don't parachute in and rewrite it — buy time, narrow scope, coach, let them sh
 
 - **Architecture:** "Walk the data flow on a whiteboard." "Where are the 45s spent — measured or inferred?" "Sync I/O in operators? parallelism? watermarks?"
 - **🔑 The big one:** "Is Flink even right for our event rate?" — **UC2 gives no number**. Delivery events ≈ **~20/sec**; *with GPS pings* likely **~1k–3k/sec** (UC1's 2M/hr ≈ 556/sec confirms hundreds/sec). Range straddles overkill vs justified → **measure first, then right-size.**
-- **Scope:** "Which 3 of the 12 do stakeholders want *this quarter*?"
+- **Scope — audit the 12 first:** dupes? subsets? data-unavailable? mergeable? *Often "12" collapses to 4–5 distinct patterns.* Then: "which do stakeholders actually want this quarter?"
 - **Data quality:** "What % of events miss location — null / stale / missing entirely?"
 - **Testing:** "Show me how you test one rule end-to-end."
 
@@ -346,7 +386,7 @@ Don't parachute in and rewrite it — buy time, narrow scope, coach, let them sh
 **Load-bearing move:** ship **one** pattern that tells the story —
 *"marked complete >500m from destination"* (data's already there, just a distance calc, <5s with or without Flink).
 
-- **Day 1:** TM 1:1 (RACI) · architecture walk-through — **audit Flink telemetry** (bad watermarks? sync I/O in an operator?) · **scope-lock with PM in writing** (1 pattern, 11 deferred) · pair (they drive)
+- **Day 1:** TM 1:1 (RACI) · architecture walk-through — **audit Flink telemetry** (bad watermarks? sync I/O?) · **audit the 12 patterns** (dupes / subsets / data gaps) · **scope-lock with PM in writing** (1 ship · rest grouped: deferred / merged / dropped) · pair (they drive)
 - **Day 2:** pair to a working skeleton · first test fixture · draft an honest review narrative
 - **Day 3:** dry run (they present) · **pre-brief the Director with the TM** · schedule a post-demo retro
 

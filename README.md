@@ -4,20 +4,19 @@
 > 围绕两个 use case：UC1 快递员 Offer 系统现代化，UC2 实时欺诈检测团队指导。
 > 题目原件见 `Staff Engineer - Interview Use Cases.pdf`。
 >
-> ⚠️ **准备阶段**：文档仍在迭代。内容确认后再做幻灯片 / PDF。
+> 📖 **Interviewer — start here:** [`Q&A.md`](./Q&A.md) (anticipated questions + answers + doc pointers) · [`en/`](./en/) (architecture, decisions, leadership) · [`adr/`](./adr/) (ADR-001 + RFC skeleton) · [`demo/`](./demo/) (runnable POC)
 >
-> 🎯 **面试当天看这个**：[`INTERVIEW-CHECKLIST.md`](./INTERVIEW-CHECKLIST.md)（一页纸：标签页 / 节奏 / 金句 / 深水弹药 / 兜底）
->
-> ❓ **追问演练**：[`Q&A.md`](./Q&A.md)（17 个高频追问 + 可直接说的英文答案 + 文档出处）
+> 🎯 **作者自用**：[`INTERVIEW-CHECKLIST.md`](./INTERVIEW-CHECKLIST.md)（临场一页纸:标签页 / 节奏 / 金句 / 深水弹药 / 兜底）
 
 ## 目录结构
 
 ```
 .
-├─ en/        英文文档（架构、决策、领导力答题、JD）
-├─ zh/        中文文档（演讲大纲、运行时数据流、领导力中文版）
-├─ adr/       决策记录 + RFC 骨架
-├─ demo/      可运行的混合方案 POC（React + Express，SSE 事件驱动）
+├─ en/             正式文档（架构、决策、领导力、JD、讲稿）
+├─ adr/            决策记录 + RFC 骨架
+├─ demo/           可运行的混合方案 POC（React + Express，SSE 事件驱动）
+├─ slides/         Marp 幻灯片源
+├─ study-notes/    学习/复习笔记 + 中文版本（作者备战用）
 └─ Staff Engineer - Interview Use Cases.pdf   面试题原件
 ```
 
@@ -38,17 +37,19 @@
 | [`job-description.md`](./en/job-description.md) | 招聘 JD + JD↔准备映射 |
 | [`handOver.md`](./en/handOver.md) | 需向真实 repo 核实的开放项 |
 
-## 🇨🇳 中文 — [`zh/`](./zh/)
+## 📚 Study Notes — [`study-notes/`](./study-notes/)
+
+> 作者备战阶段的中文学习/复习笔记 —— 非正式交付物,仅供参考。
 
 | 文件 | 内容 |
 |------|------|
-| [`presentation-outline.md`](./zh/presentation-outline.md) | **主线** — 1 小时演讲大纲（逐张 slide + 时间分配 + JD 关键词）|
-| [`runtime-dataflow.md`](./zh/runtime-dataflow.md) | 端上运行时数据流：冷启动 / offer 投递 / 模板更新（Mermaid 图）|
-| [`sticky-bucketing-explained.md`](./zh/sticky-bucketing-explained.md) | `hash(courierId+expId)%100<pct` 分桶讲透（为什么无状态也 sticky）|
-| [`fraud-detection-explained.md`](./zh/fraud-detection-explained.md) | UC2 学习笔记：Flink 运行时 + 欺诈检测端到端运作（中文）|
-| [`flink-kafka-notes.md`](./zh/flink-kafka-notes.md) | Flink/Kafka 复习笔记（Q&A：UI/watermark/窗口/看数据/代码）|
-| [`technical-leadership.zh.md`](./zh/technical-leadership.zh.md) | `technical-leadership.md` 中文版 |
-| [`team-guidance-use-case-2.zh.md`](./zh/team-guidance-use-case-2.zh.md) | `team-guidance-use-case-2.md` 中文版 |
+| [`presentation-outline.md`](./study-notes/presentation-outline.md) | 1 小时演讲大纲（逐张 slide + 时间分配 + JD 关键词）|
+| [`runtime-dataflow.md`](./study-notes/runtime-dataflow.md) | 端上运行时数据流：冷启动 / offer 投递 / 模板更新（Mermaid 图）|
+| [`sticky-bucketing-explained.md`](./study-notes/sticky-bucketing-explained.md) | `hash(courierId+expId)%100<pct` 分桶讲透（为什么无状态也 sticky）|
+| [`fraud-detection-explained.md`](./study-notes/fraud-detection-explained.md) | UC2 学习笔记：Flink 运行时 + 欺诈检测端到端运作 |
+| [`flink-kafka-notes.md`](./study-notes/flink-kafka-notes.md) | Flink/Kafka 复习笔记（Q&A：UI/watermark/窗口/看数据/代码）|
+| [`technical-leadership.zh.md`](./study-notes/technical-leadership.zh.md) | `en/technical-leadership.md` 中文版 |
+| [`team-guidance-use-case-2.zh.md`](./study-notes/team-guidance-use-case-2.zh.md) | `en/team-guidance-use-case-2.md` 中文版 |
 
 ## 📐 决策工件 — [`adr/`](./adr/)
 
@@ -81,4 +82,4 @@ README 兼作 UC2 复习小抄。
 
 ---
 
-建议入口：先读 [`zh/presentation-outline.md`](./zh/presentation-outline.md)（决定整体结构），再按它引用的细节文档逐个核对。
+**Suggested reading path for the interviewer:** [`Q&A.md`](./Q&A.md) (TOC + anticipated questions) → [`adr/ADR-001-hybrid-sdui.en.md`](./adr/ADR-001-hybrid-sdui.en.md) (the decision) → [`en/hybrid-end-to-end-design.md`](./en/hybrid-end-to-end-design.md) (full design) → [`demo/README.md`](./demo/README.md) (to run the POC) → [`adr/RFC-skeleton-fraud-detection.en.md`](./adr/RFC-skeleton-fraud-detection.en.md) (UC2 RFC).

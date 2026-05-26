@@ -31,7 +31,13 @@ style: |
   th, td { border: 1px solid #e6ebf5; padding: 6px 10px; }
   code { background: var(--soft); color: #b3461d; padding: 1px 6px; border-radius: 4px; font-size: 0.85em; }
   pre { background: #0f1626; border-radius: 10px; font-size: 18px; }
-  pre code { background: transparent; color: #d7e0f2; }
+  pre code { background: transparent; color: #e8eaed; }
+  pre code .token.property { color: #ffc56e; }
+  pre code .token.string { color: #b8e6a8; }
+  pre code .token.number,
+  pre code .token.boolean,
+  pre code .token.null { color: #ff9faa; }
+  pre code .token.punctuation { color: #9aa3b3; }
   blockquote { border-left: 4px solid var(--accent); color: var(--ink); background: var(--soft);
                padding: 12px 18px; border-radius: 0 8px 8px 0; font-style: normal; }
   section.lead { justify-content: center; text-align: left; }
@@ -47,14 +53,15 @@ style: |
 # Courier Offer System Modernization
 ## & Real-time Fraud Detection Team Guidance
 
-Staff Engineer — Courier Offer & Rewards
 **Tony (Qihuan Yang)**
 
 <!--
-Opening (say this in ~30s):
-- ~32 min on UC1, ~22 min on UC2, a few minutes for Q&A.
-- My read on Staff: drive decisions through INFLUENCE, NOT AUTHORITY; be hands-on — POCs, fail fast.
-- I'll answer both cases to that standard. I also built a runnable prototype to validate the UC1 design.
+SAY (~30 sec):
+- "Hi everyone, thanks for having me."
+- "We have the hour — about 30 minutes on UC1, 20 on UC2, plus questions throughout."
+- "Please jump in any time — I'd rather make this a conversation."
+- "My read on Staff is two things: influence, not authority. And hands-on — POCs, fail fast."
+- "I'll answer both cases that way. And for UC1, I actually built a small running prototype."
 -->
 
 ---
@@ -73,8 +80,12 @@ Diagnose · Guide without solving · 3-day plan · Knowledge transfer · Work wi
 *Questions welcome throughout — let's make it a conversation.*
 
 <!--
-Spine: UC1 proves I can do architecture + technical decisions; UC2 proves I can multiply a team, not do the work for them.
-Showing I manage time is itself a Staff signal.
+SAY:
+- "For UC1, in this order: technical decision → system design → leadership → migration."
+- "For UC2: diagnose · guide · 3-day plan · KT · work with TM."
+- "Why decision before design? You can't design a system you haven't decided on."
+- "Recommendation comes first; design backs it up."
+- "Please jump in any time."
 -->
 
 ---
@@ -85,6 +96,11 @@ Showing I manage time is itself a Staff signal.
 
 <!-- _class: lead -->
 
+<!--
+SAY:
+- "Okay — Use Case 1. Modernizing the courier offering system."
+-->
+
 ---
 
 ## Problem & Constraints
@@ -93,14 +109,18 @@ Showing I manage time is itself a Staff signal.
 - SLA **200 ms p95** — today ~180 ms → only **~20 ms real headroom**
 - Needs: A/B presentation · personalized earnings · gradual rollout · multiple earning models
 
-**Today:** one hardcoded `Offer.java`, earnings logic across 3 services, every change = full multi-region deploy, **zero experimentation**
+**Today:** one hardcoded `Offer.java`, earnings logic across 3 services, every change = full multi-region deploy, **no A/B testing**
 
 > Already an **event-driven, distributed** system (SQS + Temporal + AppSync on AWS), already pushing structured JSON to mobile → my answer is **evolution, not rewrite**.
 
 <!--
-Nail the constraints, especially the 20ms headroom — every later choice lives inside it.
-The pain is RIGIDITY, not performance: nothing can change or be tested.
-The last line sets up recommending C, and hits the JD's event-driven / distributed systems.
+SAY:
+- "15 countries, 50K+ couriers, 2M offers per hour at peak — ~556 a second."
+- "SLA is 200ms p95. We're already at ~180. So only about 20ms of real headroom — remember that number."
+- "Today: one hardcoded Offer.java. Every change is a full multi-region deploy. No A/B testing."
+- "The real pain isn't performance — it's RIGIDITY. Nothing can change, nothing can be tested."
+- "But: the system is already event-driven and distributed (SQS, Temporal, AppSync). Already pushes structured JSON to mobile."
+- "So my answer is going to be an EVOLUTION, not a rewrite."
 -->
 
 ---
@@ -118,8 +138,18 @@ The last line sets up recommending C, and hits the JD's event-driven / distribut
 **Neither alone wins:** A buys experiment speed but gives up native UX *and* risks the 200 ms SLA; B keeps native UX but every layout experiment needs an app release.
 
 <!--
-Put up only the two the prompt gives (A/B), expose each one's fatal flaw — A trades away UX+latency, B trades away experiment speed+consistency.
-Don't jump to the answer; this sets up the reveal of C on the next slide.
+SAY:
+- "The prompt gives me two options. Let me evaluate them fairly."
+- "Approach A — server-side template engine. Server pre-renders the finished text. App just paints it."
+- "  Good: experiments are fast, no app release."
+- "  Bad: at 2M/h, server is rendering on the hot path — that's a real 200ms risk. Native UX is poor."
+- "  → A trades native UX and latency for experiment speed."
+- "Approach B — server sends raw data. Mobile owns the layout."
+- "  Good: native UX great. Backend light."
+- "  Bad: every layout experiment needs an app-store release. iOS/Android drift. Mobile complexity unbounded."
+- "  → B trades experiment speed and consistency for native UX."
+- "[pause] Neither alone wins. Which forces the question — is there a third way?"
+- "⚠️ Do NOT mention Approach C yet — that's the next slide's reveal."
 -->
 
 ---
@@ -138,8 +168,14 @@ Don't jump to the answer; this sets up the reveal of C on the next slide.
 **Honest cost:** upfront contract + component governance; changing an existing component's schema still needs a release / dual-emit.
 
 <!--
-This is the reveal — "the prompt framed it as A or B, but the answer is C." Recommend C clearly: from A take "experiment without release", from B take "native UX".
-Be honest about the cost. Transition: "now that we've picked C, here's how it's built."
+SAY:
+- "There IS a third way — Approach C, a hybrid. Takes the best of both."
+- "From A: server controls WHAT components and IN WHAT ORDER → experiment with no app release."
+- "From B: mobile renders NATIVELY → UX stays great."
+- "North-star line: 'Server decides what and order; mobile decides how.' Via a small registry of ~10–15 components."
+- "B vs C — one real difference: in B, layout is app logic. In C, it's data the server sends."
+- "Honest cost: upfront contract + component governance. Changing an existing component still needs a release."
+- "Not free — but the right trade."
 -->
 
 ---
@@ -157,31 +193,76 @@ Be honest about the cost. Transition: "now that we've picked C, here's how it's 
 **+10ms — and it won't tail-spin:** in-process + cached (no hot-path network I/O); flag/config outage → **fail-closed**. If measured latency nears budget → move resolution off the request path (precompute).
 
 <!--
-(Continuing: we picked C, here's how it lands.)
-p95 isn't simple addition — preempt the tail-latency probe: zero hot-path I/O + fail-closed means a dependency hiccup can't blow the SLA.
-Walk each component with a latency budget + a failure mode: fail-closed, dual-write, idempotency, cache-independent sticky hash — sell these as "distributed-systems design".
-Show the demo / recording here: a runnable POC validating the boundary + sticky bucketing + SSE push.
+SAY:
+- "Now that we've picked C — here's how it's built."
+- "4 new in-process components, right after Temporal returns pay and bonus."
+- "Every component carries a LATENCY BUDGET and a FAILURE MODE — fail-closed, dual-write, idempotency, cache-independent sticky hash."
+- "That's the distributed-systems design — not just implementation."
+- "Adds ~10ms, inside our 20."
+- "Why it won't tail-spin: in-process + cached, ZERO hot-path network I/O. A flag-service outage → fail closed."
+- "If measured latency ever creeps toward budget → move resolution off the request path entirely."
+- "[next slide drills into each component]"
 -->
 
 ---
 
-## Latency Budget — estimate, then measure
+## How Approach C Works — Server side
 
-| Component | Hot path (real) | Budget (ceiling) |
+**4 in-process components**, after Temporal returns pay + bonus:
+
+| Component | Job | How it works |
 |---|---|---|
-| Experiment Resolver | sub-ms — hash + cached lookup | ~3 ms |
-| Earnings Calculator | sub-ms — arithmetic (data prefetched) | ~3 ms |
-| Layout Composer | sub-ms — in-memory config | ~2 ms |
-| Payload Builder | ~0.1–1 ms — build + JSON | ~2 ms |
-| **Total added** | **~1–3 ms** | **~10 ms** |
+| **Experiment Resolver** | pick variant for this courier | sticky hash `(courierId + expId) % 100 < pct` · no DB · **fail-closed → control** |
+| **Earnings Calculator** | unify flat / distance / surge / tips | pure compute — data already fetched |
+| **Layout Composer** | emit `components[]` + `hints` | read variant + market from config |
+| **Payload Builder** | assemble final JSON | branch on `min_app_version` for legacy apps |
 
-- **Budgets carved from the ~20ms headroom — not measurements.** Hot path is in-memory; the budget absorbs cache-miss / GC / serialization.
-- For scale: **Temporal pay+bonus ~150ms dominates** — these four are a rounding error.
-- **Before rollout: load-test on a real cluster → replace with measured p95.** If Δ > 15ms → push experiment/layout off the request path.
+→ All four are **in-process, cached, zero hot-path I/O** — the reason `+10ms won't tail-spin`.
 
 <!--
-If asked "how did you get 3ms/10ms?", this is the slide: they're budgets, not measurements — hot path is sub-ms in-memory, the budget absorbs cache-miss/GC. I'd measure on a real cluster before rollout; if it creeps past budget, move resolution off the request path. Don't pretend you measured it.
-(Skim in ~30s in the main flow; expand only if probed.)
+SAY:
+- "Let me drill into how C actually works — first the server side."
+- "4 in-process components, right after Temporal returns pay and bonus:"
+- "  1. Experiment Resolver: picks the variant via sticky hash. No DB. Fails closed to control if anything's wrong."
+- "  2. Earnings Calculator: unifies flat / distance / surge / tips. Pure compute — data already fetched."
+- "  3. Layout Composer: emits components and hints from config."
+- "  4. Payload Builder: assembles the final JSON. Branches on min_app_version so old apps get the legacy format."
+- "Key point: all four are IN-PROCESS, CACHED, ZERO hot-path network I/O."
+- "  That's why the +10ms won't tail-spin under load — no dependency to time out on."
+- "[next slide: the mobile half]"
+-->
+
+---
+
+## How Approach C Works — Mobile side (the registry)
+
+**Component registry** (~10–15 entries):
+
+- A locked **map: `component_name → native renderer`** (one shared schema → codegen iOS + Android)
+- For each name in `layout.components[]`: **registry lookup → render natively with `data[name]`**
+- **Unknown name → skip silently** — server can ship ahead of the app
+
+```kotlin
+// shared schema → codegen'd, identical on iOS + Android
+registry = mapOf(
+  "earnings_breakdown" to EarningsBreakdownView,
+  "surge_indicator"    to SurgeIndicatorView,
+  "accept_cta"         to AcceptCTAButton,
+  // ... ~10–15 total, governed by review board
+)
+```
+
+> Server sends **data** (`layout`); mobile ships **code** (`registry`). Two teams, one contract.
+
+<!--
+SAY:
+- "Now the mobile half — the component registry."
+- "It's basically a locked map: component_name → native renderer view."
+- "About 10–15 entries, governed by a review board so it doesn't sprawl."
+- "Both iOS and Android codegen this from ONE shared schema — so they cannot drift."
+- "Render loop: for each name in layout.components, look it up, render natively with the matching data slice."
+- "Unknown name? SILENTLY SKIPPED. That's how the server can ship ahead of the app — forward-compat by default."
+- "The killer framing: 'Server sends DATA. Mobile ships CODE.' That's the boundary that makes C work."
 -->
 
 ---
@@ -190,10 +271,16 @@ If asked "how did you get 3ms/10ms?", this is the slide: they're budgets, not me
 
 ```json
 {
-  "experiment": { "earnings_display": { "variant": "breakdown_v2", "group": "treatment" } },
-  "layout": { "components": ["earnings_breakdown", "surge_indicator", "accept_cta"],
-              "hints": { "highlight_field": "surge" } },
-  "data": { "earnings_breakdown": { "model": "surge", "total": 730, "currency": "CAD" } }
+  "experiment": {
+    "earnings_display": { "variant": "breakdown_v2", "group": "treatment" }
+  },
+  "layout": {
+    "components": ["earnings_breakdown", "surge_indicator", "accept_cta"],
+    "hints": { "highlight_field": "surge" }
+  },
+  "data": {
+    "earnings_breakdown": { "model": "surge", "total": 730, "currency": "CAD" }
+  }
 }
 ```
 
@@ -201,8 +288,12 @@ If asked "how did you get 3ms/10ms?", this is the slide: they're budgets, not me
 - Layout is embedded per offer (cheap; memoized by variant/zone/tier)
 
 <!--
-Grounds the abstract architecture in a concrete payload — seeing the JSON makes the panel trust you've thought it through.
-Stress the registry is bounded (~10–15) — the hook for "bounded complexity" in the leadership section.
+SAY:
+- "Here's the contract, concrete."
+- "Server sends three things: layout (components + order), raw data, and a few hints."
+- "Mobile renders it through the registry."
+- "Nice property: same delivery, different layout + earnings model per market — Switzerland, UK, Canada — all from config."
+- "Unknown components silently skipped → older apps stay safe."
 -->
 
 ---
@@ -215,8 +306,15 @@ Stress the registry is bounded (~10–15) — the hook for "bounded complexity" 
 - **▶ LIVE:** `/admin` change layout → save → live · `/client` offer pushed · `/approaches` A vs B vs C side-by-side
 
 <!--
-🔴 This IS the JD's hands-on POC / fail fast — don't just say "I built a demo", switch to the running demo and click through it.
-Live order: /admin change layout → Save → green toast; /client click Dispatch → offer pushed to the phone; /approaches see the three A/B/C payloads.
+SAY:
+- "This isn't just on paper — I built a running prototype."
+- "[switch to demo]"
+- "/admin: I change the layout and hit save — live, no deploy."
+- "/client: the offer is PUSHED down a stream. The same courier always lands in the same variant by sticky hash."
+- "/approaches: all three approaches side by side on the wire — A sends finished strings, B sends raw data + flags, C sends layout + data."
+- "[back to slides]"
+- "This is the hands-on, fail-fast piece — I'd rather show a small running thing than just describe it."
+- "🔴 If demo crashes, this slide has a screenshot — just walk through it."
 -->
 
 ---
@@ -234,9 +332,16 @@ Live order: /admin change layout → Save → green toast; /client click Dispatc
 This is **influence, not authority** — verbatim from the JD.
 
 <!--
-⚠️ Behavioral question, not technical. It separates Staff (drives a cross-team decision) from Senior (sells the "right answer").
-Anti-pattern: pre-writing the decision and walking it in for rubber-stamping — mobile sees through it, trust collapses.
-The prototype is mobile-led — removes the "you're forcing this on us" frame.
+SAY:
+- "Now the leadership question — mobile is worried C adds complexity. Honestly, they're right to worry."
+- "My principle: FIRST I agree the concern is real. THEN I make it specific."
+- "It's not WHETHER it adds complexity — it's HOW MUCH, WHAT KIND, and WHAT'S ON THE OTHER SIDE."
+- "Three steps:"
+- "  (1) Acknowledge it in writing first — frames it as us-vs-the-problem, not me-vs-them."
+- "  (2) Working session, not a presentation — mobile tells me what 'complexity' actually means. I bring concrete fixes that cap the cost: locked registry (~10–15), codegen, forward-compat skip, shared RFC we co-write."
+- "  (3) Instead of voting: a small POC the MOBILE TEAM leads. One zone, one component, four weeks. Easy to undo."
+- "And I say upfront how we'd escalate if we still disagree — so nobody feels trapped."
+- "This is influence, not authority — verbatim from the JD."
 -->
 
 ---
@@ -249,7 +354,12 @@ The prototype is mobile-led — removes the "you're forcing this on us" frame.
 <!-- _class: lead -->
 
 <!--
-Memorize this; say it at the end of the leadership section. It's the Senior/Staff watershed — influence over authority made concrete.
+SAY (memorize, slow, firm):
+- "My job isn't to win the architecture argument..."
+- "...it's to make the team that builds and runs this a CO-AUTHOR of the decision."
+- "I'd push for C — but I'd rather ship B with mobile fully bought in,"
+- "...than ship C with mobile compliant but quietly resentful."
+- 🎯 This is the Senior/Staff watershed line. Slow down. Eye contact.
 -->
 
 ---
@@ -269,8 +379,18 @@ Foundation (no-op) → Dual payload (`data` + `data_v2`) → Flag rollout (1→5
 **Rollback:** feature-flag instant-off + dual-write → mobile always falls back to `data`.
 
 <!--
-Stress guardrail metrics: not just whether acceptance went up — watch dispute/crash/latency for REGRESSIONS.
-Read business metrics PER VARIANT, otherwise the A/B is meaningless.
+SAY:
+- "Migration is reversible at every step. 4 phases."
+- "Phase 1: no-op foundation — zero behavior change, verified in shadow mode."
+- "Phase 2: dual payloads — old and new side by side."
+- "Phase 3: flag rollout, 1% → 100% per city, with the sticky hash."
+- "Phase 4: experiments go live."
+- "Metrics in 4 buckets:"
+- "  SLA — p95 and p99."
+- "  Business metrics PER VARIANT — acceptance, time-to-accept, dispute rate. Watch for REGRESSION, not just lift."
+- "  Experiment health: assignment consistency, flag fallback rate."
+- "  Migration progress."
+- "Principle: any step rolls back in seconds. Dual-write means mobile always has the old field to fall back to."
 -->
 
 ---
@@ -281,6 +401,14 @@ Read business metrics PER VARIANT, otherwise the A/B is meaningless.
 
 <!-- _class: lead -->
 
+<!--
+SAY:
+- "In one line — hybrid. Server controls layout and experiments. Mobile renders natively."
+- "Experiment speed AND native UX, inside the 200ms / 2M-per-hour budget."
+- "Evolves the existing event-driven system. Migrates with instant rollback."
+- "And the real Staff work: making mobile a CO-AUTHOR of the decision."
+-->
+
 ---
 
 # Use Case 2
@@ -288,6 +416,11 @@ Read business metrics PER VARIANT, otherwise the A/B is meaningless.
 ## Real-time Fraud Detection — Team Guidance
 
 <!-- _class: lead -->
+
+<!--
+SAY:
+- "Okay — Use Case 2. A 4-person team building real-time fraud detection. And they're in trouble."
+-->
 
 ---
 
@@ -303,8 +436,13 @@ Don't parachute in and rewrite it — buy time, narrow scope, coach, let them sh
 > Role: guide **without doing the work for them**, working **with** the Tech Manager — not replacing them.
 
 <!--
-Most common Staff failure: charge in, rewrite the architecture to "save" the sprint — solves the demo, breaks the team.
-Second principle: the engineer who wants to "start over with a simpler approach" might be right — take it seriously.
+SAY:
+- "Recap: 4 engineers. Kafka + Flink. 45-second latency vs 5-second target."
+- "Scope crept 3 → 12 patterns. Nothing to demo in 3 days. Low morale. PM escalating."
+- "My core principle: the crisis is the DEADLINE, not the architecture."
+- "Most common Staff mistake: charge in, rewrite, 'save' the sprint. That solves the demo and breaks the team."
+- "Right move: buy time, narrow scope, coach. Let them ship something they understand."
+- "And the engineer who wants to 'start over with something simpler' — they might be right. Take it seriously."
 -->
 
 ---
@@ -321,7 +459,13 @@ Second principle: the engineer who wants to "start over with a simpler approach"
 **First 30 min = a 1:1 with the TM** to draw exactly this line.
 
 <!--
-The prompt says "you're not the TM, you work with the TM." Traps: negotiating with the PM yourself, unilaterally cutting scope, using the TM's authority without coordinating.
+SAY:
+- "First, I draw the line with the TM. The prompt says clearly I work WITH them, not as them."
+- "TM owns: scope, deadlines, PM negotiation, individual morale."
+- "Staff owns: architecture, testing, RFCs, mentorship."
+- "Shared: sprint-review narrative + any escalation."
+- "Literally my first 30 minutes is a 1:1 with the TM to draw exactly that line."
+- "Trap: stepping into their job. Using their authority without coordinating undermines them."
 -->
 
 ---
@@ -330,13 +474,22 @@ The prompt says "you're not the TM, you work with the TM." Traps: negotiating wi
 
 - **Architecture:** "Walk the data flow on a whiteboard." "Where are the 45s spent — measured or inferred?" "Sync I/O in operators? parallelism? watermarks?"
 - **🔑 The big one:** "Is Flink even right for our event rate?" — **UC2 gives no number**. Delivery events ≈ **~20/sec**; *with GPS pings* likely **~1k–3k/sec** (UC1's 2M/hr ≈ 556/sec confirms hundreds/sec). Range straddles overkill vs justified → **measure first, then right-size.**
-- **Scope:** "Which 3 of the 12 do stakeholders want *this quarter*?"
+- **Scope — audit the 12 first:** dupes? subsets? data-unavailable? mergeable? *Often "12" collapses to 4–5 distinct patterns.* Then: "which do stakeholders actually want this quarter?"
 - **Data quality:** "What % of events miss location — null / stale / missing entirely?"
 - **Testing:** "Show me how you test one rule end-to-end."
 
 <!--
-Ask in waves, don't fire all 30 at once. Key: diagnose with real streaming concepts to show depth FIRST, then land the right-sizing conclusion.
-Don't let "Flink is overkill" be the opener — it reads as dodging streaming.
+SAY:
+- "Diagnosis — ask questions that turn symptoms into causes. I don't feed them the answer."
+- "On the 45 seconds: 'Walk the data flow on a whiteboard. Where's the time going — measured, or assumed? Sync I/O in operators? Parallelism? Watermarks?'"
+- "The big one: 'Is Flink even right for our event rate — have we measured it?'"
+- "Prompt gives NO number. Delivery events ≈ ~20/sec; with GPS pings, ~1k–3k/sec."
+- "Range goes from overkill to justified — MEASURE FIRST, don't assume."
+- "On scope: I don't just ask 'which 3 of 12.' I AUDIT the 12 first with the team."
+- "  Often '12 patterns' is really 4–5 distinct ones — some are duplicates, subsets, or need data we don't have."
+- "  That's not a number game — that's engineering the scope DOWN before we even pick."
+- "Also ask: data quality, testing."
+- "Ask in waves, not 30 at once. The questions ARE the coaching."
 -->
 
 ---
@@ -346,15 +499,25 @@ Don't let "Flink is overkill" be the opener — it reads as dodging streaming.
 **Load-bearing move:** ship **one** pattern that tells the story —
 *"marked complete >500m from destination"* (data's already there, just a distance calc, <5s with or without Flink).
 
-- **Day 1:** TM 1:1 (RACI) · architecture walk-through — **audit Flink telemetry** (bad watermarks? sync I/O in an operator?) · **scope-lock with PM in writing** (1 pattern, 11 deferred) · pair (they drive)
+- **Day 1:** TM 1:1 (RACI) · architecture walk-through — **audit Flink telemetry** (bad watermarks? sync I/O?) · **audit the 12 patterns** (dupes / subsets / data gaps) · **scope-lock with PM in writing** (1 ship · rest grouped: deferred / merged / dropped) · pair (they drive)
 - **Day 2:** pair to a working skeleton · first test fixture · draft an honest review narrative
 - **Day 3:** dry run (they present) · **pre-brief the Director with the TM** · schedule a post-demo retro
 
 Avoid a half-working live demo that fails. **The team presents and gets the credit.**
 
 <!--
-Load-bearing line: the team's problem isn't building 12 — it's trying to ship 12 when 1 tells the story.
-Descope is PM-confirmed in writing + leadership pre-briefed — never let the team face a hostile escalation alone.
+SAY:
+- "Big call: CUT SCOPE, hard."
+- "Ship ONE pattern that tells the story — 'marked complete more than 500m from destination.' Data's there, distance calc, well under 5s."
+- "But I'm not just cutting business scope to dodge the real problem."
+- "Day 1: TM 1:1. Two audits in parallel:"
+- "  ① Flink telemetry — bad watermarks? Sync DB call in an operator?"
+- "  ② The 12 patterns — duplicates? subsets? data we don't have? Often '12' collapses to 4–5 real ones."
+- "  Then scope-lock with PM IN WRITING — 1 shipped, rest grouped as deferred / merged / dropped (not just '11 deferred')."
+- "Day 2: pair to working skeleton + first test fixture. Draft honest review narrative."
+- "Day 3: dry run, THE TEAM presents. TM and I pre-brief the director."
+- "At review: I sit in the audience. The TEAM gets the credit."
+- "Avoid a half-working live demo that fails."
 -->
 
 ---
@@ -372,7 +535,16 @@ Descope is PM-confirmed in writing + leadership pre-briefed — never let the te
 Same destination — the Staff version teaches the **debugging method**.
 
 <!--
-Calibration: neither write it for them, nor stubbornly refuse to give answers. Withholding facts isn't coaching.
+SAY:
+- "How I guide without taking over:"
+- "I pair, but they drive the keyboard."
+- "I whiteboard PRINCIPLES, not fixes."
+- "My code-review comments are QUESTIONS — 'what happens if this is null?' — not instructions."
+- "Worked example, the 45s latency:"
+- "  Senior move: 'It's backpressure — add async I/O, double parallelism.'"
+- "  Staff move: 'What's the latency breakdown? What does the metric say? How would we confirm? Let's run it — what would the result tell us?'"
+- "Same destination — but the Staff version teaches the debugging METHOD."
+- "Caveat: I don't withhold facts to be pure. If they ask 'ms or s for checkpoints?' — I just answer."
 -->
 
 ---
@@ -388,8 +560,13 @@ Calibration: neither write it for them, nor stubbornly refuse to give answers. W
 **Don't let them learn in isolation** — broker a partnership with a team that runs production streaming.
 
 <!--
-This prevents the next 3-day crisis. Without it, I'm back in this room in two months.
-Teaching is the highest form of learning — at 90 days, having them teach it means they own it.
+SAY:
+- "Longer term — this is what prevents the NEXT 3-day crisis."
+- "30 days: streaming study group, external SMEs, architecture office hours."
+- "60 days: each engineer builds a small Flink toy project. The team writes the v2 RFC."
+- "90 days: each engineer TEACHES one concept back — watermarks, backpressure — because teaching is when they really own it."
+- "Key principle: don't let them learn in isolation. If another team runs production streaming, I set up that connection."
+- "Cross-team learning beats self-study."
 -->
 
 ---
@@ -403,8 +580,12 @@ Teaching is the highest form of learning — at 90 days, having them teach it me
 > *"The team picked Flink for a workload well below its design point at the rate we measured. We've descoped to one pattern; we'll formally evaluate the architecture over 30 days. We'd like your air cover with the PM."*
 
 <!--
-If the "start over" engineer was right: praise them publicly, frame the Flink work as not wasted (it surfaced data-quality/scope/real-event-rate), own the lesson.
-Good leadership brief: honest about what went wrong (engineering judgment, not blame) + timeline + a specific ask (air cover) + TM and Staff together.
+SAY:
+- "With the TM: daily 15-min check-in during the crunch. Architecture through me. Scope theirs. NEVER go around them."
+- "With Principals: pull them in early for a second opinion. Not to do the work. Not as backup over my TM."
+- "With leadership: GET AHEAD of the escalation. Before PM frames it, the TM and I brief them TOGETHER:"
+- "  'The team picked Flink for a workload well below its design point at the rate we measured. They're paying a complexity tax. We've descoped to one pattern. We'll evaluate the architecture over 30 days. We'd like your air cover with the PM.'"
+- "And if the 'start over' engineer was right — I praise them publicly, frame the Flink work as not wasted, and own the lesson."
 -->
 
 ---
@@ -417,7 +598,11 @@ Good leadership brief: honest about what went wrong (engineering judgment, not b
 <!-- _class: lead -->
 
 <!--
-Staff = leverage over time, not heroics in the moment.
+SAY (memorize, slow, firm):
+- "My role is to make the team better at this — NOT to do the work for them."
+- "The 3-day deadline is a constraint to navigate — not a performance to deliver."
+- "If I do my job right, this team handles the next streaming project WITHOUT a Staff parachute."
+- 🎯 Slow down. This is the UC2 watershed line.
 -->
 
 ---
@@ -433,8 +618,12 @@ Both answered the same way:
 <!-- _class: lead -->
 
 <!--
-The influence / fail-fast planted in the opening close the loop here (a bookend).
-This is the message close; the next slide is the Q&A board that stays up.
+SAY:
+- "To close — two postures, one standard."
+- "UC1: making the team a CO-AUTHOR — 'I'd rather ship B fully bought-in than C quietly resentful.'"
+- "UC2: LEVERAGE OVER TIME, not heroics — 'no Staff parachute next time.'"
+- "Both answered the same way — influence not authority, fail fast, hands-on POCs."
+- "That's my read on Staff, and what this role calls for."
 -->
 
 ---
@@ -456,6 +645,9 @@ This is the message close; the next slide is the Q&A board that stays up.
 <!-- _class: lead -->
 
 <!--
-Leave this board up during Q&A — it steers questions toward prepared ground.
-Open with: "I've got deeper detail on all of these, plus a runnable POC — happy to go in any direction."
+SAY:
+- "Thank you — happy to take questions."
+- "I have deeper detail on any of these, plus a runnable POC."
+- "Where would you like to start?"
+- 🎯 Leave this board up during Q&A — it steers questions toward prepared ground.
 -->

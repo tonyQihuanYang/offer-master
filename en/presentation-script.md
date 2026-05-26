@@ -50,7 +50,7 @@ cd demo && npm run dev      # 让它先跑着(端口看终端,通常 5173/5174)
 ## Slide 4 — Problem & Constraints
 
 > "Here's the situation. 15 countries. Over 50,000 couriers. Two million offers an hour at peak — about 556 a second. The SLA is **200 milliseconds at p95**, and we're already at ~180 today. So realistically, we only have about **20 milliseconds of headroom**. I'll come back to that number a lot.
-> Today, there's one hardcoded offer template. Earnings logic is spread across three services. Every change is a full multi-region deploy. And there's **no experimentation at all**.
+> Today, there's one hardcoded offer template. Earnings logic is spread across three services. Every change is a full multi-region deploy. And there's **no A/B testing**.
 > The key thing: the pain isn't performance — it's **rigidity**. Nothing can change. Nothing can be tested.
 > One more thing. The system is **already event-driven and distributed** — SQS, Temporal, AppSync on AWS. It already pushes structured JSON to mobile. So my answer is going to be an **evolution, not a rewrite**."
 
@@ -145,13 +145,17 @@ cd demo && npm run dev      # 让它先跑着(端口看终端,通常 5173/5174)
 > "Diagnosis — and the goal is to **ask questions that turn symptoms into causes**. I don't feed them the answer.
 > On the 45 seconds: *'Walk me through the data flow end to end. Where's the time going — measured, or assumed? Any synchronous I/O in an operator? What's the parallelism and the watermark strategy?'*
 > And the big question: *'Is Flink even right for our event rate — have we measured it?'* The prompt gives no number. Delivery events are maybe 20 a second. But GPS pings could push it to a few thousand. And the platform already handles hundreds a second for offers. So the range goes from overkill to justified — **measure first, don't assume.**
+> On scope, I don't just ask *'which 3 of 12.'* I **audit the 12 first** with the team — often it's really 4–5 distinct patterns once you find the duplicates, subsets, and ones we don't have the data for. That's engineering the scope **down**, not just picking from a list.
 > I'd ask these in waves, not 30 at once. The questions are the coaching."
 
 ## Slide 19 — The 3-day plan
 
 > "For three days, the big call is: **cut scope, hard.** Ship one pattern that tells the story — 'marked complete more than 500 meters from destination.' The data's there. It's a distance calculation. Runs well under five seconds.
-> But I'm not just cutting business scope to dodge the real problem. So day one, I'd also pair with the tech lead to **audit the Flink telemetry**. Is the 45 seconds bad watermark generation? Or a synchronous DB call inside an operator? We narrow scope *and* find the root cause.
-> **Day 1**: align with the TM, do the walk-through, and lock the scope in writing with the PM. **Day 2**: pair to a working skeleton and the first test fixture. **Day 3**: a dry run where the **team** presents, and the TM and I pre-brief the director.
+> But I'm not just cutting business scope to dodge the real problem. So **Day 1, two audits in parallel**:
+> ① **The Flink telemetry** — is the 45 seconds bad watermark generation, or a synchronous DB call inside an operator?
+> ② **The 12 patterns themselves** — duplicates? subsets of each other? need data we don't have? Often '12' collapses to 4–5 real ones.
+> Then **scope-lock with the PM in writing** — 1 shipped, the rest grouped as deferred, merged, or dropped. Not just '11 deferred.'
+> **Day 2**: pair to a working skeleton and the first test fixture. **Day 3**: a dry run where the **team** presents, and the TM and I pre-brief the director.
 > At the review, **I sit in the audience**. The team gets the credit. Avoid a half-working live demo that fails."
 
 ## Slide 20 — Guide without solving
