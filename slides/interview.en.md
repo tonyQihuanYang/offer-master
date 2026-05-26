@@ -300,21 +300,30 @@ SAY:
 
 ## ▶ Live POC — Hybrid SDUI (I built this)
 
+🌐 **Live: <https://offer.gummui.com>** — runnable, on AWS, with TLS
+
 ![w:600](img/demo-client.png)
 
-- Server-driven layout · **sticky A/B** (inspector: bucket 95 → control) · **SSE push** · runnable (React + Express)
-- **▶ LIVE:** `/admin` change layout → save → live · `/client` offer pushed · `/approaches` A vs B vs C side-by-side
+- **<https://offer.gummui.com/approaches>** ← **A vs B vs C payloads on the wire** (the data difference)
+- **<https://offer.gummui.com/admin>** — change layout → save → green toast (no deploy)
+- **<https://offer.gummui.com/client>** — offer **pushed** down via SSE, sticky hash per courier
+- Server-driven layout · sticky A/B (inspector: bucket 95 → control) · SSE push · React + Express
 
 <!--
 SAY:
-- "This isn't just on paper — I built a running prototype."
-- "[switch to demo]"
-- "/admin: I change the layout and hit save — live, no deploy."
-- "/client: the offer is PUSHED down a stream. The same courier always lands in the same variant by sticky hash."
-- "/approaches: all three approaches side by side on the wire — A sends finished strings, B sends raw data + flags, C sends layout + data."
+- "This isn't just on paper — I built a running prototype, deployed on AWS at offer.gummui.com."
+- "[switch to /approaches]"
+- "Let me start with /approaches — this shows ALL THREE approaches side by side on the wire."
+- "  A sends finished strings — '$11.76' already rendered. App is just a painter."
+- "  B sends raw data plus flags — mobile owns all presentation logic."
+- "  C sends layout + data — server decides what and order, mobile decides how."
+- "[switch to /admin]"
+- "On /admin: I change the layout, hit save — live, no deploy. No app release."
+- "[switch to /client]"
+- "On /client: the offer is PUSHED down a stream. The same courier always resolves to the same variant via sticky hash."
 - "[back to slides]"
 - "This is the hands-on, fail-fast piece — I'd rather show a small running thing than just describe it."
-- "🔴 If demo crashes, this slide has a screenshot — just walk through it."
+- "🔴 Fallback: if the live URL is down, this slide has a screenshot. Local copy also runs at localhost:5173."
 -->
 
 ---

@@ -249,14 +249,22 @@ iOS / Android 都从同一份 shared schema codegen 出来——杜绝两端漂�
 
 ## ▶ Live POC — Hybrid SDUI (I built this)
 
+🌐 **Live: <https://offer.gummui.com>** — runnable, on AWS, with TLS
+
 ![w:600](img/demo-client.png)
 
-- Server-driven layout · **sticky A/B** (inspector: bucket 95 → control) · **SSE push** · runnable (React + Express)
-- **▶ LIVE:** `/admin` change layout → save → live · `/client` offer pushed · `/approaches` A vs B vs C side-by-side
+- **<https://offer.gummui.com/approaches>** ← **A vs B vs C payloads on the wire** (the data difference)
+- **<https://offer.gummui.com/admin>** — change layout → save → green toast (no deploy)
+- **<https://offer.gummui.com/client>** — offer **pushed** down via SSE, sticky hash per courier
+- Server-driven layout · sticky A/B · SSE push · React + Express
 
 <!--
-🔴 这就是 JD 要的 hands-on POC / fail fast——别只嘴上说"我做了 demo"，直接切到运行中的 demo 点给他们看。
-现场顺序：/admin 改 layout→Save→绿 toast；/client 点 Dispatch→offer 被推进手机；/approaches 看 A/B/C 三种 payload 的差别。
+🔴 JD 要的 hands-on POC / fail fast —— 直接切到 https://offer.gummui.com 点给他们看，别只嘴上说。
+现场建议顺序：
+  ① /approaches —— 先开这页，因为它一次性把 A/B/C 三种 payload 在 wire 上的差别摆出来：A 发完整字符串、B 发 raw+flags、C 发 layout+data。讲数据层面 differences 最快。
+  ② /admin —— 改 layout → Save → 绿 toast，证明"不发版改 UI"。
+  ③ /client —— 点 Dispatch 触发 SSE push，证明"事件驱动 + sticky hash"。
+🔴 兜底：万一线上挂了，截图能讲；本地 localhost:5173 也跑着。
 -->
 
 ---

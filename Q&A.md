@@ -13,6 +13,7 @@
 - [Q2. Precise boundary — what needs a release in C?](#q2-precise-boundary--what-needs-a-release-in-c)
 - [Q3. A vs C — the real difference](#q3-a-vs-c--the-real-difference)
 - [Q4. Latency at 2M/h — p99 and a slow dependency](#q4-latency-at-2mh--p99-and-a-slow-dependency)
+- [Q4b. Network calls on the offer path — what actually fires?](#q4b-network-calls-on-the-offer-path--what-actually-fires)
 - [Q5. Sticky bucketing — surviving cache eviction & restart](#q5-sticky-bucketing--surviving-cache-eviction--restart)
 - [Q5b. Multi-arm experiments & collisions across experiments](#q5b-multi-arm-experiments--collisions-across-experiments)
 - [Q6. Bringing the mobile lead along in the room](#q6-bringing-the-mobile-lead-along-in-the-room)
@@ -82,6 +83,38 @@
 > "Three things. **One:** my four components are tiny. The real cost is the Temporal pay-and-bonus calls — about 150ms, roughly 80% of the budget. My parts are well under a millisecond. And that 10ms is a *budget*, not a real measurement — I'd load-test first. **Two:** flags and templates are cached. On a cache miss we use the last good value and refresh in the background. So the courier never waits on the flag service. **Three:** the resolver fails closed. If it can't decide in time, the courier just gets the default layout — never an error, never a hang. A slow dependency hurts the *experiment*, not the *offer*. And I'd set an alarm if the fallback fires more than about 1%."
 
 📄 [`en/hybrid-end-to-end-design.md`](./en/hybrid-end-to-end-design.md) · [`en/courier-offer-system-architecture.md`](./en/courier-offer-system-architecture.md)
+
+[↑ Back to top](#contents)
+
+---
+
+### Q4b. Network calls on the offer path — what actually fires?
+
+> *On a single offer, what REST/HTTP calls happen? Are the four new components making any network requests of their own?*
+
+> "On the request path for a single offer, there's **one synchronous outbound call** — the **Temporal workflow** for pay and bonus, about **150ms**. That's where ~80% of the latency budget goes.
+>
+> Inside the four components themselves, **zero outbound calls**. Temporal's output is already in hand by the time they run. Configs and flags live in an **in-memory cache**, kept fresh by a **background task** polling every ~30 seconds — that REST call does happen, but it's deliberately **off the request path**, so a slow config service can never hurt a courier's offer.
+>
+> Outbound to the mobile app, we **push** over AppSync / SSE — fire-and-forget, we don't wait for the client to ACK.
+>
+> So on the latency path: one Temporal call plus four in-process components. That's it. The 4 components add ~10ms of **pure compute** — no I/O, no network."
+
+**What's on the path vs deliberately off it:**
+
+| Call | Protocol | Sync? | On the 200ms path? |
+|---|---|---|---|
+| Service → **Temporal** (pay + bonus) | gRPC | yes | **yes — ~150ms (the big one)** |
+| 4 components (resolver / earnings / layout / payload) | in-process function calls | yes | yes — ~10ms total, sub-ms real |
+| Service → **AppSync push** | WebSocket / SSE | fire-and-forget | <1ms enqueue |
+| Service → **config service** | REST | **background, every ~30s** | ❌ **no — off-path by design** |
+| Service → **feature flag service** | REST | **background, every ~30s** | ❌ **no — off-path by design** |
+| App → `/api/stream` (offer push) | SSE long-lived | n/a (client-initiated, kept open) | not a request-response |
+| App → `POST /offers/:id/accept` | REST | yes | separate path, not on offer push |
+
+**Why this design:** "**move every read off the request path**" is the trick that lets the 4 components claim zero hot-path I/O. The 30-second freshness window on configs is a deliberate trade — losing 30s of staleness to gain zero network on the offer push.
+
+📄 [`en/hybrid-end-to-end-design.md`](./en/hybrid-end-to-end-design.md) (request path / event flow) · [`en/courier-offer-system-architecture.md`](./en/courier-offer-system-architecture.md)
 
 [↑ Back to top](#contents)
 
