@@ -1,9 +1,11 @@
 # Presentation Script — verbatim talk track (for speaking practice)
 
-> 这是**逐字英文讲稿**——一句句照着念,练英语口语用。
+> 这是**逐字英文讲稿** —— 一句句照着念,练英语口语用。
 > 配套:幻灯片 `slides/interview.en.md`、大纲 [`presentation-outline.md`](./presentation-outline.md)。
 > 📑 **逐页对照版(每页:屏幕显示什么 + 你说什么)**:[`presentation-combined.md`](./presentation-combined.md) ← 练的时候用这个最直观
 > `[▶ DEMO]` = 切到运行中的 demo;`[pause]` = 停一拍。说话用缩写、放慢、自然就好。
+>
+> 📣 **英文已改成短句口语版** —— 一句一个意思,卡住就慢下来、看 slide 一眼、用自己的话继续。
 
 ---
 
@@ -19,166 +21,175 @@ cd demo && npm run dev      # 让它先跑着(端口看终端,通常 5173/5174)
 | # | 标签页 | 什么时候切过去 |
 |---|--------|---------------|
 | 1 | **幻灯片** `slides/interview.en.html`(F 全屏) | 全程主屏 |
-| 2 | demo **`/client`** | 讲到 **Slide 9 ▶ Live POC**:点 ⚡ Dispatch → offer 被推进手机 |
+| 2 | demo **`/client`** | 讲到 **Slide 10 ▶ Live POC**:点 ⚡ Dispatch → offer 被推进手机 |
 | 3 | demo **`/admin`** | 同上:改 layout → Save → 绿 toast(展示"不发版改 UI")|
 | 4 | demo **`/approaches`** | 同上:展开 "What's on the wire" 看 A/B/C 三种 payload |
 | 5 | **ADR-001 (English)** — `adr/ADR-001-hybrid-sdui.en.md`(GitHub)| UC1 讲完决策/领导力时**闪一下**:"我写成了 ADR" |
-| 6 | **RFC skeleton (English)** — `adr/RFC-skeleton-fraud-detection.en.md`(GitHub)| UC2 讲 **Slide 19 指导策略** 时展示:"给团队骨架 + 提问,他们填我批注" |
+| 6 | **RFC skeleton (English)** — `adr/RFC-skeleton-fraud-detection.en.md`(GitHub)| UC2 讲 **Slide 20 Guide without solving** 时展示:"给团队骨架 + 提问,他们填我批注" |
 | 7 |(备用)`approach-evaluation.md` | 被追问 A-vs-C / B-vs-C 内部时切过去 |
 
 **切换原则**:幻灯片是主屏;只在 ▶ 处切 demo、被问/到点才闪 ADR/RFC,**看完立刻切回幻灯片**。
-**兜底**:demo 起不来 → Slide 9 有截图,照着讲;ADR/RFC 切不过去 → 提一句"我写了 ADR / 给了 RFC 骨架"也拿分。
+**兜底**:demo 起不来 → Slide 10 有截图,照着讲;ADR/RFC 切不过去 → 提一句"我写了 ADR / 给了 RFC 骨架"也拿分。
 
 ---
 
 ## Slide 1 — Title
 
-> "Hi, thanks for having me. We've got the hour for both cases. I'll take roughly **30 minutes** on the courier offering system and about **20** on the fraud-detection one — but please jump in with questions any time; I'd rather this be a conversation than a monologue.
-> One framing up front: to me, Staff engineering is two things — driving technical decisions through **influence, not authority**, and being **hands-on: building POCs and failing fast**. I'll answer both cases to that standard, and I actually built a small running prototype for the first one."
+> "Hi everyone, thanks for having me. We have the hour for both cases. I'll spend about **30 minutes** on the courier offering system, and **20** on the fraud detection one. Please jump in with questions any time — I'd rather make this a conversation than a one-way talk.
+> One thing up front. My read on Staff is two things. **First, driving decisions through influence, not authority.** **Second, being hands-on — building POCs and failing fast.** I'll answer both cases that way. And for the first one, I actually built a small running prototype."
 
 ## Slide 2 — Agenda
 
-> "For Use Case 1, I'll do it in this order: first the **technical decision** — evaluate the approaches and recommend one with the reasons; then the **system design** of what I picked; then the **leadership** piece — how I'd bring the mobile team along; and finally **migration** — metrics and rollback.
-> For Use Case 2, it's diagnose, guide without solving, the three-day plan, knowledge transfer, and working with the Tech Manager.
-> Quick note on why decision before design: you can't design the system until you've chosen the approach — so the recommendation is my thesis, and the design is how I back it up."
+> "For Use Case 1, in this order. First, the **technical decision** — I'll evaluate the approaches and recommend one. Then the **system design** of what I picked. Then **leadership** — how I'd bring the mobile team along. And finally **migration** — metrics and rollback. For Use Case 2: diagnose, guide without solving, the three-day plan, knowledge transfer, and working with the Tech Manager.
+> Quick note — why decision before design? Because you can't design a system you haven't decided on. So the recommendation comes first, and the design backs it up."
 
 ## Slide 3 — Use Case 1 (title)
 
-> "Okay — Use Case 1, modernizing the courier offering system."
+> "Okay — Use Case 1. Modernizing the courier offering system."
 
 ## Slide 4 — Problem & Constraints
 
-> "Here's the situation. We're across 15 countries, 50,000-plus couriers, two million offers an hour at peak — that's roughly 556 requests a second. The SLA is 200 milliseconds at p95, and we're at about 180 today, so realistically there's only around **20 milliseconds of headroom**. I'll come back to that number a lot.
-> Today there's one hardcoded offer template, earnings logic spread across three services, and every change is a full multi-region deploy. There's no experimentation at all.
-> The key thing to notice: the pain isn't performance — it's **rigidity**. Nothing can change or be tested without a deploy. And one more: the system is **already event-driven and distributed** — SQS, Temporal, AppSync on AWS — and it already pushes structured JSON to mobile. So my answer is going to be an **evolution, not a rewrite**."
+> "Here's the situation. 15 countries. Over 50,000 couriers. Two million offers an hour at peak — about 556 a second. The SLA is **200 milliseconds at p95**, and we're already at ~180 today. So realistically, we only have about **20 milliseconds of headroom**. I'll come back to that number a lot.
+> Today, there's one hardcoded offer template. Earnings logic is spread across three services. Every change is a full multi-region deploy. And there's **no experimentation at all**.
+> The key thing: the pain isn't performance — it's **rigidity**. Nothing can change. Nothing can be tested.
+> One more thing. The system is **already event-driven and distributed** — SQS, Temporal, AppSync on AWS. It already pushes structured JSON to mobile. So my answer is going to be an **evolution, not a rewrite**."
 
 ## Slide 5 — Technical Decision: A vs B
 
-> "The prompt frames this as two options. Let me put them side by side honestly.
-> **Approach A**, the server-side template engine: experiments are fast because it's all server-side, but the server renders everything — so at two million an hour that's compute on the latency path, the native experience is poor, and mobile is just painting boxes.
-> **Approach B**, raw data with mobile presentation: the native UX is great and the backend is light — but every layout experiment now needs an app-store release, and keeping iOS and Android consistent is hard.
-> So neither one alone wins. A buys you experiment speed but gives up the native feel and risks the SLA; B keeps the native feel but you lose experiment velocity. [pause] That tension is exactly what points to a third option."
+> "The prompt gives me two options. Let me evaluate them fairly.
+> **Approach A** is a server-side template engine. The server pre-renders the finished text. The mobile app just paints it. The good: experiments are fast — no app release needed. The bad: at two million an hour, the server is rendering on the hot path — that's a real **200ms risk**. And the native experience is poor.
+> So **A trades native UX and latency for experiment speed**.
+> **Approach B** is the opposite. The server sends raw data. Mobile owns all the layout. The good: native UX is great, the backend stays light. The bad: every layout experiment needs an app-store release. iOS and Android drift. Mobile complexity grows without limit.
+> So **B trades experiment speed and consistency for native UX**.
+> [pause] Neither alone wins. A gives up UX and latency. B gives up experiments and consistency.
+> Which forces the question — **is there a third way?**"
 
 ## Slide 6 — Approach C (Hybrid)
 
-> "So I'd propose a hybrid — call it Approach C — that takes the best of both.
-> **From A**, the server controls *what* components show and *in what order* — so we can run experiments without an app release. **From B**, the mobile app renders those components **natively** — so the UX stays great.
-> The one-line version is: **the server decides what and in what order; mobile decides how it looks.** Mobile has a small registry of about 10 to 15 components.
-> If someone asks how this differs from B specifically — the one real difference is *who owns the layout*. In B, 'which components and in what order' is application logic living on mobile. In C, it's data the server sends. So C is essentially B plus a server-controlled layout descriptor, with experiment assignment moved server-side.
-> And I'll be honest about the cost: C needs an upfront contract and component governance, and changing an existing component's data shape still needs a release or a dual-emit. It's not free — but it's the right trade."
+> "There is — **Approach C, a hybrid**. It takes the best of both.
+> **From A**, the server controls **what** components show and **in what order**. So we experiment without an app release. **From B**, the mobile app renders them **natively**. So the UX stays great.
+> One line, this is my north star: **the server decides what and in what order. Mobile decides how it looks.** Through a small registry of 10 to 15 components.
+> If you ask how this is different from B — the one real difference is *who owns the layout*. In B, it's app logic. In C, it's data the server sends. So C is B plus a server-controlled layout, with the experiment moved to the server.
+> Honest cost. C needs an upfront contract and component governance. And changing an existing component still needs a release or dual-emit. Not free — but the right trade."
 
 ## Slide 7 — System Design (Hybrid)
 
-> "Now that we've picked C, here's how it's built. I add four components inside the existing offer service, right after the Temporal workflow returns pay and bonus.
-> An **Experiment Resolver** that assigns the variant — using a deterministic, sticky hash of the courier ID, so the same courier always lands in the same variant, and if the flag service is down it fails closed to control. Budget, about 3 milliseconds.
-> An **Earnings Calculator** that unifies flat, distance, surge, and tips into one model — compute only, the data's already fetched.
-> A **Layout Composer** that emits the component list and hints from config.
-> And a **Payload Builder** that replaces the hardcoded template and branches by app version — old apps get the legacy format.
-> Two things I want to emphasize as distributed-systems design: every component has a **latency budget** and a **failure mode** — fail-closed, dual-write, idempotency, a sticky hash that doesn't depend on a cache. The whole thing adds about 10 milliseconds, which fits inside that 20 we have.
-> And let me be precise about why that 10 won't tail-spin under peak load — because p95 isn't just addition. Every one of these is **in-process and cached — zero network I/O on the hot path** — so there's no dependency to time out on. If the config or flag service is slow or down, we **fail closed instantly** to the default layout. And if we ever *measure* the real added latency creeping toward the budget, the fallback is to move experiment and layout resolution **off the request path entirely** — precompute it per courier. So a dependency hiccup can't blow the SLA.
-> Mobile renders from a registry, and any component it doesn't recognize is silently skipped — so the server can ship ahead of the app."
+> "Now that we've picked C, here's how it's built. Four new components inside the existing offer service, right after the Temporal step that returns pay and bonus.
+> First, an **Experiment Resolver**. It picks the variant using a deterministic sticky hash on the courier ID. Same courier, same variant, every time. If the flag service is slow or down, it fails closed to control.
+> Second, an **Earnings Calculator**. It unifies flat, distance, surge, and tips. Just compute — the data is already fetched.
+> Third, a **Layout Composer**. It picks the components and hints from config.
+> Fourth, a **Payload Builder**. It replaces the hardcoded template — and branches by app version, so old apps get the legacy format.
+> Two things I want to call out. **One: every component has a latency budget and a failure mode** — fail-closed, dual-write, idempotency, a sticky hash that doesn't depend on a cache. **Two: on latency**, this adds about 10 milliseconds, inside our 20. And it **won't tail-spin** under load — everything's in-process and cached, no network calls on the hot path. A flag-service outage fails closed. **No new dependency can blow the SLA.**"
 
-## Slide 8 — The Payload Contract
+## Slide 8 — Latency Budget — estimate, then measure
 
-> "Here's the contract made concrete. The server sends three things: the **layout** — which components, in order — plus the **raw data**, plus a few **hints**. Mobile renders it through the registry.
-> The nice property: the same delivery can go out with a different layout and a different earnings model per market — Switzerland, the UK, Canada — all from config. And unknown components are skipped, so older apps stay safe."
+> "A quick word on those numbers, because someone usually asks. **They're budgets, not measurements.** I took the ~20ms of headroom and split it into a ceiling per component. The real hot path is well under a millisecond — a hash and a cached lookup. The budget just leaves room for cache misses, GC, and serialization.
+> For scale: the Temporal pay-and-bonus step is about 150 milliseconds. So these four are tiny next to it.
+> Before rollout, I'd load-test on a real cluster and replace these with measured p95. If it ever creeps toward the budget, I'd move the resolution off the request path and precompute. **I wouldn't present an estimate as a fact.**"
 
-## Slide 9 — Live POC (demo)
+*(主线讲 ~20 秒带过;被追问"3ms 怎么来的"再展开。)*
 
-> "And this isn't just on paper — I built a running prototype to prove it out. Let me show you.
+## Slide 9 — The Payload Contract
+
+> "Here's the contract, concrete. The server sends three things. The **layout** — which components, in what order. The **raw data**. And a few **hints**. Mobile renders it through the registry.
+> One nice property: the same delivery can go out with a different layout and a different earnings model per market — Switzerland, the UK, Canada — all from config. And unknown components are skipped, so older apps stay safe."
+
+## Slide 10 — Live POC (demo)
+
+> "This isn't just on paper — **I built a running prototype**. Let me show you.
 > [▶ DEMO]
-> On the admin side, I change the layout and hit save — and it's live, no deploy. On the client, the offer is **pushed** down a stream — and you can see the same courier always resolves to the same variant by hash. And here's a side-by-side of all three approaches on the wire — you can see A sends finished strings, B sends raw data plus flags, and C sends a layout plus data.
+> On the admin page, I change the layout and hit save — live, no deploy. On the client, the offer is **pushed** down a stream. The same courier always resolves to the same variant by hash. And here's all three approaches side by side — A sends finished strings, B sends raw data plus flags, C sends a layout plus data.
 > [back to slides]
-> This is the hands-on, fail-fast piece — I'd rather show a small running thing than just describe it."
+> This is the **hands-on, fail-fast piece**. I'd rather show a small running thing than just describe it."
 
-## Slide 10 — Technical Leadership
+## Slide 11 — Technical Leadership
 
-> "Now the leadership question — the mobile team is worried this adds complexity for them. And honestly, they're right to be.
-> My principle is: **validate the concern, then sharpen it.** The question isn't *whether* it adds complexity — it's *how much, what kind, and what's on the other side*.
-> So, concretely: I'd acknowledge it in writing first, to make it us-versus-the-problem, not us-versus-them. Then a real working session — not a presentation — where mobile tells me what 'complexity' actually means, and I bring **bounded** mitigations: a locked registry, code-gen for the schema, forward-compat skipping, a co-owned RFC. Then instead of a vote, I'd propose a **small, reversible proof — mobile-led** — one zone, one component, four weeks. That's the fail-fast move. And I'd pre-state the escalation path so nobody feels trapped.
-> This is the part of the JD that says **influence, not authority** — I can't pull rank on mobile; I can only make the trade-offs clear enough that they reach the answer with me."
+> "Now the leadership question. Mobile is worried that C adds complexity for them. Honestly, they're right to worry.
+> My principle is: **first, I agree the concern is real. Then I make it specific.** It's not *whether* it adds complexity — it's *how much, what kind, and what's on the other side*.
+> So three steps. **First**, I acknowledge it in writing — to frame it as **us vs the problem**, not me vs them. **Second**, a real working session — not a presentation — where mobile tells me what 'complexity' actually means. And I bring **concrete fixes that cap the cost**: a locked registry of 10–15 components, code-gen for the schema, the app skipping components it doesn't know, a shared RFC we co-write. **Third**, instead of a vote — a **small POC the mobile team leads**. One zone, one component, four weeks. Easy to undo. That's the fail-fast move. And I say upfront how we'd escalate if we still disagree — so nobody feels trapped.
+> This is the JD's **influence, not authority**. I can't pull rank. I make the trade-offs clear, so they reach the answer with me."
 
-## Slide 11 — The closing posture (leadership)
+## Slide 12 — The closing posture (leadership)
 
 > "And the line I'd land it on:
-> *My job isn't to win the architecture argument — it's to make the team that ships and maintains this a co-author of the decision. I'd advocate for C, but I'd rather ship B with mobile fully bought in than ship C with mobile compliant but quietly resentful.*"
+> *My job isn't to win the architecture argument — it's to make the team that builds and runs this a co-author of the decision. I'd push for C, but I'd rather ship B with mobile fully bought in than ship C with mobile going along but quietly resentful.*"
 
-## Slide 12 — Migration & Metrics
+## Slide 13 — Migration & Metrics
 
-> "On migration — the whole thing is designed to be reversible at every step. Phase one is a no-op foundation, zero behavior change, verified in shadow mode. Phase two, dual payloads — old and new side by side. Phase three, flag rollout, one percent to a hundred, per city. Phase four, experiments go live.
-> For metrics, four buckets: SLA — p95 and p99; business metrics **read per variant** — acceptance, time-to-accept, and dispute rate, all watched for **regression**, not just lift; experiment health — assignment consistency and flag fallback; and migration progress.
-> The principle that ties it together: any step rolls back in seconds, because dual-write means mobile always has the old field to fall back to."
+> "Migration is reversible at every step. Four phases. **Phase one**: a no-op foundation — zero behavior change, verified in shadow mode. **Phase two**: dual payloads — old and new in parallel. **Phase three**: flag rollout, from 1% to 100% per city. **Phase four**: experiments go live.
+> Metrics in four buckets. **SLA** — p95 and p99. **Business metrics, read per variant** — acceptance rate, time to accept, dispute rate. We watch for **regression**, not just lift. **Experiment health**. And **migration progress**.
+> The principle: **any step rolls back in seconds**. Dual-write means mobile always has the old field to fall back to."
 
-## Slide 13 — Use Case 1 in one line
+## Slide 14 — Use Case 1 in one line
 
-> "So in one line: I recommend the hybrid — server controls layout and experiments, mobile renders natively. It buys experiment velocity *and* native UX inside the 200-millisecond, two-million-an-hour budget, it evolves the existing event-driven system, and it migrates with instant rollback. And the real Staff work is making mobile a co-author of that decision."
+> "In one line: I recommend the hybrid. **Server controls layout and experiments. Mobile renders natively.** It gives us experiment speed *and* native UX, inside the 200ms / 2M-an-hour budget. It evolves the existing event-driven system. It migrates with instant rollback. And the real Staff work is making mobile a **co-author** of that decision."
 
-## Slide 14 — Use Case 2 (title)
+## Slide 15 — Use Case 2 (title)
 
-> "Okay — Use Case 2. A four-person team building real-time fraud detection, and they're in trouble."
+> "Okay — Use Case 2. A four-person team building real-time fraud detection. And they're in trouble."
 
-## Slide 15 — The Situation
+## Slide 16 — The Situation
 
-> "Quick recap of the situation: four engineers, Kafka and Flink, processing latency at 45 seconds against a 5-second target, scope crept from 3 patterns to 12, no clear test strategy, a sprint review in three days with nothing to demo, and morale is low.
-> My core principle here: **the crisis is the deadline, not the architecture.** The most common Staff mistake is to charge in, rewrite it, and 'save' the sprint — that solves the demo and breaks the team. The harder, right move is to buy time, narrow scope, coach, and let them ship something they actually understand.
-> And one more — the engineer who wants to start over with something simpler might be right. I'd take that seriously, not wave it off with 'we already invested in Flink.'"
+> "Quick recap. Four engineers. Kafka and Flink. 45-second latency, against a 5-second target. Scope crept from 3 patterns to 12. Nothing to demo in three days. Low morale.
+> My core principle: **the crisis is the deadline, not the architecture.** The common Staff mistake is to charge in, rewrite it, and 'save' the sprint. That solves the demo and breaks the team. The harder, right move is to buy time, narrow scope, coach, and let them ship something they understand.
+> And the engineer who wants to start over with something simpler — they might be right. I'd take that seriously."
 
-## Slide 16 — Staff vs Tech Manager
+## Slide 17 — Staff vs Tech Manager
 
-> "Before anything else, I'd draw the line with the Tech Manager — because the prompt is explicit that I work *with* them, not as them.
-> Scope, deadlines, the PM conversation, morale — that's the TM's. Architecture, testing, RFCs, mentorship — that's mine. The sprint-review narrative and any escalation, we shape together.
-> So my literal first 30 minutes is a one-on-one with the TM to agree exactly that. The trap I'd avoid is stepping into their job — negotiating scope with the PM myself — because using their authority without coordinating undermines them."
+> "First, I'd draw the line with the Tech Manager. The prompt says clearly I work *with* them, not as them.
+> **Scope, deadlines, the PM conversation, morale — that's theirs.** **Architecture, testing, RFCs, mentorship — that's mine.** The review story and escalation — together.
+> So my literal first 30 minutes is a one-on-one with the TM, to agree on exactly that. The trap is stepping into their job. Using their authority without coordinating undermines them."
 
-## Slide 17 — Diagnose
+## Slide 18 — Diagnose
 
-> "First, diagnosis — and the goal is to ask questions that turn symptoms into causes, not to lead the witness.
-> On the 45 seconds: 'Let's whiteboard the data flow end to end. Where exactly is the time going — is that measured or assumed? Any synchronous I/O inside an operator? What's the parallelism and the watermark strategy?'
-> And the big one: 'Is Flink even the right tool for our event rate — have we measured it?' Now, the prompt doesn't give a volume. If you only count delivery events it's roughly 20 a second; but fraud runs on GPS pings, which could push it to a few thousand a second — and we know the platform already does hundreds a second for offers. So the honest answer is: that range straddles 'overkill' and 'justified' — **so measure it first**, don't assume.
-> I'd ask these in waves, not fire 30 at once. The questions are the coaching — they teach the team *how* to think."
+> "Diagnosis — and the goal is to **ask questions that turn symptoms into causes**. I don't feed them the answer.
+> On the 45 seconds: *'Walk me through the data flow end to end. Where's the time going — measured, or assumed? Any synchronous I/O in an operator? What's the parallelism and the watermark strategy?'*
+> And the big question: *'Is Flink even right for our event rate — have we measured it?'* The prompt gives no number. Delivery events are maybe 20 a second. But GPS pings could push it to a few thousand. And the platform already handles hundreds a second for offers. So the range goes from overkill to justified — **measure first, don't assume.**
+> I'd ask these in waves, not 30 at once. The questions are the coaching."
 
-## Slide 18 — The 3-day plan
+## Slide 19 — The 3-day plan
 
-> "For the next three days, the load-bearing decision is to **cut scope, hard.** Ship one pattern that tells the whole story — 'courier marked complete more than 500 meters from the destination.' The data's already there, it's a distance calculation, and it runs well under five seconds with or without Flink.
-> But I want to be clear I'm not just cutting business scope to dodge the real problem — so on day one I'd also pair with the tech lead to **audit the Flink telemetry**: is that 45 seconds coming from improper watermark generation, or a synchronous database call inside an operator? We narrow the business scope *and* find the infrastructure root cause.
-> Day one, then: align with the TM, that architecture-and-telemetry walk-through, and a scope-lock session where the PM agrees in writing — one pattern in, eleven deferred. Day two: pair to a working skeleton and write the first real test fixture. Day three: a dry run where the **team** presents, and the TM and I pre-brief the director together.
-> At the review, I'm in the audience — the team presents and gets the credit. The one thing to avoid is a half-working live demo that fails."
+> "For three days, the big call is: **cut scope, hard.** Ship one pattern that tells the story — 'marked complete more than 500 meters from destination.' The data's there. It's a distance calculation. Runs well under five seconds.
+> But I'm not just cutting business scope to dodge the real problem. So day one, I'd also pair with the tech lead to **audit the Flink telemetry**. Is the 45 seconds bad watermark generation? Or a synchronous DB call inside an operator? We narrow scope *and* find the root cause.
+> **Day 1**: align with the TM, do the walk-through, and lock the scope in writing with the PM. **Day 2**: pair to a working skeleton and the first test fixture. **Day 3**: a dry run where the **team** presents, and the TM and I pre-brief the director.
+> At the review, **I sit in the audience**. The team gets the credit. Avoid a half-working live demo that fails."
 
-## Slide 19 — Guide without solving
+## Slide 20 — Guide without solving
 
-> "On *how* I guide without taking over: I pair, but they drive. I whiteboard principles, not fixes. My code-review comments are questions — 'what happens if this is null?' — not instructions.
-> Quick example — the 45-second latency. The Senior move is: 'It's backpressure, add async I/O and double the parallelism.' The Staff move is: 'What does the latency breakdown look like? What does the metric say? How would we confirm that? Let's run it — what would the result tell us?' Same destination — but the second one teaches the debugging method.
-> The one caveat: I don't withhold facts to be pure about it. If they ask 'is checkpoint duration usually milliseconds or seconds,' I just answer."
+> "How I guide without taking over. **I pair, but they drive the keyboard.** I whiteboard principles, not fixes. My code review comments are questions — *'what happens if this is null?'* — not instructions.
+> Example — the 45-second latency. **The Senior move:** *'It's backpressure. Add async I/O and double the parallelism.'* **The Staff move:** *'What's the latency breakdown? What does the metric say? How would we confirm? Let's run it — what would the result tell us?'* Same destination — but the second one teaches the debugging method.
+> One caveat: I don't withhold facts just to be pure. If they ask 'milliseconds or seconds for checkpoints?' — I just answer."
 
-## Slide 20 — Long-term knowledge transfer
+## Slide 21 — Long-term knowledge transfer
 
-> "Longer term — this is what prevents the next three-day crisis. Over 30 days, a streaming study group and outside experts. Over 60, each engineer builds a small Flink toy project and the team writes the v2 RFC. Over 90, each of them *teaches* one concept back — watermarks, backpressure — because teaching is when they really own it.
-> And the key principle: don't let them learn in isolation. If another team runs production streaming, I broker that connection — cross-team transfer beats in-team self-study every time."
+> "Longer term — this is what prevents the next three-day crisis. Over **30 days**, a streaming study group and outside experts. Over **60**, each engineer builds a small Flink toy project, and the team writes the v2 RFC. Over **90**, each engineer **teaches one concept back** — watermarks, backpressure — because **teaching is when they really own it**.
+> Key principle: don't let them learn alone. If another team runs production streaming, I set up that connection. **Cross-team learning beats self-study.**"
 
-## Slide 21 — Work with TM / Principals / Leadership
+## Slide 22 — Work with TM / Principals / Leadership
 
-> "On working with the others: with the TM, a daily 15-minute check-in during the crunch — architecture runs through me, scope stays theirs, and I never go around them to the engineers.
-> With Principals, I pull them in early for a second opinion and pattern-matching — not to do the work, and not as backup over my TM.
-> And with leadership — I get ahead of the escalation. Before the PM frames it, the TM and I brief them together: 'The team picked Flink for a workload that, at the rate we measured, is well below its design point — so they're paying a complexity tax. We've descoped to one pattern, we'll evaluate the architecture over 30 days, and we'd like your air cover with the PM meanwhile.'
-> And if that 'start over' engineer turns out to be right — I praise them publicly, frame the Flink work as not wasted, and own the lesson. The team comes out more capable."
+> "With the TM, a **daily 15-minute check-in** during the crunch. Architecture runs through me. Scope stays with them. And I **never go around them** to the engineers.
+> With Principals, I pull them in early for a second opinion. Not to do the work for me. Not as backup over my TM.
+> With leadership, **I get ahead of the escalation**. Before the PM frames it, the TM and I brief them together: *'The team picked Flink for a workload that, at the rate we measured, is well below its design point. They're paying a complexity tax. We've descoped to one pattern. We'll evaluate the architecture over 30 days. We'd like your air cover with the PM.'*
+> And if the 'start over' engineer turns out to be right — I praise them publicly. I frame the Flink work as not wasted. And I own the lesson."
 
-## Slide 22 — Use Case 2 posture
+## Slide 23 — Use Case 2 posture
 
 > "The line I'd land Use Case 2 on:
 > *My role is to make the team better at this — not to do the work for them. The three-day deadline is a constraint to navigate, not a performance to deliver. If I do my job right, this team handles the next streaming project without a Staff parachute.*"
 
-## Slide 23 — Closing
+## Slide 24 — Closing
 
-> "So, to close — two postures, one standard.
-> On the offering system, the Staff work was making the team that ships it a co-author. On the fraud team, it was leverage over time, not heroics in the moment.
-> I answered both the same way: **influence, not authority**, and **hands-on — POCs, fail fast**. That's my read on Staff, and I think it's what this role is asking for.
-> Thank you — I've got deeper detail on any of it, plus a running prototype, so happy to go wherever's useful."
+> "To close — two postures, one standard. On the offering system, the Staff work was making the team a **co-author**. On the fraud team, it was **leverage over time, not heroics**.
+> **I answered both the same way — influence not authority, fail fast, hands-on POCs. That's my read on Staff, and what this role calls for.**
+> Thank you. I've got deeper detail on any of it, plus a running prototype — happy to go wherever's useful."
 
 ---
 
 ## 练习提示
 
-- **先慢后顺**:第一遍慢读,把每句读顺;第二遍计时(目标 UC1 ~32min、UC2 ~22min)。
-- **金句背熟**:Slide 11、22、23 那三段引号里的话,要脱稿说。
-- **signpost 词**(转场词)别省:"Here's the situation / The one-line version is / Now that we've picked C / The line I'd land it on" —— 这些让听众跟得上。
-- **[▶ DEMO]** 处:**绝不现场改代码/编译**——用**录屏(demo.mp4)或事先已经跑好的 demo**,只点不改,防环境/网络翻车;万一连不上,这页的话配截图照样能讲。
-- **金句放慢**:Slide 11 / 22 / 23 那三段引号要**脱稿、放慢、语气坚定**——这是立"Staff 人设"的高光。
+- **先慢后顺**:第一遍慢读,把每句读顺;第二遍计时(目标 UC1 ~30 / UC2 ~20)。
+- **金句背熟**:Slide 12 / 23 / 24 那三段引号里的话,要脱稿说。
+- **signpost 词**(转场词)别省:*"Here's the situation / One line is / Now that we've picked C / In one line / To close"* —— 这些让听众跟得上、也帮你从一页过到下一页。
+- **[▶ DEMO]** 处:**绝不现场改代码/编译** —— 用**录屏(demo.mp4)或事先已经跑好的 demo**,只点不改,防环境/网络翻车;万一连不上,这页的话配截图照样能讲。
+- **金句放慢**:Slide 12 / 23 / 24 那三段引号要**脱稿、放慢、语气坚定** —— 这是立"Staff 人设"的高光。
+- **卡住别慌**:慢下来、看 slide 一眼、用自己的话继续。中间停顿 1–2 秒是稳,不是错。
