@@ -1,0 +1,12 @@
+node_modules
+dist
+npm-debug.log
+*.log
+.env
+.env.*
+playwright-report
+test-results
+recordings
+.DS_Store
+.git
+.gitignore

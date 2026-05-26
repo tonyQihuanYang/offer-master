@@ -1,0 +1,10 @@
+services:
+  offer-demo:
+    build: .
+    image: offer-demo:latest
+    container_name: offer-demo
+    restart: unless-stopped
+    ports:
+      - "3007:3001"
+    environment:
+      - NODE_ENV=production
