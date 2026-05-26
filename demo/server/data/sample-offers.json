@@ -1,12 +1,12 @@
 {
-  "CH": {
-    "offer_id": "ch-demo-1",
-    "delivery_id": "2f9a2aa6-ch-demo",
-    "currency": "CHF",
-    "currency_symbol": "CHF ",
+  "PL": {
+    "offer_id": "pl-demo-1",
+    "delivery_id": "2f9a2aa6-pl-demo",
+    "currency": "PLN",
+    "currency_symbol": "zł ",
     "stops": [
-      { "type": "COLLECT", "name": "Swi001 (Swi001)", "address": "Bonstettenstrasse 2, 3012 Bern", "lat": 46.9579, "lng": 7.4369, "arrive_at": "2:12 PM" },
-      { "type": "DELIVER", "name": "DataTest", "address": "Schauplatzgasse 10, 3011 Bern", "lat": 46.9475, "lng": 7.4426, "arrive_at": "2:16 PM" }
+      { "type": "COLLECT", "name": "Pyszne Kitchen", "address": "ul. Marszałkowska 100, 00-026 Warszawa", "lat": 52.2330, "lng": 21.0146, "arrive_at": "2:12 PM" },
+      { "type": "DELIVER", "name": "DataTest", "address": "ul. Nowy Świat 35, 00-029 Warszawa", "lat": 52.2370, "lng": 21.0180, "arrive_at": "2:16 PM" }
     ],
     "distance_km": 6.4,
     "distance_miles": 4.0,

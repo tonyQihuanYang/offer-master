@@ -125,7 +125,7 @@ The client opens an **SSE stream** and waits for offers to be **pushed**.
 | Control | What it does |
 |---|---|
 | **Connection dot** | Live SSE status: connecting / connected / reconnecting, with the courier the stream is bound to |
-| **Tenant selector** | Pick CH / UK / CA — chosen when you dispatch (different sample offer + tenant config) |
+| **Tenant selector** | Pick PL / UK / CA — chosen when you dispatch (different sample offer + tenant config) |
 | **Courier ID input** | The deterministic-hash input; **changing it re-opens the stream**. Try `c123` vs `c999` for different bucket assignments. |
 | **Variant toggle** | `auto` (use the hash), `control` / `treatment` (force via `forceVariant`, tagged `source: "override"`) |
 | **⚡ Dispatch offer** | Simulates a `JobSummaryUpdated` event → backend assembles → **pushes** down the stream (disabled until the stream is connected) |
@@ -339,7 +339,7 @@ Sample offer payload returned by `/api/offer/:tenant`:
 | **UK** | `tip_prediction_uk` | 50% | Tip prediction component appears in treatment |
 | **CA** | `surge_indicator_ca` | 25% | Surge indicator + earnings breakdown + urgent theme in treatment |
 
-Each tenant also has a tenant-consistent fixture (real Bern coords for CH, London for UK, Calgary for CA) so the map pins, addresses, and currency are coherent.
+Each tenant also has a tenant-consistent fixture (real Warsaw coords for PL, London for UK, Calgary for CA) so the map pins, addresses, and currency are coherent.
 
 ---
 

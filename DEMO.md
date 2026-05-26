@@ -18,8 +18,8 @@
 
 **API endpoints worth knowing:**
 ```
-GET  /api/tenants                    → ["CH","UK","CA"]
-GET  /api/approaches/CH              → full A/B/C payload for tenant CH
+GET  /api/tenants                    → ["PL","UK","CA"]
+GET  /api/approaches/PL              → full A/B/C payload for tenant PL
 GET  /api/stream?courierId=c123      → SSE stream of pushed offers
 ```
 

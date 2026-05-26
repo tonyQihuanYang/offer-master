@@ -1,6 +1,6 @@
 {
-  "CH": {
-    "experiment_id": "earnings_display_ch",
+  "PL": {
+    "experiment_id": "earnings_display_pl",
     "treatment_pct": 0,
     "variants": {
       "control": {

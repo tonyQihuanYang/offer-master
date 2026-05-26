@@ -256,13 +256,16 @@ registry = mapOf(
 
 <!--
 SAY:
-- "Now the mobile half — the component registry."
-- "It's basically a locked map: component_name → native renderer view."
-- "About 10–15 entries, governed by a review board so it doesn't sprawl."
-- "Both iOS and Android codegen this from ONE shared schema — so they cannot drift."
-- "Render loop: for each name in layout.components, look it up, render natively with the matching data slice."
-- "Unknown name? SILENTLY SKIPPED. That's how the server can ship ahead of the app — forward-compat by default."
-- "The killer framing: 'Server sends DATA. Mobile ships CODE.' That's the boundary that makes C work."
+- "Now it is mobile — let me talk about the component registry."
+- "The component registry is a locked map: component name to a native renderer view."
+- "About 10 to 15 entries, governed by a review board to keep it under control."
+- "Both iOS and Android codegen this from one shared schema — so they cannot drift. That directly addresses the complexity concern mobile raised."
+- "Whenever the server sends data containing the components and the data slices, the mobile app looks each one up in the registry and renders it natively with the matching data."
+- "If a component name is unknown, the app silently skips it — so the server can ship ahead of the app."
+- "[slow, the killer line]"
+- "Server sends data. Mobile ships code. Two teams, one contract."
+- "[transition]"
+- "Now let me show you what the contract actually looks like."
 -->
 
 ---
@@ -284,16 +287,20 @@ SAY:
 }
 ```
 
-- Same delivery, **different layout per market** (CH / UK / CA)
+- Same delivery, **different layout per market** (PL / UK / CA)
 - Layout is embedded per offer (cheap; memoized by variant/zone/tier)
 
 <!--
 SAY:
-- "Here's the contract, concrete."
-- "Server sends three things: layout (components + order), raw data, and a few hints."
-- "Mobile renders it through the registry."
-- "Nice property: same delivery, different layout + earnings model per market — Switzerland, UK, Canada — all from config."
-- "Unknown components silently skipped → older apps stay safe."
+- "Here's what the contract looks like."
+- "Three blocks in the JSON:"
+- "  experiment — tracks which variant the courier saw (for the A/B test reporting)."
+- "  layout — which components, in what order (the server's call)."
+- "  data — the actual values the components render."
+- "Same delivery can go out with a different layout per market — Poland, UK, Canada — all from config."
+- "Unknown components are silently skipped — older apps stay safe."
+- "[transition]"
+- "And this isn't just on paper — let me show you a running version."
 -->
 
 ---
@@ -304,23 +311,23 @@ SAY:
 
 ![w:600](img/demo-client.png)
 
-- **<https://offer.gummui.com/approaches>** ← **A vs B vs C payloads on the wire** (the data difference)
 - **<https://offer.gummui.com/admin>** — change layout → save → green toast (no deploy)
 - **<https://offer.gummui.com/client>** — offer **pushed** down via SSE, sticky hash per courier
+- **<https://offer.gummui.com/approaches>** ← **A vs B vs C payloads on the wire** (the data difference)
 - Server-driven layout · sticky A/B (inspector: bucket 95 → control) · SSE push · React + Express
 
 <!--
 SAY:
 - "This isn't just on paper — I built a running prototype, deployed on AWS at offer.gummui.com."
+- "[switch to /admin]"
+- "First, /admin — I change the layout and hit save. Green toast — live, no deploy. No app release."
+- "[switch to /client]"
+- "Then /client — the offer is PUSHED down a stream. The same courier always resolves to the same variant via sticky hash."
 - "[switch to /approaches]"
-- "Let me start with /approaches — this shows ALL THREE approaches side by side on the wire."
+- "And finally /approaches — this shows ALL THREE approaches side by side on the wire."
 - "  A sends finished strings — '$11.76' already rendered. App is just a painter."
 - "  B sends raw data plus flags — mobile owns all presentation logic."
 - "  C sends layout + data — server decides what and order, mobile decides how."
-- "[switch to /admin]"
-- "On /admin: I change the layout, hit save — live, no deploy. No app release."
-- "[switch to /client]"
-- "On /client: the offer is PUSHED down a stream. The same courier always resolves to the same variant via sticky hash."
 - "[back to slides]"
 - "This is the hands-on, fail-fast piece — I'd rather show a small running thing than just describe it."
 - "🔴 Fallback: if the live URL is down, this slide has a screenshot. Local copy also runs at localhost:5173."

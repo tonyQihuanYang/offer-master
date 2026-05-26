@@ -237,7 +237,7 @@ iOS / Android 都从同一份 shared schema codegen 出来——杜绝两端漂�
 }
 ```
 
-- Same delivery, **different layout per market** (CH / UK / CA)
+- Same delivery, **different layout per market** (PL / UK / CA)
 - Layout is embedded per offer (cheap; memoized by variant/zone/tier)
 
 <!--
@@ -253,17 +253,17 @@ iOS / Android 都从同一份 shared schema codegen 出来——杜绝两端漂�
 
 ![w:600](img/demo-client.png)
 
-- **<https://offer.gummui.com/approaches>** ← **A vs B vs C payloads on the wire** (the data difference)
 - **<https://offer.gummui.com/admin>** — change layout → save → green toast (no deploy)
 - **<https://offer.gummui.com/client>** — offer **pushed** down via SSE, sticky hash per courier
+- **<https://offer.gummui.com/approaches>** ← **A vs B vs C payloads on the wire** (the data difference)
 - Server-driven layout · sticky A/B · SSE push · React + Express
 
 <!--
 🔴 JD 要的 hands-on POC / fail fast —— 直接切到 https://offer.gummui.com 点给他们看，别只嘴上说。
 现场建议顺序：
-  ① /approaches —— 先开这页，因为它一次性把 A/B/C 三种 payload 在 wire 上的差别摆出来：A 发完整字符串、B 发 raw+flags、C 发 layout+data。讲数据层面 differences 最快。
-  ② /admin —— 改 layout → Save → 绿 toast，证明"不发版改 UI"。
-  ③ /client —— 点 Dispatch 触发 SSE push，证明"事件驱动 + sticky hash"。
+  ① /admin —— 改 layout → Save → 绿 toast，证明"不发版改 UI"。
+  ② /client —— 点 Dispatch 触发 SSE push，证明"事件驱动 + sticky hash"。
+  ③ /approaches —— 收口：一次性把 A/B/C 三种 payload 在 wire 上的差别摆出来：A 发完整字符串、B 发 raw+flags、C 发 layout+data。讲数据层面 differences。
 🔴 兜底：万一线上挂了，截图能讲；本地 localhost:5173 也跑着。
 -->
 

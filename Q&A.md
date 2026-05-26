@@ -14,6 +14,7 @@
 - [Q3. A vs C — the real difference](#q3-a-vs-c--the-real-difference)
 - [Q4. Latency at 2M/h — p99 and a slow dependency](#q4-latency-at-2mh--p99-and-a-slow-dependency)
 - [Q4b. Network calls on the offer path — what actually fires?](#q4b-network-calls-on-the-offer-path--what-actually-fires)
+- [Q4c. Do you really need the Earnings Calculator? (challenging your own components)](#q4c-do-you-really-need-the-earnings-calculator-challenging-your-own-components)
 - [Q5. Sticky bucketing — surviving cache eviction & restart](#q5-sticky-bucketing--surviving-cache-eviction--restart)
 - [Q5b. Multi-arm experiments & collisions across experiments](#q5b-multi-arm-experiments--collisions-across-experiments)
 - [Q6. Bringing the mobile lead along in the room](#q6-bringing-the-mobile-lead-along-in-the-room)
@@ -115,6 +116,38 @@
 **Why this design:** "**move every read off the request path**" is the trick that lets the 4 components claim zero hot-path I/O. The 30-second freshness window on configs is a deliberate trade — losing 30s of staleness to gain zero network on the offer push.
 
 📄 [`en/hybrid-end-to-end-design.md`](./en/hybrid-end-to-end-design.md) (request path / event flow) · [`en/courier-offer-system-architecture.md`](./en/courier-offer-system-architecture.md)
+
+[↑ Back to top](#contents)
+
+---
+
+### Q4c. Do you really need the Earnings Calculator? (challenging your own components)
+
+> *Looking at your four components — do you actually need the Earnings Calculator? Couldn't Temporal just return the final number, or mobile compute it?*
+
+> "Good question — I challenged this myself.
+>
+> Its job isn't really *'add two numbers'*. It's **'decide which earnings model applies to this market and this variant'**: flat-rate in Switzerland, distance-based in the UK, surge with tips prediction in Canada. That decision lives somewhere — the question is *where*.
+>
+> If I don't have this component, the model choice leaks into one of three places: **the mobile app** — which violates the C contract (mobile decides *how*, not *what*) and guarantees iOS/Android drift; **the Layout Composer** — which mixes concerns, layout shouldn't compute money; or **the Temporal workflow** — which is orchestration, not the place for evolving business decisions.
+>
+> Keeping it separate is what makes the mitigation we promised the mobile team — *'adding a new earnings model is backend-only, no app release'* — actually true. It's also the **source of truth for dispute resolution**: when a courier asks why their pay was X, there's one place to look.
+>
+> Honest caveat: if the business only ever had one earnings model, I'd inline it into the Payload Builder. It earns its keep because earnings logic **changes** — and that's the whole reason we picked C in the first place."
+
+**Meta-signal — say this after:**
+> "I think it's healthy to ask that question for every component on the diagram. If I can't defend one, it shouldn't be there."
+
+**Where the logic would leak if you removed it:**
+
+| If you remove the Earnings Calculator… | …the model-selection logic leaks into | Why that's bad |
+|---|---|---|
+| Mobile app computes total | iOS + Android both | Violates C contract; iOS/Android drift; two versions to debug |
+| Layout Composer combines money + layout | one mega-component | Single-responsibility violation; harder to test in isolation |
+| Temporal workflow returns the final number | orchestration layer | Business decisions in an orchestrator that's meant to be stable |
+| Payload Builder inlines the math | the assembler | OK *if* only one model ever; fragile when a new model is added |
+
+📄 [`adr/ADR-001-hybrid-sdui.en.md`](./adr/ADR-001-hybrid-sdui.en.md) (Mitigations — *"one component reads many earning models"*) · [`en/hybrid-end-to-end-design.md`](./en/hybrid-end-to-end-design.md) (component breakdown)
 
 [↑ Back to top](#contents)
 
@@ -322,7 +355,7 @@
 
 > *What's the one decision you're least sure about?*
 
-> "Honestly, the mobile complexity and the governance. C asks the mobile team to build and maintain a registry, and it asks us to run a review board so it doesn't sprawl. Those are real costs. If the business only ever needed two or three fixed layouts, A would be simpler, and I'd pick A. I chose C because the business wants lots of experiments — but I hold that view loosely, and the POC is there to check it."
+> "Honestly, the mobile complexity and the governance. C asks the mobile team to build and maintain a registry, and it asks us to run a review board to keep it under control. Those are real costs. If the business only ever needed two or three fixed layouts, A would be simpler, and I'd pick A. I chose C because the business wants lots of experiments — but I hold that view loosely, and the POC is there to check it."
 
 📄 [`adr/ADR-001-hybrid-sdui.en.md`](./adr/ADR-001-hybrid-sdui.en.md) (Consequences) · [`en/approach-evaluation.md`](./en/approach-evaluation.md)
 

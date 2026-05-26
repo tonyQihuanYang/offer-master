@@ -21,7 +21,7 @@ export default function AdminPage() {
     fetch('/api/tenants')
       .then((r) => r.json())
       .then((d) => setTenants(d.tenants))
-      .catch(() => setTenants(['CH', 'UK', 'CA']));
+      .catch(() => setTenants(['PL', 'UK', 'CA']));
   }, []);
 
   useEffect(() => {

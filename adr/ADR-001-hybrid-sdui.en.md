@@ -97,7 +97,7 @@ Payload shape:
 
 **Negative / costs (state these proactively — it's a Staff signal)**
 - Requires **upfront contract design** (backend + mobile jointly define component schemas)
-- Requires **component governance** (a review board + versioning rules), or the registry sprawls
+- Requires **component governance** (a review board + versioning rules) to keep the registry under control
 - **Changing an existing component's data shape still needs a release or dual-emit** — only *new* components get free forward-compat
 - Old-app version negotiation: needs `min_app_version` + `fallback` (see `app-version-compatibility.md`)
 

@@ -22,7 +22,7 @@ export default function ClientPage() {
     fetch('/api/tenants')
       .then((r) => r.json())
       .then((d) => setTenants(d.tenants))
-      .catch(() => setTenants(['CH', 'UK', 'CA']));
+      .catch(() => setTenants(['PL', 'UK', 'CA']));
   }, []);
 
   // Open (and re-open on courierId change) the SSE stream for this courier.
