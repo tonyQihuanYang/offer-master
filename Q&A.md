@@ -93,7 +93,7 @@
 
 > "The bucket is computed, not stored. We take hash of courierId plus experimentId, mod 100. That gives each courier a fixed number, 0 to 99, and we compare it to the rollout percent. Same courier, same experiment, always the same bucket — it's just math on a stable ID. So a cache wipe or a restart can't flip anyone — there's nothing stored to lose, and no database lookup. Ramping is safe too: going from 10% to 50% only *adds* couriers, it never kicks anyone out. I add the experimentId so different experiments don't land on the same people. Region only decides *who's allowed in* — the bucket is always on courierId, so moving region never flips them. And if anything fails, we default to control."
 
-📄 [`study-notes/sticky-bucketing-explained.md`](./study-notes/sticky-bucketing-explained.md) · [`demo/server/lib/hash.js`](./demo/server/lib/hash.js)
+📄 [`en/sticky-bucketing-explained.md`](./en/sticky-bucketing-explained.md) · [`demo/server/lib/hash.js`](./demo/server/lib/hash.js)
 
 [↑ Back to top](#contents)
 
@@ -105,7 +105,7 @@
 
 > "It depends — is it one experiment or two? If v1 and v2 are two arms of *one* experiment, each courier gets one number, and that number lands in one band — control, v1, or v2. They can't be in two. That's by design. If they're *two separate* experiments, then yes — a courier could be in treatment for both, because I add the experimentId on purpose so experiments don't line up. That's good when they're unrelated. But if both change the *same screen*, that's a collision. I'd fix it by making them one experiment with multiple arms, or by putting them in a mutual-exclusion group."
 
-📄 [`study-notes/sticky-bucketing-explained.md`](./study-notes/sticky-bucketing-explained.md) (multi-arm + collision section)
+📄 [`en/sticky-bucketing-explained.md`](./en/sticky-bucketing-explained.md) (multi-arm + collision section)
 
 [↑ Back to top](#contents)
 
@@ -179,7 +179,7 @@
 
 > "Push is a speed optimization, not the source of truth. When the app reconnects, it *pulls* the current offer and syncs up. Every offer has an ID for dedup and a TTL, so we can safely resend it. And the real safety net is the business rule: if an offer isn't accepted before it expires, it goes to the next courier, and the first accept wins with an atomic claim. So a dropped push never loses an offer, and never assigns it twice."
 
-📄 [`en/hybrid-end-to-end-design.md`](./en/hybrid-end-to-end-design.md) (Offer Delivery Resilience) · [`study-notes/runtime-dataflow.md`](./study-notes/runtime-dataflow.md)
+📄 [`en/hybrid-end-to-end-design.md`](./en/hybrid-end-to-end-design.md) (Offer Delivery Resilience) · [`en/runtime-dataflow.md`](./en/runtime-dataflow.md)
 
 [↑ Back to top](#contents)
 
@@ -304,7 +304,7 @@
 | Current architecture + latency budget | [`en/courier-offer-system-architecture.md`](./en/courier-offer-system-architecture.md) |
 | A vs B vs C comparison + A-vs-C / B-vs-C breakdowns | [`en/approach-evaluation.md`](./en/approach-evaluation.md) |
 | End-to-end design for C / migration / metrics / delivery resilience | [`en/hybrid-end-to-end-design.md`](./en/hybrid-end-to-end-design.md) |
-| Sticky bucketing — how the hash actually works | [`study-notes/sticky-bucketing-explained.md`](./study-notes/sticky-bucketing-explained.md) |
+| Sticky bucketing — how the hash actually works | [`en/sticky-bucketing-explained.md`](./en/sticky-bucketing-explained.md) |
 | Old app compatibility | [`en/app-version-compatibility.md`](./en/app-version-compatibility.md) |
 | Technical leadership (UC1) | [`en/technical-leadership.md`](./en/technical-leadership.md) |
 | Team guidance (UC2) — all 5 assessment points | [`en/team-guidance-use-case-2.md`](./en/team-guidance-use-case-2.md) |
