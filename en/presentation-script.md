@@ -68,7 +68,7 @@ cd demo && npm run dev      # 让它先跑着(端口看终端,通常 5173/5174)
 
 > "There is — **Approach C, a hybrid**. It takes the best of both.
 > **From A**, the server controls **what** components show and **in what order**. So we experiment without an app release. **From B**, the mobile app renders them **natively**. So the UX stays great.
-> One line, this is my north star: **the server decides what and in what order. Mobile decides how it looks.** Through a small registry of 10 to 15 components.
+> Here's the key idea — **the server decides what and in what order. Mobile decides how it looks.** Through a small registry of 10 to 15 components.
 > If you ask how this is different from B — the one real difference is *who owns the layout*. In B, it's app logic. In C, it's data the server sends. So C is B plus a server-controlled layout, with the experiment moved to the server.
 > Honest cost. C needs an upfront contract and component governance. And changing an existing component still needs a release or dual-emit. Not free — but the right trade."
 
@@ -112,12 +112,12 @@ cd demo && npm run dev      # 让它先跑着(端口看终端,通常 5173/5174)
 ## Slide 12 — The closing posture (leadership)
 
 > "And the line I'd land it on:
-> *My job isn't to win the architecture argument — it's to make the team that builds and runs this a co-author of the decision. I'd push for C, but I'd rather ship B with mobile fully bought in than ship C with mobile going along but quietly resentful.*"
+> *My job isn't to win the architecture argument — it's to make the team that builds and runs this a co-author of the decision. I'd push for C, but I'd rather ship B with mobile fully bought in than ship C with mobile going along but quietly unhappy.*"
 
 ## Slide 13 — Migration & Metrics
 
 > "Migration is reversible at every step. Four phases. **Phase one**: a no-op foundation — zero behavior change, verified in shadow mode. **Phase two**: dual payloads — old and new in parallel. **Phase three**: flag rollout, from 1% to 100% per city. **Phase four**: experiments go live.
-> Metrics in four buckets. **SLA** — p95 and p99. **Business metrics, read per variant** — acceptance rate, time to accept, dispute rate. We watch for **regression**, not just lift. **Experiment health**. And **migration progress**.
+> Metrics in four buckets. **SLA** — p95 and p99. **Business metrics, read per variant** — acceptance rate, time to accept, complaint rate. We watch for **regression**, not just lift. **Experiment health**. And **migration progress**.
 > The principle: **any step rolls back in seconds**. Dual-write means mobile always has the old field to fall back to."
 
 ## Slide 14 — Use Case 1 in one line
@@ -130,14 +130,14 @@ cd demo && npm run dev      # 让它先跑着(端口看终端,通常 5173/5174)
 
 ## Slide 16 — The Situation
 
-> "Quick recap. Four engineers. Kafka and Flink. 45-second latency, against a 5-second target. Scope crept from 3 patterns to 12. Nothing to demo in three days. Low morale.
+> "Quick recap. Four engineers. Kafka and Flink. 45-second latency, against a 5-second target. Scope crept from 3 patterns to 12. Nothing to demo in three days. Low motivation.
 > My core principle: **the crisis is the deadline, not the architecture.** The common Staff mistake is to charge in, rewrite it, and 'save' the sprint. That solves the demo and breaks the team. The harder, right move is to buy time, narrow scope, coach, and let them ship something they understand.
 > And the engineer who wants to start over with something simpler — they might be right. I'd take that seriously."
 
 ## Slide 17 — Staff vs Tech Manager
 
 > "First, I'd draw the line with the Tech Manager. The prompt says clearly I work *with* them, not as them.
-> **Scope, deadlines, the PM conversation, morale — that's theirs.** **Architecture, testing, RFCs, mentorship — that's mine.** The review story and escalation — together.
+> **Scope, deadlines, the PM conversation, motivation — that's theirs.** **Architecture, testing, RFCs, mentorship — that's mine.** The review story and escalation — together.
 > So my literal first 30 minutes is a one-on-one with the TM, to agree on exactly that. The trap is stepping into their job. Using their authority without coordinating undermines them."
 
 ## Slide 18 — Diagnose
@@ -179,7 +179,7 @@ cd demo && npm run dev      # 让它先跑着(端口看终端,通常 5173/5174)
 ## Slide 23 — Use Case 2 posture
 
 > "The line I'd land Use Case 2 on:
-> *My role is to make the team better at this — not to do the work for them. The three-day deadline is a constraint to navigate, not a performance to deliver. If I do my job right, this team handles the next streaming project without a Staff parachute.*"
+> *My role is to make the team better at this — not to do the work for them. The three-day deadline is a constraint to navigate, not a performance to deliver. If I do my job right, this team handles the next streaming project without me having to come back.*"
 
 ## Slide 24 — Closing
 

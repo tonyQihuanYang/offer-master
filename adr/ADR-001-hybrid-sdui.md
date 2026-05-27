@@ -125,7 +125,7 @@ payload 形态:
 
 ## Validation / Rollout
 
-分 4 阶段、每步可秒级回滚(no-op foundation → dual payload → flag rollout 1%→100% → 实验上线),指标含 p95/p99、acceptance rate(按 variant)、dispute rate、crash rate、flag fallback rate。详见 `hybrid-end-to-end-design.md` 的 Migration Strategy 与 Metrics。
+分 4 阶段、每步可秒级回滚(no-op foundation → dual payload → flag rollout 1%→100% → 实验上线),指标含 p95/p99、acceptance rate(按 variant)、complaint rate、crash rate、flag fallback rate。详见 `hybrid-end-to-end-design.md` 的 Migration Strategy 与 Metrics。
 
 ---
 

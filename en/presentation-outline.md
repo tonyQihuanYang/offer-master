@@ -225,7 +225,7 @@ The job description (`job-description.md`) literally spells out what the panel c
 - Name the key anti-pattern proactively: "the easiest way to blow this is pre-writing the decision and walking it in for rubber-stamping — mobile will see through it and trust collapses."
 - Stress **the prototype is mobile-led** — it removes the "you're forcing this on us" frame.
 - The line to land (memorize, say at the close):
-  > *"My job isn't to win the architecture argument — it's to make the team that ships and maintains this a co-author of the decision. I'd advocate C, but I'd rather ship B with mobile fully bought in than ship C with mobile compliant but quietly resentful."*
+  > *"My job isn't to win the architecture argument — it's to make the team that ships and maintains this a co-author of the decision. I'd advocate C, but I'd rather ship B with mobile fully bought in than ship C with mobile compliant but quietly unhappy."*
 - That line is the Senior/Staff watershed — it's *influence over authority* made concrete.
 
 ---
@@ -245,12 +245,12 @@ The job description (`job-description.md`) literally spells out what the panel c
 | Class | Metric | Target |
 |-------|--------|--------|
 | SLA | p95 / p99 latency | ≤200ms / ≤300ms |
-| Business | acceptance rate / time-to-accept / dispute rate (per variant) | no regression |
+| Business | acceptance rate / time-to-accept / complaint rate (per variant) | no regression |
 | Experiment | assignment consistency / flag fallback rate / idea→live time | 100% / <1% / <1 week |
 | Migration | % offers on v2 / legacy-vs-v2 field parity | tracked / 100% |
 
 **Speaker notes:**
-- Stress **guardrail metrics**: "Not just whether acceptance went up — watch dispute rate / crash rate / latency for **regressions**. In an A/B, guardrails matter more than the north star."
+- Stress **guardrail metrics**: "Not just whether acceptance went up — watch complaint rate / crash rate / latency for **regressions**. In an A/B, guardrails matter more than the north star."
 - Stress that business metrics are read **per variant** — otherwise the A/B is meaningless.
 - One-line UC1 close: "The whole migration is designed so **any step rolls back in seconds** — dual-write means mobile always has an escape hatch."
 
@@ -261,7 +261,7 @@ The job description (`job-description.md`) literally spells out what the panel c
 ## Slide 9 — The Situation & The Principle (3 min)
 
 **Bullets:**
-- 4 engineers (2-3 yrs each), Kafka+Flink, 45s latency (target <5s), scope crept 3→12, data-quality unknowns, no test strategy, **sprint review in 3 days with nothing to demo**, low morale, one engineer wants to start over, PM escalating
+- 4 engineers (2-3 yrs each), Kafka+Flink, 45s latency (target <5s), scope crept 3→12, data-quality unknowns, no test strategy, **sprint review in 3 days with nothing to demo**, low motivation, one engineer wants to start over, PM escalating
 - **Core principle: the crisis is the deadline, not the architecture.**
 - Most common Staff failure: charge in, rewrite the architecture, write the critical-path code, "save" the sprint → **solves the demo, breaks the team**
 - The right, harder move: **buy time, narrow scope, coach diagnostically, let the team ship something they understand**
@@ -279,7 +279,7 @@ The job description (`job-description.md`) literally spells out what the panel c
 | Sprint scope / deadlines | ✓ | | help TM make the technical case |
 | Negotiating with PM / leadership | ✓ | | provide technical framing |
 | Individual performance / careers | ✓ | | provide technical signal |
-| Team morale | ✓ | | surface technical-frustration causes |
+| Team motivation | ✓ | | surface technical-frustration causes |
 | Architecture / testing / RFCs | | ✓ | |
 | Knowledge transfer / mentorship | | ✓ | TM resources it |
 | Sprint-review narrative / escalation | | | ✓ shaped together |
@@ -337,9 +337,9 @@ The job description (`job-description.md`) literally spells out what the panel c
 ## Slide 14 — Long-term Knowledge Transfer (30/60/90) (2 min, ⭐ assessment area #4)
 
 **Bullets:**
-- **30 days**: streaming-fundamentals study group (2h/wk × 4) + 2 external SME sessions + architecture office hours (1h/wk)
+- **30 days**: streaming-fundamentals study group (2h/wk × 4) + 2 external expert sessions + architecture office hours (1h/wk)
 - **60 days**: each engineer builds a small Flink toy project (windowing + late events) + the team writes the v2 RFC + read a real Flink job from another team
-- **90 days**: each engineer teaches one streaming concept (windows/watermark/exactly-once/state/backpressure) + name one team streaming SME + pair with an experienced team for ongoing reviews
+- **90 days**: each engineer teaches one streaming concept (windows/watermark/exactly-once/state/backpressure) + name one team streaming expert + pair with an experienced team for ongoing reviews
 - **Key principle: don't let them learn in isolation.** If the org has a team running production streaming, broker the connection — **cross-team transfer beats in-team self-study**
 
 **Speaker notes:**
@@ -365,8 +365,8 @@ The job description (`job-description.md`) literally spells out what the panel c
 ## Slide 16 — Closing: Two Postures
 
 **Bullets (two closing lines, one per case):**
-- **UC1 (leadership):** *"My job isn't to win the architecture argument — it's to make the team that ships and maintains it a co-author of the decision. I'd advocate C, but I'd rather ship B fully bought in than ship C quietly resentful."*
-- **UC2 (guidance):** *"My role is to make the team better at this — not to do the work for them. The 3-day deadline is a constraint to navigate, not a performance to deliver. If I do my job right, this team handles the next streaming project without a Staff parachute."*
+- **UC1 (leadership):** *"My job isn't to win the architecture argument — it's to make the team that ships and maintains it a co-author of the decision. I'd advocate C, but I'd rather ship B fully bought in than ship C quietly unhappy."*
+- **UC2 (guidance):** *"My role is to make the team better at this — not to do the work for them. The 3-day deadline is a constraint to navigate, not a performance to deliver. If I do my job right, this team handles the next streaming project without me having to come back."*
 - One line that ties it together: **Staff = leverage over time, not heroics in the moment.**
 - 🔴 **A final callback to the JD (bookend)**: "I answered both cases to one standard — drive decisions through **influence, not authority**, and be **hands-on: POCs, fail fast**. That's my read on Staff, and what this role calls for."
 

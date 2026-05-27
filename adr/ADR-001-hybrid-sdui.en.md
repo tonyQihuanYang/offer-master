@@ -122,7 +122,7 @@ The full facilitation playbook is in `technical-leadership.md`.
 
 ## Validation / Rollout
 
-Four phases, each reversible in seconds (no-op foundation → dual payload → flag rollout 1%→100% → experiments live). Metrics: p95/p99 latency, acceptance rate (per variant), dispute rate, crash rate, flag-fallback rate. See the Migration Strategy and Metrics in `hybrid-end-to-end-design.md`.
+Four phases, each reversible in seconds (no-op foundation → dual payload → flag rollout 1%→100% → experiments live). Metrics: p95/p99 latency, acceptance rate (per variant), complaint rate, crash rate, flag-fallback rate. See the Migration Strategy and Metrics in `hybrid-end-to-end-design.md`.
 
 ---
 

@@ -280,7 +280,7 @@ The single sentence to land Use Case 1's leadership question:
 > decision, with the cost honestly bounded and the trade-off honestly
 > stated. Approach C is what I'd advocate, but I'd rather ship Approach B
 > with mobile fully bought in than ship Approach C with mobile compliant
-> but quietly resentful."*
+> but quietly unhappy."*
 
 That sentence, delivered at the end of the leadership section, is what
 separates a Staff answer from a Senior answer. It says: I will defer to

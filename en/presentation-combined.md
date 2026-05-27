@@ -72,7 +72,7 @@
 **🗣️ Say:**
 > "There is — **Approach C, a hybrid**. It takes the best of both.
 > **From A**, the server controls **what** components show and **in what order**. So we experiment without an app release. **From B**, the mobile app renders them **natively**. So the UX stays great.
-> One line, this is my north star: **the server decides what and in what order. Mobile decides how it looks.** Through a small registry of 10 to 15 components.
+> Here's the key idea — **the server decides what and in what order. Mobile decides how it looks.** Through a small registry of 10 to 15 components.
 > If you ask how this is different from B — the one real difference is *who owns the layout*. In B, it's app logic. In C, it's data the server sends. So C is B plus a server-controlled layout, with the experiment moved to the server.
 > Honest cost. C needs an upfront contract and component governance. And changing an existing component still needs a release or dual-emit. Not free — but the right trade."
 
@@ -145,7 +145,7 @@
 **🖥️ On screen:** the leadership quote (large).
 
 **🗣️ Say (slow, firm, ~脱稿):**
-> **"My job isn't to win the architecture argument — it's to make the team that builds and runs this a co-author of the decision. I'd push for C, but I'd rather ship B with mobile fully bought in than ship C with mobile going along but quietly resentful."**
+> **"My job isn't to win the architecture argument — it's to make the team that builds and runs this a co-author of the decision. I'd push for C, but I'd rather ship B with mobile fully bought in than ship C with mobile going along but quietly unhappy."**
 
 ---
 
@@ -155,7 +155,7 @@
 
 **🗣️ Say:**
 > "Migration is reversible at every step. Four phases. **Phase one**: a no-op foundation — zero behavior change, verified in shadow mode. **Phase two**: dual payloads — old and new in parallel. **Phase three**: flag rollout, from 1% to 100% per city. **Phase four**: experiments go live.
-> Metrics in four buckets. **SLA** — p95 and p99. **Business metrics, read per variant** — acceptance rate, time to accept, dispute rate. We watch for **regression**, not just lift. **Experiment health**. And **migration progress**.
+> Metrics in four buckets. **SLA** — p95 and p99. **Business metrics, read per variant** — acceptance rate, time to accept, complaint rate. We watch for **regression**, not just lift. **Experiment health**. And **migration progress**.
 > The principle: **any step rolls back in seconds**. Dual-write means mobile always has the old field to fall back to."
 
 ---
@@ -183,7 +183,7 @@
 **🖥️ On screen:** 4 eng · Kafka+Flink · 45s vs <5s · scope 3→12 · review in 3 days, nothing to demo. Principle: the crisis is the deadline, not the architecture.
 
 **🗣️ Say:**
-> "Quick recap. Four engineers. Kafka and Flink. 45-second latency, against a 5-second target. Scope crept from 3 patterns to 12. Nothing to demo in three days. Low morale.
+> "Quick recap. Four engineers. Kafka and Flink. 45-second latency, against a 5-second target. Scope crept from 3 patterns to 12. Nothing to demo in three days. Low motivation.
 > My core principle: **the crisis is the deadline, not the architecture.** The common Staff mistake is to charge in, rewrite it, and 'save' the sprint. That solves the demo and breaks the team. The harder, right move is to buy time, narrow scope, coach, and let them ship something they understand.
 > And the engineer who wants to start over with something simpler — they might be right. I'd take that seriously."
 
@@ -191,11 +191,11 @@
 
 ## Slide 17 / 24 — Staff vs Tech Manager
 
-**🖥️ On screen:** RACI table (TM owns scope/PM/morale; Staff owns architecture/testing/RFC; shared narrative/escalation). First 30 min = 1:1 with TM.
+**🖥️ On screen:** RACI table (TM owns scope/PM/motivation; Staff owns architecture/testing/RFC; shared narrative/escalation). First 30 min = 1:1 with TM.
 
 **🗣️ Say:**
 > "First, I'd draw the line with the Tech Manager. The prompt says clearly I work *with* them, not as them.
-> **Scope, deadlines, the PM conversation, morale — that's theirs.** **Architecture, testing, RFCs, mentorship — that's mine.** The review story and escalation — together.
+> **Scope, deadlines, the PM conversation, motivation — that's theirs.** **Architecture, testing, RFCs, mentorship — that's mine.** The review story and escalation — together.
 > So my literal first 30 minutes is a one-on-one with the TM, to agree on exactly that. The trap is stepping into their job. Using their authority without coordinating undermines them."
 
 ---
@@ -241,7 +241,7 @@
 
 ## Slide 21 / 24 — Long-term knowledge transfer (30/60/90)
 
-**🖥️ On screen:** 30d study group + SMEs; 60d toy project + v2 RFC; 90d each teaches one concept + name an SME. Don't let them learn in isolation.
+**🖥️ On screen:** 30d study group + experts; 60d toy project + v2 RFC; 90d each teaches one concept + name an expert. Don't let them learn in isolation.
 
 **🗣️ Say:**
 > "Longer term — this is what prevents the next three-day crisis. Over **30 days**, a streaming study group and outside experts. Over **60**, each engineer builds a small Flink toy project, and the team writes the v2 RFC. Over **90**, each engineer **teaches one concept back** — watermarks, backpressure — because **teaching is when they really own it**.
@@ -266,7 +266,7 @@
 **🖥️ On screen:** the UC2 posture quote (large).
 
 **🗣️ Say (slow, firm, ~脱稿):**
-> **"My role is to make the team better at this — not to do the work for them. The three-day deadline is a constraint to navigate, not a performance to deliver. If I do my job right, this team handles the next streaming project without a Staff parachute."**
+> **"My role is to make the team better at this — not to do the work for them. The three-day deadline is a constraint to navigate, not a performance to deliver. If I do my job right, this team handles the next streaming project without me having to come back."**
 
 ---
 

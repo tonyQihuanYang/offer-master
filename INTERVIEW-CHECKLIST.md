@@ -22,8 +22,8 @@ UC1 **~30min** → UC2 **~20min** → **全程欢迎提问**(别单口相声;分
 > "My read on Staff is — drive decisions through **influence, not authority**, and be **hands-on: POCs, fail fast**. I'll answer both cases to that standard."
 
 ## 💎 背熟这 3 句(放慢、坚定)
-1. **领导力**:*"My job isn't to win the architecture argument — it's to make the team that ships it a co-author. I'd rather ship B fully bought in than C quietly resentful."*
-2. **UC2**:*"My role is to make the team better at this, not do the work for them. If I do my job right, they handle the next streaming project without a Staff parachute."*
+1. **领导力**:*"My job isn't to win the architecture argument — it's to make the team that ships it a co-author. I'd rather ship B fully bought in than C quietly unhappy."*
+2. **UC2**:*"My role is to make the team better at this, not do the work for them. If I do my job right, they handle the next streaming project without me having to come back."*
 3. **收尾**:*"Both answered the same way — influence not authority, fail fast, hands-on POCs. That's my read on Staff."*
 
 ## ▶ 什么时候切标签页

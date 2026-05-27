@@ -6,7 +6,7 @@
 > A 4-engineer team (2-3 yrs experience each) building real-time fraud
 > detection on Kafka + Flink. 45s processing delays vs <5s target, scope
 > creep (3 → 12 patterns), data-quality unknowns, no clear test strategy,
-> sprint review in 3 days with nothing to demo, low morale. Staff
+> sprint review in 3 days with nothing to demo, low motivation. Staff
 > engineer's role: provide technical guidance **without doing the work for
 > them**, working *with* the Tech Manager (not replacing them).
 
@@ -51,7 +51,7 @@ is half the answer.
 | Sprint scope, deadlines | ✓ | | Help TM make the technical case |
 | Stakeholder negotiation (PM, leadership) | ✓ | | Provide technical framing |
 | Individual performance, careers | ✓ | | Provide technical signal/context |
-| Team morale | ✓ | | Surface technical-frustration causes |
+| Team motivation | ✓ | | Surface technical-frustration causes |
 | Architecture | | ✓ | |
 | Testing strategy | | ✓ | |
 | Knowledge transfer / mentorship | | ✓ | TM resources it |
@@ -60,7 +60,7 @@ is half the answer.
 | Escalation handling | | | ✓ Brief leadership jointly |
 
 The trap to avoid: **stepping into the Tech Manager's role** (negotiating
-with PM, making scope calls unilaterally, addressing morale by fiat). The
+with PM, making scope calls unilaterally, addressing motivation by fiat). The
 TM has authority you don't; using their authority without coordinating
 undermines them and confuses the team.
 
@@ -118,7 +118,7 @@ that turn symptoms into causes.
 | "What's the feedback loop time when you change a rule? Seconds, minutes, hours?" | Long feedback loops kill iteration speed. |
 | "Have you written a single integration test that runs the rule against a fixed input and asserts on output?" | Surfaces the gap honestly. |
 
-### Team / morale diagnostics
+### Team / motivation diagnostics
 
 These are best handled with the TM, but you'll need answers to guide
 technically:
@@ -290,7 +290,7 @@ in this room in two months.
 |---|---|---|
 | Streaming fundamentals study group | 2 hrs/week × 4 weeks | Shared vocabulary, baseline mental model |
 | DDIA ch.11, Streaming Systems ch.1-3, Flink Concepts docs | Read between sessions | Self-study + group discussion = retention |
-| External streaming engineer for 2 sessions (internal SME or paid) | 90 min each | Outside voice on common pitfalls |
+| External streaming engineer for 2 sessions (internal expert or paid) | 90 min each | Outside voice on common pitfalls |
 | Architecture office hours | 1 hr/week | Regular forum for "how do I…" without crisis |
 
 ### 60 days
@@ -306,7 +306,7 @@ in this room in two months.
 | Activity | Why |
 |---|---|
 | Each engineer presents one streaming concept to the rest (windowing, watermarks, exactly-once, state, backpressure) | Teaching is the highest form of learning. They own it now. |
-| Identify one engineer to be the team's streaming SME | Durable point of expertise inside the team |
+| Identify one engineer to be the team's streaming expert | Durable point of expertise inside the team |
 | Pair the team with another team that has streaming experience for ongoing reviews | Network effect; less reliance on you |
 
 ### Crucial principle: don't make them learn in isolation
@@ -415,7 +415,7 @@ to support.
 This is TM territory, not yours. Your role: surface what you observe to TM
 ("I noticed [engineer] seems checked out — wanted to flag it"); offer
 technical-side support (pair more; reduce their load on the demo path).
-Don't run a morale conversation — that's TM's job and the engineer needs
+Don't run a motivation conversation — that's TM's job and the engineer needs
 TM, not Staff, on this.
 
 ### Moment 5: The "start over" engineer turns out to be right
@@ -493,7 +493,7 @@ The single sentence to land Use Case 2:
 > *"My role here is to make the team better at this — not to do the work
 > for them. The 3-day deadline is a constraint to navigate, not a
 > performance to deliver. If I do my job right, this team will handle the
-> next streaming project without needing a Staff parachute."*
+> next streaming project without me having to come back."*
 
 That sentence captures the Staff distinction: **leverage over time, not
 heroics in the moment.**

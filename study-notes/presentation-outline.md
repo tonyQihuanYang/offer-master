@@ -244,12 +244,12 @@
 | 类 | 指标 | 目标 |
 |----|------|------|
 | SLA | p95 / p99 延迟 | ≤200ms / ≤300ms |
-| 业务 | acceptance rate / time-to-accept / dispute rate（按 variant） | 不回归 |
+| 业务 | acceptance rate / time-to-accept / complaint rate（按 variant） | 不回归 |
 | 实验 | 分配一致性 / flag fallback rate / idea→live 时间 | 100% / <1% / <1 week |
 | 迁移 | % offers on v2 / legacy vs v2 字段 parity | 追踪 / 100% |
 
 **讲解备注：**
-- 强调**护栏指标 (guardrail)**："不是只看 acceptance rate 涨没涨,要看 dispute rate / crash rate / 延迟有没有**回归**——A/B 实验里护栏比北极星更重要。"
+- 强调**护栏指标 (guardrail)**："不是只看 acceptance rate 涨没涨,要看 complaint rate / crash rate / 延迟有没有**回归**——A/B 实验里护栏比北极星更重要。"
 - 强调"业务指标按 **variant** 分组看"——否则 A/B 没意义。
 - 一句话收尾 UC1："整个迁移的设计原则是**任何一步都能秒级回滚**,双写让 mobile 永远有退路。"
 
@@ -338,7 +338,7 @@
 **要点：**
 - **30 天**:流式基础读书会(2h/周×4)+ 外部流式工程师 2 场 + 架构 office hours(1h/周)
 - **60 天**:每人做一个 Flink toy project(窗口+晚到事件)+ 团队写 v2 RFC + 读另一个团队的真实 Flink job
-- **90 天**:每人给其他人讲 1 个流式概念(窗口/watermark/exactly-once/state/backpressure)+ 指定 1 人当团队 streaming SME + 与有经验团队结对持续 review
+- **90 天**:每人给其他人讲 1 个流式概念(窗口/watermark/exactly-once/state/backpressure)+ 指定 1 人当团队 streaming expert + 与有经验团队结对持续 review
 - **关键原则:别让他们孤立地学。** 如果组织内有跑生产流式系统的团队,去搭桥——**跨团队知识传递比团队内自学快**
 
 **讲解备注：**

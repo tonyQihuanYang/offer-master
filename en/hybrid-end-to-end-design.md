@@ -478,7 +478,7 @@ Two server-side guarantees matter more than any transport trick:
 | **Reliability** | Offer delivery failure rate | <0.1% |
 | **Business** | Offer acceptance rate (per variant) | No regression from baseline |
 | **Business** | Time-to-accept | No regression |
-| **Business** | Earnings dispute rate | No increase |
+| **Business** | Earnings complaint rate | No increase |
 | **Experiment** | Experiment assignment consistency | 100% (same courier = same variant — enforced by deterministic hash of `courierId + experimentId`) |
 | **Experiment** | Flag-service fallback rate | <1% (alerts above this) |
 | **Experiment** | Time from experiment idea to live | <1 week (target) |

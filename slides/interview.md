@@ -277,9 +277,9 @@ iOS / Android 都从同一份 shared schema codegen 出来——杜绝两端漂�
 
 1. Acknowledge in writing → us-vs-problem
 2. Working session, sharpen "complexity" → **bounded mitigations** (locked registry, codegen, forward-compat, co-owned RFC)
-3. Propose a **small reversible proof, mobile-led** (1 zone, 1 component, 4 weeks) — *fail fast*; pre-state escalation (→ ADR)
+3. Propose a **small reversible proof, mobile-led** (1 zone, 1 component, 4 weeks) — *fail fast*; pre-state escalation in the [ADR](https://github.com/tonyQihuanYang/offer-master/blob/main/adr/ADR-001-hybrid-sdui.en.md) (status: *Proposed*)
 
-This is **influence, not authority** — verbatim from the JD.
+This is **influence, not authority**.
 
 <!--
 ⚠️ 这是行为题不是技术题。分辨 Staff（推动跨团队决策）vs Senior（推销正确答案）。
@@ -289,10 +289,9 @@ This is **influence, not authority** — verbatim from the JD.
 
 ---
 
-## The closing posture
+## Leadership — the posture
 
-> **"My job isn't to win the architecture argument — it's to make the team that ships and maintains this a co-author of the decision.**
-> **I'd advocate C, but I'd rather ship B with mobile fully bought in than ship C with mobile compliant but quietly resentful."**
+> **"My job isn't to win the architecture argument — it's to make the team that ships and maintains this a co-author of the decision."**
 
 <!-- _class: lead -->
 
@@ -310,20 +309,20 @@ Foundation (no-op) → Dual payload (`data` + `data_v2`) → Flag rollout (1→5
 | Class | Metric | Target |
 |---|---|---|
 | SLA | p95 / p99 | ≤200 / ≤300 ms |
-| Business (per variant) | acceptance / time-to-accept / **dispute** | no regression |
+| Business (per variant) | acceptance / time-to-accept / **complaints** | no regression |
 | Experiment | assignment consistency / flag fallback | 100% / <1% |
 | Migration | % on v2 / field parity | tracked / 100% |
 
 **Rollback:** feature-flag instant-off + dual-write → mobile always falls back to `data`.
 
 <!--
-强调护栏指标：不是只看 acceptance 涨没涨，要看 dispute/crash/延迟有没有回归。
+强调护栏指标：不是只看 acceptance 涨没涨，要看 complaint rate / crash / 延迟有没有回归。
 业务指标按 variant 分组看，否则 A/B 没意义。
 -->
 
 ---
 
-## Use Case 1 — in one line
+## Use Case 1 — summary
 
 > *"I recommend the hybrid (C): server controls layout + experiments, mobile renders natively. It buys experiment velocity **and** native UX within 200 ms / 2M-per-hour, evolves the existing event-driven system, and migrates with instant rollback — and the real Staff work is making mobile a **co-author** of the decision."*
 
@@ -343,10 +342,10 @@ Foundation (no-op) → Dual payload (`data` + `data_v2`) → Flag rollout (1→5
 
 - 4 engineers (2–3 yrs), Kafka + Flink fraud detection
 - **45s latency** vs <5s target · scope crept **3 → 12 patterns**
-- Sprint review in **3 days, nothing to demo** · low morale · PM escalating
+- Sprint review in **3 days, nothing to demo** · low motivation · PM escalating
 
 **Principle: the crisis is the deadline, not the architecture.**
-Don't parachute in and rewrite it — buy time, narrow scope, coach, let them ship something they understand.
+Don't charge in and rewrite it — buy time, narrow scope, coach, let them ship something they understand.
 
 > Role: guide **without doing the work for them**, working **with** the Tech Manager — not replacing them.
 
@@ -362,7 +361,7 @@ Don't parachute in and rewrite it — buy time, narrow scope, coach, let them sh
 | Area | TM owns | Staff owns |
 |---|---|---|
 | Sprint scope · deadlines · PM negotiation | ✓ | technical framing |
-| Individual performance · morale | ✓ | surface tech causes |
+| Individual performance · motivation | ✓ | surface tech causes |
 | Architecture · testing · RFCs · mentorship | | ✓ |
 | Sprint-review narrative · escalation | shared | shared |
 
@@ -429,11 +428,10 @@ Same destination — the Staff version teaches the **debugging method**.
 
 | Window | Activity |
 |---|---|
-| **30 days** | streaming study group (2h/wk) · external SME sessions · architecture office hours |
+| **30 days** | streaming study group (2h/wk) · external expert sessions · architecture office hours |
 | **60 days** | each builds a Flink toy project · team writes the v2 RFC · read another team's real job |
-| **90 days** | each *teaches* one concept (watermarks, backpressure…) · name a streaming SME · pair with an experienced team |
+| **90 days** | each *teaches* one concept (watermarks, backpressure…) · name a streaming expert · pair with an experienced team |
 
-**Don't let them learn in isolation** — broker a partnership with a team that runs production streaming.
 
 <!--
 这是预防下一次 3 天危机的部分。没有它，两个月后我又会站在这个房间里。
@@ -448,7 +446,7 @@ teaching is the highest form of learning——90 天让他们讲出来就是真�
 - **Principals:** early second opinions + pattern-matching; a resource, not political backup
 - **Leadership:** get ahead of the escalation — **brief jointly with the TM**:
 
-> *"The team picked Flink for a workload well below its design point at the rate we measured. We've descoped to one pattern; we'll formally evaluate the architecture over 30 days. We'd like your air cover with the PM."*
+> *"The team committed to 12 fraud patterns and the sprint isn't going to deliver them all. We've descoped to one pattern for this sprint — that ships. Over the next 30 days we'll review the architecture and the latency root cause with data. We'd like your help managing the PM's expectations during that period."*
 
 <!--
 "start over"工程师如果对了：公开表扬他、把 Flink 工作框为"没白做"（暴露了数据质量/范围/真实事件率）、自己认领教训。
@@ -460,7 +458,7 @@ teaching is the highest form of learning——90 天让他们讲出来就是真�
 ## Use Case 2 — the posture
 
 > **"My role is to make the team better at this — not to do the work for them. The 3-day deadline is a constraint to navigate, not a performance to deliver.**
-> **If I do my job right, this team handles the next streaming project without a Staff parachute."**
+> **If I do my job right, this team handles the next streaming project without me having to come back."**
 
 <!-- _class: lead -->
 
@@ -472,11 +470,13 @@ Staff = leverage over time, not heroics in the moment.
 
 ## Closing — two postures, one standard
 
-- **UC1 (leadership):** make the team that ships it a **co-author** — *"I'd rather ship B fully bought-in than C quietly resentful."*
-- **UC2 (guidance):** **leverage over time, not heroics** — *"no Staff parachute next time."*
+- **UC1** — a **hybrid (C) design**, *and* the mobile team as **co-author** of it
+  *"I'd rather ship B fully bought-in than C quietly unhappy."*
+- **UC2** — a **data-driven diagnosis**, *and* **leverage over time, not heroics**
+  *"No need to come back next time."*
 
 Both answered the same way:
-**influence, not authority · fail fast · hands-on POCs** — exactly what the role calls for.
+**hard technical calls + bringing the team along · influence, not authority · fail fast · hands-on POCs**
 
 <!-- _class: lead -->
 
@@ -489,15 +489,20 @@ Both answered the same way:
 
 ## Questions
 
-**Happy to go deeper — I have notes and runnable artifacts ready:**
+**Happy to go deeper. Topics I'm ready on:**
 
-- **Experiment design** — deterministic sticky bucketing · multi-arm splits · collisions & mutual-exclusion groups
-- **Latency at 2M/h** — the budget · the p99 tail · fail-closed under a slow dependency
+- **Experiment design** — sticky bucketing · multi-arm splits · collision handling
+- **Latency at 2M/h** — the budget · the p99 tail · fail-closed under slow dependency
 - **Bringing the mobile team along** — registry governance · the co-authored contract
 - **Migration & cost** — phased rollout · ~1 quarter to first experiment · POC-gated
-- **UC2 streaming** — Flink right-sizing (measure first) · diagnosing the 45s lag
+- **UC2 streaming** — Flink SQL · diagnosing the 45s lag · right-sizing
 
-📂 *Live POC · ADR-001 · RFC skeleton — open on request*
+### 📚 Anything I didn't cover lives here:
+
+- 📋 **[Q&A board](https://github.com/tonyQihuanYang/offer-master/blob/main/Q%26A.md)** — 25 anticipated questions with prepared answers
+- 📐 **[ADR-001](https://github.com/tonyQihuanYang/offer-master/blob/main/adr/ADR-001-hybrid-sdui.en.md)** — the hybrid SDUI decision record
+- 📐 **[RFC skeleton (UC2)](https://github.com/tonyQihuanYang/offer-master/blob/main/adr/RFC-skeleton-fraud-detection.en.md)** — fraud detection RFC
+- 🌐 **[Live POC](https://offer.gummui.com)** — the running prototype
 
 **Thank you.**
 

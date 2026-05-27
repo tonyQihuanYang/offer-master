@@ -21,15 +21,21 @@
 - [Q6b. POC done, mobile lead still disagrees at the root](#q6b-poc-done-mobile-lead-still-disagrees-at-the-root)
 - [Q7. Migration & rollback](#q7-migration--rollback)
 - [Q7b. People, timeline, and cost](#q7b-people-timeline-and-cost)
+- [Q7c. The full migration timeline — mobile update, install base, cleanup](#q7c-the-full-migration-timeline--mobile-update-install-base-cleanup)
 - [Q8. Push failures — does a courier miss an offer?](#q8-push-failures--does-a-courier-miss-an-offer)
 - [Q9. Old app versions and new components](#q9-old-app-versions-and-new-components)
 
 **Use Case 2 — Fraud Detection Team Guidance**
 - [Q10. Staff vs Tech Manager — how is the role different?](#q10-staff-vs-tech-manager--how-is-the-role-different)
 - [Q11. Diagnosing the 45s lag](#q11-diagnosing-the-45s-lag)
+- [Q11b. Data quality — handling missing or unreliable GPS](#q11b-data-quality--handling-missing-or-unreliable-gps)
 - [Q12. The first 3-day plan](#q12-the-first-3-day-plan)
+- [Q12b. What if the 3-day plan doesn't ship? Off-ramps and Day-2 checkpoint](#q12b-what-if-the-3-day-plan-doesnt-ship-off-ramps-and-day-2-checkpoint)
+- [Q12c. Handling the engineer who wants to start over](#q12c-handling-the-engineer-who-wants-to-start-over)
 - [Q13. Guiding without solving it for them](#q13-guiding-without-solving-it-for-them)
 - [Q14. Do they even need Flink? What volume justifies it?](#q14-do-they-even-need-flink-what-volume-justifies-it)
+- [Q14b. When *do* you actually need Flink? (concrete decision criteria)](#q14b-when-do-you-actually-need-flink-concrete-decision-criteria)
+- [Q14c. Could Flink SQL simplify this? Are we over-complicating it?](#q14c-could-flink-sql-simplify-this-are-we-over-complicating-it)
 - [Q15. Knowledge transfer — 30/60/90](#q15-knowledge-transfer--306090)
 - [Q16. Working with TM, Principals, and Leadership](#q16-working-with-tm-principals-and-leadership)
 
@@ -205,7 +211,7 @@
 
 > *How do you migrate off the hardcoded `Offer.java` safely? What's the rollback story?*
 
-> "Four phases, and you can undo each one in seconds. Phase 1: ship the new pipeline as a no-op that produces today's exact payload. Phase 2: run old and new side by side and compare the output — no user impact. Phase 3: turn it on with a flag, from 1% up to 100%, using the sticky hash. Phase 4: real experiments go live. Rollback at any point is just turning the flag down — no deploy. I watch p95 and p99, accept rate per variant, dispute rate, crash rate, and how often the fallback fires."
+> "Four phases, and you can undo each one in seconds. Phase 1: ship the new pipeline as a no-op that produces today's exact payload. Phase 2: run old and new side by side and compare the output — no user impact. Phase 3: turn it on with a flag, from 1% up to 100%, using the sticky hash. Phase 4: real experiments go live. Rollback at any point is just turning the flag down — no deploy. I watch p95 and p99, accept rate per variant, complaint rate, crash rate, and how often the fallback fires."
 
 📄 [`en/hybrid-end-to-end-design.md`](./en/hybrid-end-to-end-design.md) (Migration Strategy + Metrics)
 
@@ -234,6 +240,45 @@
 - *"Why not just buy an SDUI framework?"* → "We already push structured JSON on an event-driven stack — C is just the next step, not a rebuild. A vendor tool adds a dependency and still needs our contract and our registry. Most of the work doesn't go away."
 
 📄 [`en/hybrid-end-to-end-design.md`](./en/hybrid-end-to-end-design.md) (Migration phases) · [`adr/ADR-001-hybrid-sdui.en.md`](./adr/ADR-001-hybrid-sdui.en.md) (Consequences)
+
+[↑ Back to top](#contents)
+
+---
+
+### Q7c. The full migration timeline — mobile update, install base, cleanup
+
+> *Doesn't the mobile app also need to update? And what's the end state — do you keep `data` and `data_v2` forever?*
+
+> "Absolutely — mobile updating is actually **the first step**, not a side effect. Two parallel tracks:
+>
+> **Step 0 (precondition).** Mobile ships a new app version with the registry and the code to read `data_v2` based on a `_meta.use_field` hint. We wait a few weeks for the install base to reach **roughly 80%** before the backend flips anything.
+>
+> **Phase 1–4 (backend).** Once install base is high enough: no-op foundation → dual emit (`data` + `data_v2` + `_meta`) → flag rollout → experiments live.
+>
+> **Phase 5 — cleanup (months later).** When the install base of the v2-capable app reaches **>99%**, we stop emitting `data` server-side. Optionally we **rename `data_v2` back to `data`** in the next API version, so we end up with **one clean field name again — no `v3, v4` accumulation forever**.
+>
+> Three things worth knowing:
+>
+> **One — old apps don't break.** They silently skip `data_v2` if they see it (forward-compat), and keep reading the `data` field we keep emitting during transition. They just don't get the new experiments — they degrade, they don't break.
+>
+> **Two — install base gates rollout reach.** If only 30% of users updated, the most I can ramp the flag to is **30% of the *fleet*** — the other 70% are still on old apps reading `data`. So 'wait for install base' isn't just engineering hygiene, it's the **business reach** of the experiment.
+>
+> **Three — it really is `data` again at the end.** The `_v2` suffix is temporary scaffolding. Once cleanup is done, the API is back to one clean payload — the same shape the prototype already shows."
+
+**The full timeline at a glance:**
+
+| Stage | Backend does | Mobile does | What users see |
+|---|---|---|---|
+| **Step 0** | (idle) | **Ships new app with registry + read-v2 code** | Old UI |
+| **Phase 1: no-op** | New pipeline runs but emits nothing | Install base climbs | Old UI |
+| **Phase 2: dual emit** | Emits `{data, data_v2, _meta=v1}` | New app can read both; flag=0 → reads old | Old UI |
+| **Phase 3: flag rollout** | Same; `_meta` flips per-courier as % ramps | New app reads field per `_meta` | New UI (gradually) |
+| **Phase 4: experiments live** | Same | Same | New UI (with experiments running) |
+| **Phase 5: cleanup** *(months later)* | **Stops emitting `data`; optionally renames `data_v2` → `data`** | Next app version simplifies the read path | New UI (clean payload) |
+
+> 💡 The demo at <https://offer.gummui.com> shows the **Phase 5 steady state** on purpose — a clean Approach C payload. The dual-emit `_meta.use_field` mechanism is a temporary scaffold that only exists during Phases 2–3.
+
+📄 [`en/hybrid-end-to-end-design.md`](./en/hybrid-end-to-end-design.md) (Migration phases) · [`en/app-version-compatibility.md`](./en/app-version-compatibility.md) (old app coexistence)
 
 [↑ Back to top](#contents)
 
@@ -281,9 +326,124 @@
 
 > *The pipeline lags ~45s behind real-time. How do you diagnose it?*
 
-> "I start from the data, not from guesses. In the Flink UI I look for backpressure — which operator is the bottleneck slowing everything upstream. Then checkpoint time and failures. Then watermark lag — how far behind event time we are. Then key skew — one hot key overloading one slot. And consumer lag at the Kafka source. A steady 45-second lag is usually a backpressured operator or too little parallelism — not a code bug. So I measure before anyone touches the code."
+> "I start from the data, not guesses. Six things, in order from most common to most subtle. I'd walk these with the team — the questions are the coaching."
 
-📄 [`en/fraud-detection-explained.md`](./en/fraud-detection-explained.md) · [`study-notes/flink-kafka-notes.md`](./study-notes/flink-kafka-notes.md)
+**The 6-step Flink diagnosis order:**
+
+| # | Where to look | What to find | Common cause |
+|---|---|---|---|
+| **1** | **Backpressure indicator** (Flink UI → Job → operators) | Red bars cascade *upstream* — the first green operator above a red one is the real bottleneck | 90% of cases solve here |
+| **2** | **Watermark lag** (UI → Operator → Watermarks) | Difference between event time and current watermark | `BoundedOutOfOrderness` set too high; one empty partition holding watermark back |
+| **3** | **Checkpoint duration** (UI → Checkpoints tab) | End-to-end time, alignment time, failure rate | State too big; wrong state backend; slow disk |
+| **4** | **SubTask skew** (UI → Operator → SubTasks) | One subtask processing 100× more records than others | One hot courier → all goes to one slot; need salting in keyBy |
+| **5** | **Kafka consumer lag** (Flink source metrics or Kafka monitoring) | `records-lag-max` growing over time | Source parallelism < Kafka partitions; or downstream blocking |
+| **6** | **Synchronous I/O in operator** (TaskManager logs + read code) | A `MapFunction` calling DB/HTTP synchronously | Should be `AsyncDataStream.unorderedWait` instead |
+
+**Speakable English (60–90 seconds):**
+
+> "Six things, in order.
+>
+> **One — the backpressure indicator** in the Flink UI. Red bars cascade upstream — the first **green** operator above a red one is the real bottleneck. Solves 90% of cases.
+>
+> **Two — watermark lag.** If the watermark is 30 seconds behind, that's literally where 30 seconds of latency live. Usually `BoundedOutOfOrderness` set too high, or one empty partition holding the watermark back.
+>
+> **Three — checkpoint duration.** If checkpoints take seconds, state is too big or the backend is wrong.
+>
+> **Four — subtask skew.** One hot courier doing 100× the work overloads one slot.
+>
+> **Five — Kafka consumer lag** at the source. If it's growing, Flink can't keep up with ingest.
+>
+> **Six — synchronous I/O inside operators.** A `MapFunction` calling a database synchronously blocks the slot. Fix is async I/O.
+>
+> I walk these with the team **in this order**. The questions are the coaching."
+
+**Memorable one-liner:**
+- "**Backpressure → watermark → checkpoint → skew → Kafka lag → sync I/O. Six checks, in that order — UI first, code last.**"
+
+📄 [`en/fraud-detection-explained.md`](./en/fraud-detection-explained.md) (Flink runtime) · [`study-notes/flink-kafka-notes.md`](./study-notes/flink-kafka-notes.md) (UI / watermark / window concepts)
+
+[↑ Back to top](#contents)
+
+---
+
+### Q11b. Data quality — handling missing or unreliable GPS
+
+> *On Slide 19 you mentioned "how many events miss the location field." What causes that? And what do you do when a courier legitimately loses GPS — say, walking into a building to deliver?*
+
+> "Two parts. **First, diagnose what kind of 'missing' I'm seeing.** Then, **for the legitimate cases — never penalize a courier for doing their job indoors.**"
+
+#### Part 1 — Why location goes missing (4 categories)
+
+| Category | Examples |
+|---|---|
+| **Device / GPS** | Permission denied · indoors / garage / tunnel · iOS background-tracking limits · battery saver killed GPS · old app version bug |
+| **Network / pipeline** | Event built before GPS resolved → null · retry inserted stale last-known location · buffer dropped |
+| **Backend / schema** | Producer mis-serialized · schema field renamed · corrupt partition |
+| **Legitimate** | Event type doesn't need location (`OFFER_RECEIVED`, `APP_OPEN`) · GDPR opt-out · indoor delivery |
+
+→ **The fix depends on the category** — can't treat them the same.
+
+#### Part 2 — How to debug (5 steps)
+
+1. **Quantify per event type** — counting all events together hides the issue:
+   ```sql
+   SELECT event_type,
+          COUNT(*) AS total,
+          SUM(CASE WHEN lat IS NULL OR lng IS NULL THEN 1 ELSE 0 END) AS missing,
+          ROUND(100.0 * SUM(CASE WHEN lat IS NULL OR lng IS NULL THEN 1 ELSE 0 END)
+                / COUNT(*), 2) AS pct_missing
+   FROM courier_events
+   WHERE event_time > NOW() - INTERVAL '1 DAY'
+   GROUP BY event_type ORDER BY pct_missing DESC;
+   ```
+2. **Find the pattern** — slice by region, app version, hour of day. The cause is usually concentrated (one bad version, one rough region).
+3. **Distinguish kinds of missing**: `null` · field-absent · `0.0` (default-value bug) · **stale** (same coords for 10+ events).
+4. **Source-trace** — read producer code, check schema registry, talk to mobile.
+5. **Decide handling**:
+   - **< 1%** missing → filter and move on
+   - **1–10% concentrated** → fix the source (app or producer)
+   - **\> 10%** → block any fraud metric from production until clean
+
+#### Part 3 — Handling LEGITIMATE GPS loss (the indoor-delivery case)
+
+This is the most important nuance. **A courier walking into an apartment building to deliver food is doing exactly what we pay them to do. GPS gap during that moment is expected, not suspicious.**
+
+**Five strategies, simplest to most sophisticated:**
+
+| # | Strategy | What it does |
+|---|---|---|
+| **1** | **Last-known-good with TTL** | Use the most recent GPS reading from the last ~60s. Older than that → mark as low-precision. Don't use 10-minute-old GPS as the "delivery location." |
+| **2** | **Cell-tower / Wi-Fi fallback** | Both iOS and Android can return an approximate location from cell/Wi-Fi when GPS isn't available — 50–500m precision. Tag those events `precision: low`. |
+| **3** | **Destination geo-fence pre-arrival** | Use the last GPS reading *before* the courier entered the destination geofence as the delivery location. Then a GPS gap *inside* the building is fine — we already know they got there. |
+| **4** | **Two-tier rules: definite vs suspicious** | Location confirmed → run "completed >500m" rule. Location missing → require **another signal** (e.g., delivery completed in under 30 seconds, or customer complaint) before flagging. |
+| **5** | **Confidence scores, not binary flags** | Instead of "fraud or not," compute a 0–100 risk score. Missing location lowers confidence in the score — for a rule that needs precision, raise the threshold; for one that doesn't, ignore. |
+
+#### The core principle
+
+> **"Missing GPS is missing data, not evidence of fraud. The fix is to handle the gap — last-known + fallback + geo-fence + relaxed thresholds — not to punish couriers for delivering indoors."**
+
+**False positives on legitimate indoor deliveries are worse than false negatives**: they erode courier trust, generate complaint volume, and hide the real fraud signal behind noise.
+
+#### Speakable English (when asked: "what if GPS legitimately fails?")
+
+> "A courier walking into a building to deliver is doing exactly what we pay them to do — GPS gap there is expected, not suspicious. So I'd handle it on five levels.
+>
+> **Use the last-known-good GPS within a tight TTL** — say 60 seconds. Older than that, mark the event low-precision.
+>
+> **Fall back to cell-tower or Wi-Fi location**. Less precise, but it tells us 'this courier is in this building,' which is what we need.
+>
+> **Use a destination geo-fence**. The last GPS reading before the courier entered the geofence is the delivery location. GPS gap *inside* the geofence is fine — we already know they arrived.
+>
+> **Two-tier rules.** A definite rule needs confirmed location. A suspicious rule with missing location requires another signal — a customer complaint, a time anomaly — before flagging.
+>
+> **And ideally, confidence scores instead of binary flags.** Missing location lowers confidence; rules adjust their threshold.
+>
+> The principle: **missing GPS is missing data, not evidence**. Punishing couriers for legitimate indoor deliveries erodes trust and buries the real fraud signal."
+
+**Memorable line:**
+- "**Missing GPS is missing data, not evidence of fraud. Handle the gap; don't punish the gap.**"
+
+📄 [`flink-kafka-docker/sql/fraud.sql`](./flink-kafka-docker/sql/fraud.sql) (the distance-based rule) · [`en/fraud-detection-explained.md`](./en/fraud-detection-explained.md)
 
 [↑ Back to top](#contents)
 
@@ -296,6 +456,141 @@
 > "Day 1: I listen and read — the architecture, the Flink dashboards, recent incidents — and I pair with the engineers. I change nothing. On scope, I don't just ask 'which 3 of 12.' I audit the 12 first with the team — often it's really 4–5 distinct patterns once you find the duplicates, subsets, and ones we don't have the data for. Day 2: with them, I form a hypothesis from the data — probably backpressure or skew — and design the smallest test to confirm it. Day 3: we validate the smallest fix together, and I leave an RFC skeleton with the open questions, so the team carries it forward. I'm handing over skill, not parachuting in a patch."
 
 📄 [`en/team-guidance-use-case-2.md`](./en/team-guidance-use-case-2.md) · [`adr/RFC-skeleton-fraud-detection.en.md`](./adr/RFC-skeleton-fraud-detection.en.md)
+
+[↑ Back to top](#contents)
+
+---
+
+### Q12b. What if the 3-day plan doesn't ship? Off-ramps and Day-2 checkpoint
+
+> *Won't auditing the 12 patterns on Day 1 waste time? And what if pair-coding on Day 2 doesn't actually ship a working version by Day 3?*
+
+> "Two fair concerns — I plan for both."
+
+#### The Day-1 audit isn't a day's work — it's an hour
+
+Auditing the 12 patterns is **30–60 minutes with the team**, in parallel with the Flink telemetry audit. **Not the whole day.** Day 1 looks roughly like:
+
+| Time | Activity |
+|---|---|
+| Morning | 1:1 with the TM (~30 min) |
+| Late morning | Team meeting — audit the 12 patterns (~1 hour) |
+| Afternoon | Pair with the tech lead on Flink telemetry (~3–4 hours) |
+| End of day | Scope-lock with the PM, in writing |
+
+The audit pays for itself many times over — without it, my scope-lock with the PM is a **fiction** (you can't commit to "ship 1, defer 11" if 6 of the 11 are duplicates and 3 have no data). And it's a **coaching moment** — the team learns the discipline of auditing scope before every sprint. **30 minutes of audit saves three months of confused planning.**
+
+#### Three pre-negotiated off-ramps for Day 2 / Day 3
+
+I **don't wait for things to go wrong**. The off-ramps are agreed with the PM on Day 1, so descope isn't a surprise — it's the plan.
+
+**Off-ramp 1 — Day-2 midday checkpoint**
+If we're not on track by noon Day 2, we descope **again**. "The working version" doesn't have to be production-grade — it's the **minimum skeleton that tells the story**: one pattern, one happy path, one fixture. Most of the buffer is here.
+
+**Off-ramp 2 — Drop live demo, show a recording instead**
+If by Day-3 dry-run the live demo isn't solid: we **don't fake it**. We show a recorded walkthrough, or screenshots with a clean narrative, or a SQL-output capture from the working test. **Better to show something solid that isn't live than to risk a live demo that fails.** Same fallback principle as Slide 11's POC.
+
+**Off-ramp 3 — Honest work-in-progress, with a plan**
+Worst case: we report what was actually done plus a clear next-sprint plan. *"We identified the architecture issue, de-risked scope from 12 to 4, prototyped pattern #1 — next sprint we ship it cleanly."* A review is a **checkpoint, not a performance**. What I won't do is fake a demo or hide the truth from the director.
+
+#### The Staff move: pre-negotiate, don't fire-fight
+
+On Day 1, the PM hears it explicitly:
+> *"If we can't ship a live demo by Day 3, the floor is a recorded walkthrough plus the audit findings. That's not failure — that's the plan we agreed on."*
+
+PM agrees on Day 1 → Day-3 descope, if it happens, **runs by the playbook**, not as a surprise.
+
+#### Speakable English (when asked: "what if Day 2 doesn't finish?")
+
+> "I plan three off-ramps before I start.
+>
+> **One** — Day 2 has a midday checkpoint. If we're not on track by noon, we descope again. 'The working version' is the minimum skeleton that tells the story — one pattern, one happy path.
+>
+> **Two** — if even that isn't solid by Day 3, **no live demo**. A recorded walkthrough, screenshots, or a clean SQL output. **Better to show something solid that isn't live than to fake a live demo.**
+>
+> **Three** — worst case, honest work-in-progress with a clear next-sprint plan. **A review is a checkpoint, not a performance.**
+>
+> The critical move: I pre-negotiate these off-ramps with the PM **on Day 1**, so a Day-3 descope isn't a surprise — it's the plan we already agreed on."
+
+**Memorable lines:**
+- "**A review is a checkpoint, not a performance.**"
+- "**Better to show something solid that isn't live than to fake a live demo.**"
+- "**Pre-negotiate the off-ramps, don't fire-fight at Day 3.**"
+
+📄 [`en/team-guidance-use-case-2.md`](./en/team-guidance-use-case-2.md) (the 3-day plan + descope playbook)
+
+[↑ Back to top](#contents)
+
+---
+
+### Q12c. Handling the engineer who wants to start over
+
+> *There's an engineer on the team who wants to throw it out and start over with something simpler. How do you handle them?*
+
+> "**I take them seriously, I bring them in, and I let the data decide — not me.** Three things they are NOT going to hear from me: 'we already invested in Flink,' 'just trust the team's choice,' or 'wait until the sprint is done.' All three would tell a thoughtful engineer that they're not welcome — and they'd be right."
+
+#### How I'd actually handle this through the 3 days
+
+**Day 1 — private 1:1 with them (right after the TM 1:1)**
+
+A 15-30 minute conversation that says, in plain words:
+
+> *"I heard your view that we should start over with something simpler. I take that seriously, and I want to understand it. Here's what I'm doing today — auditing Flink telemetry, measuring real throughput, looking at the patterns we're chasing. **Would you pair with me on it?** If the data supports your view, **you lead the v2 architecture RFC**. If it doesn't, we'll walk the data together so you know I heard you. Either way — you have a seat at the table."*
+
+→ The point: **don't convince them, invite them to verify**. Pair them on the audit. They get the data, not me.
+
+**Day 2 — they're in the scope-cut conversation**
+
+Not informed, **included**. Their take on which one pattern to ship, what to defer, what to merge — heard.
+
+**Day 3 — they present part of the team's findings**
+
+The team presents at the review; this engineer **owns the audit narrative**. Either:
+- Data supports them → *"My hypothesis was X. The data shows we should re-evaluate the architecture over the next 30 days."*
+- Data doesn't → *"My hypothesis was X. The data suggests Y — so we're focusing there."*
+
+Either way, **they're a contributor on stage, not a dissenter in the back row.**
+
+#### Over the next 30 days
+
+If data supports their view → **they lead the v2 RFC**. They get public credit on Day 30 for spotting it early. The Flink work is framed as *"not wasted — it surfaced the real event rate and data-quality issues."* TM doesn't lose face (decisions get re-evaluated with data — that's the system working). I own the lesson: *"I should have pushed measure-first 30 days earlier."*
+
+If data refutes their view → **they're the most credible voice for the current architecture** — because they're the one who actively tried to disprove it. They don't lose face either: rigorous work, different conclusion.
+
+#### In the leadership brief
+
+Mention them — positive framing:
+
+> *"We have an engineer pushing for architectural change. They're leading our 30-day evaluation — bringing data instead of opinions."*
+
+→ The Director hears: **this Staff turned an internal dissenter into a productive force.**
+
+#### Why this is the Staff move (vs Senior or Junior)
+
+| Role | Typical reaction |
+|---|---|
+| **Junior** | Ignore them ("we'll deal with it later") → team splits |
+| **Senior** | Argue them down ("we already chose Flink") → silent resentment |
+| **Staff** | **Invite them to verify with data → either vindicate them or have them disprove themselves** |
+
+A team that handles dissent this way is a team that **doesn't repeat the next bad architectural decision** — because the loudest critic has been heard.
+
+#### Speakable English
+
+> "Three things I won't say to them: 'we already invested in Flink,' 'trust the team,' or 'wait till the sprint is done.' All three tell a thoughtful engineer they're not welcome.
+>
+> Instead — on Day 1, I'd have a private 1:1. I tell them I take their view seriously. I invite them to **pair on the audit with me**. If the data supports them, they **lead the v2 architecture RFC**. If it doesn't, we walk the data together so they know I heard them.
+>
+> Day 2, they're in the scope-cut conversation — not informed, included. Day 3 at the review, they present part of the team's findings. They're a contributor on stage, not a dissenter in the back row.
+>
+> The principle: **don't argue them down, invite them to verify**. A team that handles dissent like that doesn't repeat the next bad architecture decision."
+
+**Memorable lines:**
+- "**Don't argue them down — invite them to verify.**"
+- "**If the data supports their view, they lead the v2 RFC. Either way, they have a seat at the table.**"
+- "**A team that handles dissent well doesn't repeat the next bad decision.**"
+
+📄 [`en/team-guidance-use-case-2.md`](./en/team-guidance-use-case-2.md) (team dynamics) · [`en/technical-leadership.md`](./en/technical-leadership.md) (handling disagreement)
 
 [↑ Back to top](#contents)
 
@@ -320,6 +615,107 @@
 > "Honestly, it depends on the volume — and the prompt doesn't give it. If it's just delivery events, that's maybe tens per second from fifty thousand couriers — a plain Kafka consumer or Kafka Streams handles that. Flink earns its place when you add GPS pings, which can be thousands per second and need real event-time windows, keyed state, and backpressure handling. So I wouldn't say 'rip out Flink' or 'keep Flink.' I'd say 'let's measure the real throughput and what state we need, then right-size.'"
 
 📄 [`en/fraud-detection-explained.md`](./en/fraud-detection-explained.md) (when do you actually need Flink + right-sizing)
+
+[↑ Back to top](#contents)
+
+---
+
+### Q14b. When *do* you actually need Flink? (concrete decision criteria)
+
+> *OK but concretely — what numbers and characteristics tell you "use Flink" vs "Kafka Streams" vs "just a Kafka consumer"?*
+
+> "It's not just throughput — it's **throughput × state × latency × exactly-once**. Throughput alone is a poor signal.
+>
+> My rule of thumb:
+>
+> | Event rate (sustained) | State / windows? | Likely right tool |
+> |---|---|---|
+> | < 100 / sec | Stateless filter / transform | **Plain Kafka consumer** — one worker, no framework |
+> | < 100 / sec | Simple windows or counts | **Kafka Streams** — embedded library, no separate cluster |
+> | 100 – 1,000 / sec | Stateful, simple | **Kafka Streams** — still fits |
+> | 100 – 1,000 / sec | Stateful + event-time + exactly-once | **Flink** earns its place |
+> | > 1,000 / sec sustained | Almost always stateful | **Flink** (or Spark Streaming) |
+> | > 10,000 / sec | Real-time + complex DAG | **Flink** is the standard answer |
+>
+> But the **deciding factors** beyond raw rate:
+>
+> - **Event-time + late events** matter? Flink's watermarks are first-class; alternatives bolt it on.
+> - **Exactly-once across many operators?** Flink does this with checkpoints; harder elsewhere.
+> - **Massive keyed state** (gigabytes to terabytes)? Flink + RocksDB scales there; Kafka Streams' local state is fine for smaller.
+> - **Operational complexity tolerance?** A Flink cluster needs SRE love. A Kafka consumer is just a deployment.
+>
+> For **this team's situation**: prompt gives no rate. Delivery events alone are ~20/sec — a plain Kafka consumer handles that with room to spare. With GPS pings, it could be 1,000–3,000/sec — that's where Flink starts to be defensible, *if* we also need event-time windows and exactly-once.
+>
+> So my actual answer in the diagnose phase is: **measure the real rate, list the actual state requirements, then pick the simplest tool that handles both.** Flink is a great tool for what it's designed for; using it for tens of events per second is paying a complexity tax for nothing."
+
+**If asked "what would the alternatives look like for this team?":**
+
+> "Two reasonable alternatives if measurement says Flink is overkill:
+>
+> **Kafka Streams** — an embedded library, no separate cluster. Same Kafka source, same JVM as the app. Supports windows, joins, exactly-once. Operationally: just a deploy. Good for ~100–1,000/sec with state.
+>
+> **Plain Kafka consumer** — even simpler. One worker reads the topic, applies a rule, writes to a sink. Good for sub-100/sec stateless detection — or stateful with a Redis/Postgres sidecar.
+>
+> I wouldn't switch in the 3-day window — the crisis is the deadline, not the architecture. But over the **30-day evaluation**, if the data supports it, I'd design a Kafka Streams (or consumer) version, run it **shadow** against Flink to verify output parity, then migrate."
+
+**Memorable one-liners (use these in interview):**
+- "Throughput alone is a poor signal — Flink earns its place when you also need event-time, exactly-once, or massive state."
+- "Tens per second + simple state → Kafka Streams. Thousands per second + event-time + exactly-once → Flink."
+- "Using Flink for tens of events per second is paying a complexity tax for nothing."
+
+📄 [`en/fraud-detection-explained.md`](./en/fraud-detection-explained.md) (when to use Flink) · [`study-notes/flink-kafka-notes.md`](./study-notes/flink-kafka-notes.md) (right-sizing)
+
+[↑ Back to top](#contents)
+
+---
+
+### Q14c. Could Flink SQL simplify this? Are we over-complicating it?
+
+> *The team is using the Flink DataStream API. Could Flink SQL solve this with much less code? Did you consider it?*
+
+> "**Yes — and I think for most of these fraud patterns, SQL would be a serious simplification.** A lot of streaming teams default to the DataStream API and end up with hundreds of lines of Java for what's really an aggregation over a window. Flink SQL handles the common patterns declaratively, and the planner builds the same DAG.
+>
+> Which is **exactly the kind of guidance** a Staff role should bring — not 'rip out Flink,' but **'are we using it at the right altitude?'**
+>
+> So I prototyped one. **40 lines of SQL**, runs on real Flink in Docker, covers two of the patterns the team is likely chasing:
+>
+> **One — stateless rule:** 'completed too far from the destination.' A `SELECT ... WHERE distance > 500m`. No state, no window — just a streaming filter. **Three lines of business logic.**
+>
+> **Two — stateful + windowed rule:** 'too many deliveries in 20 seconds.' A `TUMBLE` window + `COUNT(*) > 3 GROUP BY courierId`. **Five lines of business logic.** Same thing in DataStream API is at least 50 lines of keyed state and timer management.
+>
+> Source table has a **watermark** for late-arriving events — also one line in SQL.
+>
+> So the **proposal to the team** would be: 'before we add the next 9 patterns, let's try writing them in SQL. If they all fit, we cut maintenance significantly. If a couple need the DataStream API, we keep those targeted — most won't.'"
+
+**What fits well in Flink SQL (most fraud patterns):**
+
+| Pattern | SQL surface |
+|---|---|
+| **Threshold / filter** (distance > X, amount > Y) | `WHERE` clause |
+| **Windowed aggregation** (count / sum / avg in window) | `TUMBLE` / `HOP` / `SESSION` + `GROUP BY` |
+| **Joins** with reference data (courier profile, merchant blocklist) | `LEFT JOIN ... FOR SYSTEM_TIME AS OF` |
+| **Pattern matching** (sequence of events) | `MATCH_RECOGNIZE` (CEP) |
+| **Deduplication** | `ROW_NUMBER() OVER (PARTITION BY ...)` |
+
+**What still needs the DataStream API:**
+
+- Highly custom state machines (e.g., per-courier evolving fraud score with non-window-based updates)
+- Custom serialization formats not supported by Flink's table connectors
+- Tight integration with external systems that need fine-grained backpressure control
+- Operations Flink hasn't shipped a SQL function for yet (rare for common patterns)
+
+**The Staff framing for the team:**
+
+> *"Start every new fraud rule in SQL. Drop to DataStream API only when you hit a wall — and then write down what wall. After a quarter, look at the list of 'walls' and decide if there's a real pattern or if it was case-by-case."*
+
+→ This is **right-sizing through tooling**, not just throughput. **A team writing 200 lines of Java for a windowed count is paying a complexity tax they don't need to pay.** Same engine, much less code.
+
+**Memorable lines (use these if asked):**
+- "**Same Flink engine, much less code.** The planner builds the same DAG, but you maintain 40 lines instead of 400."
+- "**Start every new rule in SQL. Drop to DataStream only when you hit a wall, and write down what wall.**"
+- "**Maybe we're not over-Flink-ed; we're over-DataStream-API-ed.** A simpler interface to the same engine."
+
+📄 [`flink-kafka-docker/sql/fraud.sql`](./flink-kafka-docker/sql/fraud.sql) (40-line prototype) · [`flink-kafka-docker/README.md`](./flink-kafka-docker/README.md) (how to run it) · [`study-notes/flink-kafka-notes.md`](./study-notes/flink-kafka-notes.md) (concept review)
 
 [↑ Back to top](#contents)
 
