@@ -84,7 +84,6 @@ SAY:
 - "Quick agenda."
 - "For UC1, I'll walk through four things — the technical decision, then the system design, then leadership with the mobile team, and finally migration."
 - "Then UC2 — diagnosis, guiding without solving, the 3-day plan, knowledge transfer, and working with the TM."
-- "One note on the UC1 order: I do decision before design, because you can't design a system you haven't decided on. So the recommendation comes first, and the design backs it up."
 - "And please jump in any time — I'd rather make this a conversation than a one-way talk."
 -->
 
@@ -117,7 +116,7 @@ SAY:
 SAY:
 - "Here's the situation."
 - "15 countries. Over 50,000 couriers. Two million offers an hour at peak — about 556 a second."
-- "The SLA is 200 milliseconds at p95. We're already at about 180 today. So realistically, we only have around 20 milliseconds of real headroom — and that number is going to shape every decision I make."
+- "The SLA is 200 milliseconds at p95. We're already at about 180 today. So realistically, we only have around 20 milliseconds of real headroom."
 - "Today, there's one hardcoded Offer.java file. Every change is a full multi-region deploy. And no A/B testing."
 - "So the real pain isn't performance — it's rigidity. Nothing can change. Nothing can be tested."
 - "But the system is already event-driven and distributed — SQS, Temporal, AppSync on AWS — and it already pushes structured JSON to mobile."
@@ -398,17 +397,13 @@ Foundation (no-op) → Dual payload (`data` + `data_v2`) → Flag rollout (1→5
 
 <!--
 SAY:
-- "Migration is reversible at every step. Four phases."
-- "Phase one is a no-op foundation — zero behavior change, verified in shadow mode."
-- "Phase two — dual payloads. Old and new run side by side. Mobile still reads the old one."
-- "Phase three is the flag rollout. From 1% up to 100% per city, with the sticky hash."
-- "Phase four — experiments go live."
-- "Then metrics, four buckets."
-- "First, SLA — p95 and p99 latency."
-- "Second, business metrics, read per variant — acceptance rate, time to accept, complaint rate. Critically — we watch for regression, not just lift."
-- "Third, experiment health — assignment consistency and flag fallback rate."
-- "Fourth, migration progress — percent on the new payload, field parity."
-- "The principle: any step rolls back in seconds. Because the old field is always on the wire, mobile can fall back instantly."
+- "Migration is reversible at every step — four phases, each one you can undo in seconds."
+- "We start with a no-op foundation, where the new pipeline runs but doesn't change anything for the user. We verify it in shadow mode."
+- "Then we move to dual payloads — old and new run side by side. Mobile still reads the old one."
+- "Next, we ramp the flag from 1% up to 100% per city, using the sticky hash so no courier ever flips."
+- "And finally, experiments go live."
+- "For metrics, four areas to watch: latency at p95 and p99; business numbers per variant — acceptance, time to accept, complaint rate, and critically we watch for regression, not just lift; experiment health — assignment consistency and flag fallback; and migration progress — percent on the new payload, plus field parity."
+- "And the principle — any step rolls back in seconds. Because the old field is always on the wire, mobile can fall back instantly."
 -->
 
 ---
@@ -483,16 +478,10 @@ SAY:
 
 <!--
 SAY:
-- "Before anything else, I draw the line with the TM."
-- "The prompt says I work with them, not as them."
-- "First 30 minutes — 1:1 with the TM. I listen first — how they see the team, the PM, the situation."
-- "Then I propose this framework. We agree on:"
-- "  The TM owns scope, deadlines, the PM, and motivation."
-- "  I own architecture, testing, RFCs, and mentorship."
-- "  Review story and escalation — we share."
-- "[slow, the trap]"
-- "The trap is stepping into their job."
-- "Even if I'm right on the technical call, going around the TM undermines them. So I don't."
+- "Before anything else, I draw the line with the TM. The prompt says clearly — I work with them, not as them."
+- "So my first 30 minutes is a 1:1. I listen first — how they see the team, what's going on with the PM, what's their read on the situation."
+- "Then I propose the split. The TM owns scope, deadlines, the PM, and motivation. I own architecture, testing, RFCs, and mentorship. Review story and escalation — we share."
+- "The trap I'd avoid is stepping into their job. Even if I'm right on the technical call, going around the TM undermines them. So I don't."
 -->
 
 ---
