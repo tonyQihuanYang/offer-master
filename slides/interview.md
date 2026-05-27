@@ -324,7 +324,7 @@ Foundation (no-op) → Dual payload (`data` + `data_v2`) → Flag rollout (1→5
 
 ## Use Case 1 — summary
 
-> *"I recommend the hybrid (C): server controls layout + experiments, mobile renders natively. It buys experiment velocity **and** native UX within 200 ms / 2M-per-hour, evolves the existing event-driven system, and migrates with instant rollback — and the real Staff work is making mobile a **co-author** of the decision."*
+> *"I recommend the hybrid (C): server controls layout + experiments, mobile renders natively. It buys experiment velocity **and** native UX within 200 ms / 2M-per-hour, builds on the existing event-driven system, and migrates with instant rollback — and the real Staff work is making mobile a **co-author** of the decision."*
 
 <!-- _class: lead -->
 
@@ -446,7 +446,7 @@ teaching is the highest form of learning——90 天让他们讲出来就是真�
 - **Principals:** early second opinions + pattern-matching; a resource, not political backup
 - **Leadership:** get ahead of the escalation — **brief jointly with the TM**:
 
-> *"The team committed to 12 fraud patterns and the sprint isn't going to deliver them all. We've descoped to one pattern for this sprint — that ships. Over the next 30 days we'll review the architecture and the latency root cause with data. We'd like your help managing the PM's expectations during that period."*
+> *"Quick update. We took on 12 patterns this sprint — too many. We've cut to one that ships. Over the next 30 days, we evaluate the architecture with data. Could you help with the PM?"*
 
 <!--
 "start over"工程师如果对了：公开表扬他、把 Flink 工作框为"没白做"（暴露了数据质量/范围/真实事件率）、自己认领教训。

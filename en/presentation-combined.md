@@ -165,7 +165,7 @@
 **🖥️ On screen:** the UC1 one-liner quote.
 
 **🗣️ Say:**
-> "In one line: I recommend the hybrid. **Server controls layout and experiments. Mobile renders natively.** It gives us experiment speed *and* native UX, inside the 200ms / 2M-an-hour budget. It evolves the existing event-driven system. It migrates with instant rollback. And the real Staff work is making mobile a **co-author** of that decision."
+> "In one line: I recommend the hybrid. **Server controls layout and experiments. Mobile renders natively.** It gives us experiment speed *and* native UX, inside the 200ms / 2M-an-hour budget. It builds on the existing event-driven system. It migrates with instant rollback. And the real Staff work is making mobile a **co-author** of that decision."
 
 ---
 

@@ -56,12 +56,12 @@ style: |
 **Tony (Qihuan Yang)**
 
 <!--
-SAY (~30 sec):
-- "Hi everyone, thanks for having me."
+SAY (~40 sec):
+- "Hi everyone, thanks for having me. Quick intro — I'm Tony, a Senior Java Developer on the scheduling team. I've been with the company for three years, working on things like Keycloak and shift-planning automation."
 - "We have the hour — about 30 minutes on UC1, 20 on UC2, plus questions throughout."
 - "Please jump in any time — I'd rather make this a conversation."
 - "My read on Staff is two things: influence, not authority. And hands-on — POCs, fail fast."
-- "I'll answer both cases that way. And for UC1, I actually built a small running prototype."
+- "I'll answer both cases to that standard."
 -->
 
 ---
@@ -197,7 +197,7 @@ SAY:
 - "Now that we've picked C, here's how it's built."
 - "Four new components, all running inside the same service. They kick in right after Temporal returns pay and bonus."
 - "Two things I want to point out, as distributed-systems design."
-- "First — each component has a latency budget AND a failure mode. What to do if something goes wrong: fall back to a safe default, dedupe, never double-count."
+- "First — each component has a latency budget AND a failure mode. What to do if something goes wrong: fall back to a safe default, dedupe [dee-DOOP], never double-count."
 - "Second — together they add about 10 milliseconds. That's well inside our 20."
 - "And here's why it won't blow up under load — none of them make a network call on the hot path. If the flag service is slow or down, we just fall back to defaults."
 - "If we ever measure latency creeping toward budget, we'd move that work off the request path — pre-compute it in the background."
@@ -224,7 +224,7 @@ SAY:
 - "Let me drill into each component, starting with the server side."
 - "Four components, right after Temporal returns pay and bonus."
 - "The first one is the Experiment Resolver. It picks the variant for this courier using a sticky hash — same courier, same variant, every time. No database. If anything goes wrong, it falls back to control."
-- "Then the Earnings Calculator. It combines flat rate, distance, surge, and tips into one number. Pure compute — the data is already fetched upstream."
+- "Then the Earnings Calculator. It calculates the courier's total earnings — base pay plus distance plus surge plus tips. Pure compute — the data is already fetched upstream."
 - "Layout Composer comes next. It reads the variant and the market from config, and produces the list of components plus any hints."
 - "Last is the Payload Builder. It assembles the final JSON, and branches on min_app_version so old apps get the legacy format."
 - "The key thing — all four run in-process. No network calls on the hot path. That's why adding 10 milliseconds won't blow up under load. There's no dependency to time out on."
@@ -402,7 +402,7 @@ SAY:
 - "Then we move to dual payloads — old and new run side by side. Mobile still reads the old one."
 - "Next, we ramp the flag from 1% up to 100% per city, using the sticky hash so no courier ever flips."
 - "And finally, experiments go live."
-- "For metrics, four areas to watch: latency at p95 and p99; business numbers per variant — acceptance, time to accept, complaint rate, and critically we watch for regression, not just lift; experiment health — assignment consistency and flag fallback; and migration progress — percent on the new payload, plus field parity."
+- "For metrics, four areas to watch: latency at p95 and p99; business numbers per variant — acceptance, time to accept, complaint rate; experiment health — assignment consistency and flag fallback; and migration progress — percent on the new payload, plus field parity."
 - "And the principle — any step rolls back in seconds. Because the old field is always on the wire, mobile can fall back instantly."
 -->
 
@@ -410,7 +410,7 @@ SAY:
 
 ## Use Case 1 — summary
 
-> *"I recommend the hybrid (C): server controls layout + experiments, mobile renders natively. It buys experiment velocity **and** native UX within 200 ms / 2M-per-hour, evolves the existing event-driven system, and migrates with instant rollback — and the real Staff work is making mobile a **co-author** of the decision."*
+> *"I recommend the hybrid (C): server controls layout + experiments, mobile renders natively. It buys experiment velocity **and** native UX within 200 ms / 2M-per-hour, builds on the existing event-driven system, and migrates with instant rollback — and the real Staff work is making mobile a **co-author** of the decision."*
 
 <!-- _class: lead -->
 
@@ -419,7 +419,7 @@ SAY:
 - "To summarize Use Case 1 — I recommend the hybrid."
 - "The server controls layout and experiments. The mobile app renders natively."
 - "It gives us experiment speed and native UX, inside the 200ms / 2-million-per-hour budget."
-- "It evolves the existing event-driven system, and it migrates with instant rollback."
+- "It builds on the existing event-driven system, and it migrates with instant rollback."
 - "And the real Staff work — making mobile a co-author of the decision."
 -->
 
@@ -584,15 +584,15 @@ SAY:
 - **Principals:** early second opinions + pattern-matching; a resource, not political backup
 - **Leadership:** get ahead of the escalation — **brief jointly with the TM**:
 
-> *"The team committed to 12 fraud patterns and the sprint isn't going to deliver them all. We've descoped to one pattern for this sprint — that ships. Over the next 30 days we'll review the architecture and the latency root cause with data. We'd like your help managing the PM's expectations during that period."*
+> *"Quick update. We took on 12 patterns this sprint — too many. We've cut to one that ships. Over the next 30 days, we evaluate the architecture with data. Could you help with the PM?"*
 
 <!--
 SAY:
 - "Three lanes to manage carefully."
 - "With the TM — a daily 15-minute check-in during the crunch. Architecture comes through me. Scope stays with them. I never go around them to the engineers."
-- "With the Principals — I pull them in early for a second opinion. Not to do the work for me, and not as backup over my TM."
-- "With leadership — I get ahead of the escalation. Before the PM frames it, the TM and I brief them together. Something like this:"
-- "  'The team committed to 12 fraud patterns and the sprint isn't going to deliver them all. We've descoped to one pattern for this sprint — that ships. Over the next 30 days we'll review the architecture and the latency root cause with data. We'd like your help managing the PM's expectations during that period.'"
+- "With the Principals — I pull them in early for a second opinion. They've usually seen these problems in other teams, so they spot patterns I'd miss. But not to do the work for me — that takes ownership away from the team. And not as backup over my TM — that would undermine her."
+- "With leadership — I get ahead of the escalation. If the PM gets to them first, I'm on defense. If I brief them first with the TM, I set the agenda — and leadership hates being surprised. Doing it together with the TM makes sure both views are heard, and her authority stays intact. Something like this:"
+- "  'Quick update. We took on 12 patterns this sprint — too many. We've cut to one that ships. Over the next 30 days, we evaluate the architecture with data. Could you help with the PM?'"
 - "And if the 'start over' engineer turns out to be right — I praise them publicly, frame the Flink work as not wasted, and own the lesson myself."
 -->
 
